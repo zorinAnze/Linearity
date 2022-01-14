@@ -1,0 +1,25 @@
+Sample_ID;Analyst;Day_of_analysis;Site;Measured_Value;HPLC_System;Column_lot
+Sample 1;Analyst 1;17-Jan-18;Developing Unit;101.4267;HPLC 1;B15221
+Sample 2;Analyst 1;17-Jan-18;Developing Unit;99.9527;HPLC 1;B15221
+Sample 3;Analyst 1;17-Jan-18;Developing Unit;100.3339;HPLC 1;B15221
+Sample 4;Analyst 1;17-Jan-18;Developing Unit;101.8389;HPLC 1;B15221
+Sample 5;Analyst 1;17-Jan-18;Developing Unit;100.5004;HPLC 1;B15221
+Sample 6;Analyst 1;17-Jan-18;Developing Unit;100.21;HPLC 1;B15221
+Sample 1;Analyst 1;18-Jan-18;Developing Unit;101.0715;HPLC 2;B16230
+Sample 2;Analyst 1;18-Jan-18;Developing Unit;101.1478;HPLC 2;B16230
+Sample 3;Analyst 1;18-Jan-18;Developing Unit;101.7794;HPLC 2;B16230
+Sample 4;Analyst 1;18-Jan-18;Developing Unit;102.0548;HPLC 2;B16230
+Sample 5;Analyst 1;18-Jan-18;Developing Unit;101.6351;HPLC 2;B16230
+Sample 6;Analyst 1;18-Jan-18;Developing Unit;101.329;HPLC 2;B16230
+Sample 1;Analyst 2;19-Jan-18;Developing Unit;100.9876;HPLC 2;B15221
+Sample 2;Analyst 2;19-Jan-18;Developing Unit;101.4464;HPLC 2;B15221
+Sample 3;Analyst 2;19-Jan-18;Developing Unit;100.8557;HPLC 2;B15221
+Sample 4;Analyst 2;19-Jan-18;Developing Unit;101.1093;HPLC 2;B15221
+Sample 5;Analyst 2;19-Jan-18;Developing Unit;101.1206;HPLC 2;B15221
+Sample 6;Analyst 2;19-Jan-18;Developing Unit;100.7735;HPLC 2;B15221
+Sample 1;Analyst 2;20-Jan-18;Developing Unit;100.9255;HPLC 1;B16230
+Sample 2;Analyst 2;20-Jan-18;Developing Unit;100.9958;HPLC 1;B16230
+Sample 3;Analyst 2;20-Jan-18;Developing Unit;100.8088;HPLC 1;B16230
+Sample 4;Analyst 2;20-Jan-18;Developing Unit;100.4037;HPLC 1;B16230
+Sample 5;Analyst 2;20-Jan-18;Developing Unit;100.8177;HPLC 1;B16230
+Sample 6;Analyst 2;20-Jan-18;Developing Unit;101.425;HPLC 1;B16230

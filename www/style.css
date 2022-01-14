@@ -1,0 +1,72 @@
+.progress-bar {
+  background-color: #0460A9
+}
+
+element.style {
+ background-color: #0460A9 
+}
+
+.brand-link {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* #main_heading {
+  font-size: 24px;
+  font-weight: 500;
+  display: block;
+} */
+
+.menu_title {
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  font-family: "Bahnschrift Condensed";
+  font-size: 35px;
+  color: #0460A9;
+  line-height: 1.2;
+  margin: 0px;
+}
+
+.title_gray {
+  color: #555555;
+}
+
+.main-footer {
+  font-size: 12px;
+  padding: 8px;
+}
+
+#info_box .card-header { 
+  display: none;
+}
+
+h1.info_title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+h2.info_title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+h3.info_title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 0px;
+}
+
+.intro_img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  margin: 10px;
+}
+
+.bttn-simple.bttn-primary {
+  background-color: #0460A9;
+}

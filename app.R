@@ -5,11 +5,13 @@ library(shinycssloaders)
 library(shinyFeedback)
 library(shinyjs)
 library(shinyWidgets)
-library(shinipsum)
 library(tidyverse)
+library(tidymodels)
+library(gridExtra)
 library(DT)
 library(flextable)
 library(officer)
+library(reactable)
 
 
 # Options ---------------------------------------------------------------------
@@ -164,12 +166,12 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(verbatimTextOutput("mod_smmry"),
+              withSpinner(reactableOutput("mod_coef"),
                 type = 8,
                 color = "#0460A9"
               )
             ),
-            title = "Model Summary",
+            title = "Model Coefficients",
             width = 6,
             status = "primary",
             solidHeader = TRUE
@@ -177,12 +179,27 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(verbatimTextOutput("mod_anova"),
+              withSpinner(reactableOutput("mod_anova"),
                 type = 8,
                 color = "#0460A9"
               )
             ),
             title = "Analysis of Variance",
+            width = 6,
+            status = "primary",
+            solidHeader = TRUE
+          )
+        ),
+        fluidRow(
+          box(
+            conditionalPanel(
+              "input.calc",
+              withSpinner(reactableOutput("mod_smmry"),
+                type = 8,
+                color = "#0460A9"
+              )
+            ),
+            title = "Model Summary",
             width = 6,
             status = "primary",
             solidHeader = TRUE
@@ -372,7 +389,7 @@ server <- function(input, output, session) {
 
 
   # Disable download button if inputs are missing -----------------------------
-  observe(if (is.null(input$inc_report) |
+  shiny::observe(if (is.null(input$inc_report) |
     input$pk_area == "" | is.null(input$pk_area)) {
     disable("gen_report_bttn")
     disable("gen_report")
@@ -381,7 +398,7 @@ server <- function(input, output, session) {
     enable("gen_report")
   })
 
-  observe(if (input$Batch == "") {
+  shiny::observe(if (input$Batch == "") {
     showFeedbackWarning(
       inputId = "Batch",
       text = "Please enter a batch name!",
@@ -396,7 +413,7 @@ server <- function(input, output, session) {
     enable("gen_report")
   })
 
-  observe(if (input$file_name == "") {
+  shiny::observe(if (input$file_name == "") {
     showFeedbackWarning(
       inputId = "file_name",
       text = "Please enter a file name!",
@@ -413,33 +430,181 @@ server <- function(input, output, session) {
 
 
   # Models --------------------------------------------------------------------
-  # Model summary
-  mod_fit <- eventReactive(input$calc, {
-    lm(
-      as.formula(paste0(input$pk_area, "~", input$conc_sol)),
-      data = data$orig_df
-    )
+  # Model coefficients
+  lm_spec <- linear_reg() %>%
+    set_engine("lm")
+
+  lm_fit <- eventReactive(input$calc, {
+    lm_spec %>%
+      fit(as.formula(paste0(input$pk_area, "~", input$conc_sol)),
+        data = data$orig_df
+      )
   })
 
-  output$mod_smmry <- renderPrint(summary(mod_fit()))
+  output$mod_coef <- renderReactable({
+    tidy(lm_fit(), conf.int = TRUE) %>%
+      select(
+        term, estimate, std.error, conf.low, conf.high, statistic,
+        p.value
+      ) %>%
+      reactable(
+        columns = list(
+          term = colDef(
+            name = "Term",
+            minWidth = 200
+          ),
+          estimate = colDef(
+            name = "Coef",
+            format = colFormat(digits = 4),
+            minWidth = 85
+          ),
+          std.error = colDef(
+            name = "SE Coef",
+            format = colFormat(digits = 4),
+            minWidth = 85
+          ),
+          conf.low = colDef(
+            name = "95% CI (low)",
+            format = colFormat(digits = 4),
+            minWidth = 85
+          ),
+          conf.high = colDef(
+            name = "95% CI (high)",
+            format = colFormat(digits = 4),
+            minWidth = 85
+          ),
+          statistic = colDef(
+            name = "t-statistic",
+            format = colFormat(digits = 4),
+            minWidth = 85
+          ),
+          p.value = colDef(
+            name = "p-value",
+            format = colFormat(digits = 4),
+            minWidth = 75
+          )
+        ),
+        sortable = FALSE,
+        borderless = TRUE,
+        striped = TRUE,
+        class = "lm_tbl",
+        rowClass = "lm_row",
+        theme = reactableTheme(
+          borderColor = "black",
+          borderWidth = "1.5px"
+        )
+      )
+  })
+
+  # Model Summary
+  output$mod_smmry <- renderReactable({
+    glance(lm_fit()) %>%
+      select(sigma, r.squared, adj.r.squared, statistic, p.value, AIC, BIC) %>%
+      reactable(
+        columns = list(
+          sigma = colDef(
+            name = "S",
+            format = colFormat(digits = 4)
+          ),
+          r.squared = colDef(
+            name = "R-sq",
+            format = colFormat(digits = 4)
+          ),
+          adj.r.squared = colDef(
+            name = "R-sq (adj)",
+            format = colFormat(digits = 4)
+          ),
+          statistic = colDef(
+            name = "F-value",
+            format = colFormat(digits = 4)
+          ),
+          p.value = colDef(
+            name = "p-value",
+            format = colFormat(digits = 4)
+          ),
+          AIC = colDef(format = colFormat(digits = 4)),
+          BIC = colDef(format = colFormat(digits = 4))
+        ),
+        sortable = FALSE,
+        borderless = TRUE,
+        striped = TRUE,
+        class = "lm_tbl",
+        rowClass = "lm_row",
+        theme = reactableTheme(
+          borderColor = "black",
+          borderWidth = "1.5px"
+        )
+      )
+  })
 
   # Analysis of variance
   anova_fit <- eventReactive(input$calc, {
-    anova(mod_fit())
+    anova(lm_fit()$fit)
   })
 
-  output$mod_anova <- renderPrint(anova_fit())
+  output$mod_anova <- renderReactable({
+    tidy(anova_fit()) %>%
+      reactable(
+        columns = list(
+          term = colDef(
+            name = "Term",
+            minWidth = 200
+          ),
+          df = colDef(
+            name = "DF",
+            minWidth = 55
+          ),
+          sumsq = colDef(
+            name = "Sum Sq",
+            format = colFormat(digits = 4),
+            minWidth = 90
+          ),
+          meansq = colDef(
+            name = "Mean Sq",
+            format = colFormat(digits = 4),
+            minWidth = 90
+          ),
+          statistic = colDef(
+            name = "F-value",
+            format = colFormat(digits = 4),
+            minWidth = 90
+          ),
+          p.value = colDef(
+            name = "p-value",
+            format = colFormat(digits = 4),
+            minWidth = 75
+          )
+        ),
+        sortable = FALSE,
+        borderless = TRUE,
+        striped = TRUE,
+        class = "lm_tbl",
+        rowClass = "lm_row",
+        theme = reactableTheme(
+          borderColor = "black",
+          borderWidth = "1.5px"
+        )
+      )
+  })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
   plt_ftd_line <- eventReactive(input$calc, {
-    random_ggplot("point")
+    data$orig_df %>%
+      ggplot(aes(get(input$conc_sol), get(input$pk_area))) +
+      geom_smooth(method = lm, color = "#0460A9", se = TRUE) +
+      geom_point(size = 3) +
+      labs(
+        x = input$conc_sol,
+        y = input$pk_area
+      ) +
+      theme_bw(base_size = 16)
   })
   output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
   plt_sum_resid <- eventReactive(input$calc, {
-    random_ggplot("line")
+    residual_plots(data$orig_df, lm_fit())
   })
   output$plt_resid <- renderPlot(plt_sum_resid())
 

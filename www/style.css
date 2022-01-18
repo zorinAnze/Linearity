@@ -70,3 +70,11 @@ h3.info_title {
 .bttn-simple.bttn-primary {
   background-color: #0460A9;
 }
+
+.lm_row {
+  border-top: 1px solid #ddd ;
+}
+
+.lm_tbl {
+  border-bottom: 1px solid #000;
+}

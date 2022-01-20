@@ -56,7 +56,7 @@ ui <- dashboardPage(
       menuItem(
         "Developing Unit",
         tabName = "rslt",
-        icon = icon("export", lib = "glyphicon")
+        icon = icon("flask")
       ),
       p("Report", class = "menu_title"),
       menuItem(
@@ -235,9 +235,9 @@ ui <- dashboardPage(
         )
       )
     )
-  )
-  # , remove switch for dark skin
-  # dark = NULL
+  ), 
+  # remove switch for dark skin
+  dark = NULL
 )
 
 
@@ -442,99 +442,12 @@ server <- function(input, output, session) {
   })
 
   output$mod_coef <- renderReactable({
-    tidy(lm_fit(), conf.int = TRUE) %>%
-      select(
-        term, estimate, std.error, conf.low, conf.high, statistic,
-        p.value
-      ) %>%
-      reactable(
-        columns = list(
-          term = colDef(
-            name = "Term",
-            minWidth = 200
-          ),
-          estimate = colDef(
-            name = "Coef",
-            format = colFormat(digits = 4),
-            minWidth = 85
-          ),
-          std.error = colDef(
-            name = "SE Coef",
-            format = colFormat(digits = 4),
-            minWidth = 85
-          ),
-          conf.low = colDef(
-            name = "95% CI (low)",
-            format = colFormat(digits = 4),
-            minWidth = 85
-          ),
-          conf.high = colDef(
-            name = "95% CI (high)",
-            format = colFormat(digits = 4),
-            minWidth = 85
-          ),
-          statistic = colDef(
-            name = "t-statistic",
-            format = colFormat(digits = 4),
-            minWidth = 85
-          ),
-          p.value = colDef(
-            name = "p-value",
-            format = colFormat(digits = 4),
-            minWidth = 75
-          )
-        ),
-        sortable = FALSE,
-        borderless = TRUE,
-        striped = TRUE,
-        class = "lm_tbl",
-        rowClass = "lm_row",
-        theme = reactableTheme(
-          borderColor = "black",
-          borderWidth = "1.5px"
-        )
-      )
+    coef_tbl(lm_fit())
   })
 
   # Model Summary
   output$mod_smmry <- renderReactable({
-    glance(lm_fit()) %>%
-      select(sigma, r.squared, adj.r.squared, statistic, p.value, AIC, BIC) %>%
-      reactable(
-        columns = list(
-          sigma = colDef(
-            name = "S",
-            format = colFormat(digits = 4)
-          ),
-          r.squared = colDef(
-            name = "R-sq",
-            format = colFormat(digits = 4)
-          ),
-          adj.r.squared = colDef(
-            name = "R-sq (adj)",
-            format = colFormat(digits = 4)
-          ),
-          statistic = colDef(
-            name = "F-value",
-            format = colFormat(digits = 4)
-          ),
-          p.value = colDef(
-            name = "p-value",
-            format = colFormat(digits = 4)
-          ),
-          AIC = colDef(format = colFormat(digits = 4)),
-          BIC = colDef(format = colFormat(digits = 4))
-        ),
-        sortable = FALSE,
-        borderless = TRUE,
-        striped = TRUE,
-        class = "lm_tbl",
-        rowClass = "lm_row",
-        theme = reactableTheme(
-          borderColor = "black",
-          borderWidth = "1.5px"
-        )
-      )
+    smmry_tbl(lm_fit())
   })
 
   # Analysis of variance
@@ -543,62 +456,13 @@ server <- function(input, output, session) {
   })
 
   output$mod_anova <- renderReactable({
-    tidy(anova_fit()) %>%
-      reactable(
-        columns = list(
-          term = colDef(
-            name = "Term",
-            minWidth = 200
-          ),
-          df = colDef(
-            name = "DF",
-            minWidth = 55
-          ),
-          sumsq = colDef(
-            name = "Sum Sq",
-            format = colFormat(digits = 4),
-            minWidth = 90
-          ),
-          meansq = colDef(
-            name = "Mean Sq",
-            format = colFormat(digits = 4),
-            minWidth = 90
-          ),
-          statistic = colDef(
-            name = "F-value",
-            format = colFormat(digits = 4),
-            minWidth = 90
-          ),
-          p.value = colDef(
-            name = "p-value",
-            format = colFormat(digits = 4),
-            minWidth = 75
-          )
-        ),
-        sortable = FALSE,
-        borderless = TRUE,
-        striped = TRUE,
-        class = "lm_tbl",
-        rowClass = "lm_row",
-        theme = reactableTheme(
-          borderColor = "black",
-          borderWidth = "1.5px"
-        )
-      )
+    anova_tbl(anova_fit())
   })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
   plt_ftd_line <- eventReactive(input$calc, {
-    data$orig_df %>%
-      ggplot(aes(get(input$conc_sol), get(input$pk_area))) +
-      geom_smooth(method = lm, color = "#0460A9", se = TRUE) +
-      geom_point(size = 3) +
-      labs(
-        x = input$conc_sol,
-        y = input$pk_area
-      ) +
-      theme_bw(base_size = 16)
+    line_plot(data$orig_df, input$conc_sol, input$pk_area)
   })
   output$plt_line <- renderPlot(plt_ftd_line())
 

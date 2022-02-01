@@ -1,6 +1,6 @@
 # Function returns a reactable with coefficients of a linear model
 
-coef_tbl <- function(lm_fit) {
+coef_tbl_rctbl <- function(lm_fit) {
   tidy(lm_fit, conf.int = TRUE) %>%
     select(
       term, estimate, std.error, conf.low, conf.high, statistic,

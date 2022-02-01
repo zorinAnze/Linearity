@@ -1,6 +1,6 @@
 # Function returns a summary of a linear model
 
-smmry_tbl <- function(lm_fit) {
+smmry_tbl_rctbl <- function(lm_fit) {
   glance(lm_fit) %>%
     select(sigma, r.squared, adj.r.squared, statistic, p.value, AIC, BIC) %>%
     reactable(

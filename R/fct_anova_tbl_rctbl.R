@@ -1,6 +1,6 @@
 # Function returns a reactable of anova results from a linear model
 
-anova_tbl <- function(anova_fit) {
+anova_tbl_rctbl <- function(anova_fit) {
   tidy(anova_fit) %>%
     reactable(
       columns = list(

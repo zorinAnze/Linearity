@@ -1,13 +1,21 @@
 # Function returns a scatter plot with the a regression line fitted to the data
 
-line_plot <- function(df, conc, pk_area) {
+line_plot <- function(df, conc, pk_area, app = TRUE) {
+  if (app == TRUE) {
+    text_size <- 16
+    dot_size <- 3
+  } else {
+    text_size <- 10
+    dot_size <- 1.5
+  }
+  
   df %>%
     ggplot(aes(get(conc), get(pk_area))) +
     geom_smooth(method = lm, color = "#0460A9", se = TRUE) +
-    geom_point(size = 3) +
+    geom_point(size = dot_size) +
     labs(
       x = "Concentration [mg/ml]",
       y = "Peak area [mAU*min]"
     ) +
-    theme_bw(base_size = 16)
+    theme_bw(base_size = text_size)
 }

@@ -1,24 +1,36 @@
 # Function returns a combination of four diagnostic residual plots
 
-residual_plots <- function(df, lm_fit) {
+residual_plots <- function(df, lm_fit, app = TRUE) {
+  if (app == TRUE) {
+    text_size <- 16
+    dot_size <- 3
+    dot_size_p4 <- 3.5
+    stroke_size <- 1.5
+  } else {
+    text_size <- 10
+    dot_size <- 1.5
+    dot_size_p4 <- 2
+    stroke_size <- 0.75
+  }
+
   p1 <- ggplot(
     data = df,
     aes(sample = lm_fit$fit$residuals)
   ) +
-    geom_qq(size = 3) +
+    geom_qq(size = dot_size) +
     geom_qq_line(colour = "#0460A9") +
     labs(
       x = "Theoretical Quantiles",
       y = "Sample Quantiles"
     ) +
-    theme_bw(base_size = 16)
+    theme_bw(base_size = text_size)
 
 
   p2 <- ggplot(
     data = df,
     aes(lm_fit$fit$fitted, lm_fit$fit$residuals)
   ) +
-    geom_point(size = 3) +
+    geom_point(size = dot_size) +
     geom_abline(
       intercept = 0,
       slope = 0,
@@ -29,7 +41,7 @@ residual_plots <- function(df, lm_fit) {
       x = "Fitted value",
       y = "Residual"
     ) +
-    theme_bw(base_size = 16)
+    theme_bw(base_size = text_size)
 
   p3 <- ggplot(
     data = df,
@@ -41,7 +53,7 @@ residual_plots <- function(df, lm_fit) {
       y = "Frequency"
     ) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-    theme_bw(base_size = 16)
+    theme_bw(base_size = text_size)
 
   p4 <- ggplot(
     data = df,
@@ -50,8 +62,14 @@ residual_plots <- function(df, lm_fit) {
       y = lm_fit$fit$residuals
     )
   ) +
-    geom_point(size = 3) +
     geom_line() +
+    geom_point(
+      shape = 21,
+      size = dot_size_p4,
+      stroke = stroke_size,
+      fill = "black", 
+      color = "white"
+    ) +
     geom_abline(
       intercept = 0,
       slope = 0,
@@ -62,9 +80,13 @@ residual_plots <- function(df, lm_fit) {
       x = "Observation Order",
       y = "Residual"
     ) +
-    theme_bw(base_size = 16)
-  
+    theme_bw(base_size = text_size)
+
   p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
-  
-  return(p_comb)
+
+  if (app == TRUE) {
+    return(p_comb)
+  } else {
+    return(as.ggplot(p_comb))
+  }
 }

@@ -7,6 +7,7 @@ library(shinyjs)
 library(shinyWidgets)
 library(tidyverse)
 library(tidymodels)
+library(ggplotify)
 library(gridExtra)
 library(DT)
 library(flextable)
@@ -166,7 +167,7 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(reactableOutput("mod_coef"),
+              withSpinner(DTOutput("mod_coef"),
                 type = 8,
                 color = "#0460A9"
               )
@@ -179,7 +180,7 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(reactableOutput("mod_anova"),
+              withSpinner(DTOutput("mod_anova"),
                 type = 8,
                 color = "#0460A9"
               )
@@ -194,7 +195,7 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(reactableOutput("mod_smmry"),
+              withSpinner(DTOutput("mod_smmry"),
                 type = 8,
                 color = "#0460A9"
               )
@@ -209,7 +210,6 @@ ui <- dashboardPage(
       tabItem(
         tabName = "report",
         box(
-          textInput("Batch", "Batch:", value = "Batch"),
           textInput(
             "file_name",
             "File Name:",
@@ -217,8 +217,16 @@ ui <- dashboardPage(
           ),
           awesomeCheckboxGroup(
             "inc_report", "Include in Report:",
-            choices = c("Summary Comparison", "ANOVA Results"),
-            selected = c("Summary Comparison", "ANOVA Results"),
+            choices = c(
+              "Assay Results", "Linear Regression Results",
+              "Linear Regression Plot",
+              "Diagnostic Plots"
+            ),
+            selected = c(
+              "Assay Results", "Linear Regression Results",
+              "Linear Regression Plot",
+              "Diagnostic Plots"
+            ),
             status = "primary"
           ),
           downloadBttn(
@@ -235,7 +243,7 @@ ui <- dashboardPage(
         )
       )
     )
-  ), 
+  ),
   # remove switch for dark skin
   dark = NULL
 )
@@ -389,26 +397,11 @@ server <- function(input, output, session) {
 
 
   # Disable download button if inputs are missing -----------------------------
-  shiny::observe(if (is.null(input$inc_report) |
-    input$pk_area == "" | is.null(input$pk_area)) {
+  shiny::observe(if (is.null(input$inc_report) || input$pk_area == "" ||
+    is.null(input$pk_area) || input$file_name == "") {
     disable("gen_report_bttn")
     disable("gen_report")
   } else {
-    enable("gen_report_bttn")
-    enable("gen_report")
-  })
-
-  shiny::observe(if (input$Batch == "") {
-    showFeedbackWarning(
-      inputId = "Batch",
-      text = "Please enter a batch name!",
-      color = "#EC9A1E",
-      icon = NULL
-    )
-    disable("gen_report_bttn")
-    disable("gen_report")
-  } else {
-    hideFeedback("Batch")
     enable("gen_report_bttn")
     enable("gen_report")
   })
@@ -420,12 +413,8 @@ server <- function(input, output, session) {
       color = "#EC9A1E",
       icon = NULL
     )
-    disable("gen_report_bttn")
-    disable("gen_report")
   } else {
     hideFeedback("file_name")
-    enable("gen_report_bttn")
-    enable("gen_report")
   })
 
 
@@ -441,13 +430,13 @@ server <- function(input, output, session) {
       )
   })
 
-  output$mod_coef <- renderReactable({
-    coef_tbl(lm_fit())
-  })
+  output$mod_coef <- renderDT({
+    coef_tbl_datatbl(lm_fit())
+    })
 
   # Model Summary
-  output$mod_smmry <- renderReactable({
-    smmry_tbl(lm_fit())
+  output$mod_smmry <- renderDT({
+    smmry_tbl_datatbl(lm_fit())
   })
 
   # Analysis of variance
@@ -456,19 +445,19 @@ server <- function(input, output, session) {
   })
 
   output$mod_anova <- renderReactable({
-    anova_tbl(anova_fit())
+    anova_tbl_datatbl(anova_fit())
   })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
   plt_ftd_line <- eventReactive(input$calc, {
-    line_plot(data$orig_df, input$conc_sol, input$pk_area)
+    line_plot(data$orig_df, input$conc_sol, input$pk_area, app = TRUE)
   })
   output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
   plt_sum_resid <- eventReactive(input$calc, {
-    residual_plots(data$orig_df, lm_fit())
+    residual_plots(data$orig_df, lm_fit(), app = TRUE)
   })
   output$plt_resid <- renderPlot(plt_sum_resid())
 
@@ -492,34 +481,64 @@ server <- function(input, output, session) {
       fs::path_sanitize(paste0(input$file_name, ".docx"))
     },
     content = function(file) {
-      smmry_tbl <- smmry_rprt(
-        data$modif_df, input$Id_var, input$Value_var, input$Day_var,
-        input$Site_var, input$Analyst_var, input$HPLC_var, input$Lot_var,
-        input$Batch
+      assay_rslts <- assay_rslts_rprt(
+        data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area
       )
 
-      anova_tbl <- anova_rprt(
-        data$modif_df, input$Id_var, input$Value_var, input$Analyst_var,
-        mod_orig(), input$Batch
-      )
+      # anova_tbl <- anova_rprt(
+      #   data$modif_df, input$Id_var, input$Value_var, input$Analyst_var,
+      #   mod_orig(), input$Batch
+      # )
 
-      if ("Summary Comparison" %in% input$inc_report &&
-        "ANOVA Results" %in% input$inc_report) {
-        read_docx("www/template_officer.docx") %>%
-          body_add_flextable(smmry_tbl) %>%
+      doc <- read_docx("www/template_officer.docx")
+
+      if ("Assay Results" %in% input$inc_report &&
+        "Assay Results" == tail(input$inc_report, n = 1)) {
+        doc <- doc %>%
+          body_add_flextable(assay_rslts)
+      } else if ("Assay Results" %in% input$inc_report) {
+        doc <- doc %>%
+          body_add_flextable(assay_rslts) %>%
           body_add_break() %>%
-          body_add_par("") %>%
-          body_add_flextable(anova_tbl) %>%
-          print(target = file)
-      } else if ("Summary Comparison" %in% input$inc_report) {
-        read_docx("www/template_officer.docx") %>%
-          body_add_flextable(smmry_tbl) %>%
-          print(target = file)
-      } else {
-        read_docx("www/template_officer.docx") %>%
-          body_add_flextable(anova_tbl) %>%
-          print(target = file)
+          body_add_par("")
       }
+
+      if ("Linear Regression Plot" %in% input$inc_report &&
+        "Linear Regression Plot" == tail(input$inc_report,
+          n = 1
+        )) {
+        doc <- doc %>%
+          body_add_gg(line_plot(
+            data$orig_df, input$conc_sol, input$pk_area,
+            app = FALSE
+          ),
+          width = 6.3,
+          height = 3.54
+          )
+      } else if ("Linear Regression Plot" %in% input$inc_report) {
+        doc <- doc %>%
+          body_add_gg(line_plot(
+            data$orig_df, input$conc_sol, input$pk_area,
+            app = FALSE
+          ),
+          width = 6.3,
+          height = 3.54
+          ) %>%
+          body_add_break() %>%
+          body_add_par("")
+      }
+
+      if (
+        "Diagnostic Plots" %in% input$inc_report
+      ) {
+        doc <- doc %>%
+          body_add_gg(residual_plots(data$orig_df, lm_fit(), app = FALSE),
+            width = 6.3,
+            height = 3.54
+          )
+      }
+
+      print(doc, target = file)
     }
   )
 }

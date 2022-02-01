@@ -1,25 +1,25 @@
-Sample_ID;Analyst;Day_of_analysis;Site;Measured_Value;HPLC_System;Column_lot
-Sample 1;Analyst 1;17-Jan-18;Developing Unit;101.4267;HPLC 1;B15221
-Sample 2;Analyst 1;17-Jan-18;Developing Unit;99.9527;HPLC 1;B15221
-Sample 3;Analyst 1;17-Jan-18;Developing Unit;100.3339;HPLC 1;B15221
-Sample 4;Analyst 1;17-Jan-18;Developing Unit;101.8389;HPLC 1;B15221
-Sample 5;Analyst 1;17-Jan-18;Developing Unit;100.5004;HPLC 1;B15221
-Sample 6;Analyst 1;17-Jan-18;Developing Unit;100.21;HPLC 1;B15221
-Sample 1;Analyst 1;18-Jan-18;Developing Unit;101.0715;HPLC 2;B16230
-Sample 2;Analyst 1;18-Jan-18;Developing Unit;101.1478;HPLC 2;B16230
-Sample 3;Analyst 1;18-Jan-18;Developing Unit;101.7794;HPLC 2;B16230
-Sample 4;Analyst 1;18-Jan-18;Developing Unit;102.0548;HPLC 2;B16230
-Sample 5;Analyst 1;18-Jan-18;Developing Unit;101.6351;HPLC 2;B16230
-Sample 6;Analyst 1;18-Jan-18;Developing Unit;101.329;HPLC 2;B16230
-Sample 1;Analyst 2;19-Jan-18;Developing Unit;100.9876;HPLC 2;B15221
-Sample 2;Analyst 2;19-Jan-18;Developing Unit;101.4464;HPLC 2;B15221
-Sample 3;Analyst 2;19-Jan-18;Developing Unit;100.8557;HPLC 2;B15221
-Sample 4;Analyst 2;19-Jan-18;Developing Unit;101.1093;HPLC 2;B15221
-Sample 5;Analyst 2;19-Jan-18;Developing Unit;101.1206;HPLC 2;B15221
-Sample 6;Analyst 2;19-Jan-18;Developing Unit;100.7735;HPLC 2;B15221
-Sample 1;Analyst 2;20-Jan-18;Developing Unit;100.9255;HPLC 1;B16230
-Sample 2;Analyst 2;20-Jan-18;Developing Unit;100.9958;HPLC 1;B16230
-Sample 3;Analyst 2;20-Jan-18;Developing Unit;100.8088;HPLC 1;B16230
-Sample 4;Analyst 2;20-Jan-18;Developing Unit;100.4037;HPLC 1;B16230
-Sample 5;Analyst 2;20-Jan-18;Developing Unit;100.8177;HPLC 1;B16230
-Sample 6;Analyst 2;20-Jan-18;Developing Unit;101.425;HPLC 1;B16230
+Concentration_level_perc;Concentration_of_solution_mg_ml;Peak_area_mAU_min
+70;0.10495;57.133
+70;0.10498;57.2796
+70;0.10481;56.9189
+80;0.1196;65.228
+80;0.12003;65.4529
+80;0.11999;65.3968
+90;0.1353;73.647
+90;0.13542;73.7398
+90;0.13501;73.5481
+100;0.15002;81.6489
+100;0.15001;81.7965
+100;0.1502;82.1486
+110;0.1657;90.3203
+110;0.16517;90.0451
+110;0.16585;90.4132
+120;0.1802;98.3155
+120;0.17982;98.2574
+120;0.1804;98.2311
+130;0.19492;106.6597
+130;0.19553;106.6751
+130;0.19536;106.4306
+140;0.20593;114.7382
+140;0.2101;114.3196
+140;0.20976;114.1807

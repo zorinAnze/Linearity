@@ -1,17 +1,13 @@
 # Function returns a flextable with the assay results
 
-assay_rslts_rprt <- function(df, lvl, conc, pk_area) {
-  # if multiple peak areas per concentration level
-  mult <- length(df[[lvl]]) / length(unique(df[[lvl]]))
-  brdr_vec <- seq(mult, length(df[[lvl]]), mult)
-
+assay_rslts_rprt <- function(df, lvl, conc, pk_area, unit_conc, unit_pk_area) {
   # Modify data frame
   df <- df %>%
-    select(lvl, conc, pk_area) %>%
+    select(all_of(c(lvl, conc, pk_area))) %>%
     rename(
-      C1 = lvl,
-      C2 = conc,
-      C3 = pk_area
+      C1 = all_of(lvl),
+      C2 = all_of(conc),
+      C3 = all_of(pk_area)
     )
 
   # Convert data frame to flextable
@@ -21,8 +17,8 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area) {
   ft <- ft %>%
     set_header_labels(
       C1 = "[%]",
-      C2 = "[mg/ml]",
-      C3 = "[mAU∙min]"
+      C2 = paste0("[", unit_conc, "]"),
+      C3 = paste0("[", unit_pk_area, "]")
     ) %>%
     add_header_row(
       values = c(
@@ -41,25 +37,12 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area) {
     hline_bottom(
       border = fp_border(color = "black", width = 0.5),
       part = "header"
-    )
-
-  if (mult > 1) {
-    ft <- ft %>%
-      hline(
-        i = brdr_vec,
-        border = fp_border(color = "black", width = 0.5),
-        part = "body"
-      )
-  } else {
-    ft <- ft %>%
-      hline(
-        i = nrow(df),
-        border = fp_border(color = "black", width = 0.5),
-        part = "body"
-      )
-  }
-
-  ft <- ft %>%
+    ) %>%
+    hline(
+      i = nrow(df),
+      border = fp_border(color = "black", width = 0.5),
+      part = "body"
+    ) %>%
     padding(padding.bottom = 2, padding.top = 1, part = "all") %>%
     set_table_properties(layout = "autofit", width = 1) %>%
     fontsize(size = 9, part = "all") %>%

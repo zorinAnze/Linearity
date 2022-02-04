@@ -12,7 +12,8 @@ coef_tbl_datatbl <- function(lm_fit) {
         paging = FALSE,
         ordering = FALSE,
         info = FALSE,
-        lengthChange = FALSE
+        lengthChange = FALSE,
+        scrollX = TRUE
       ),
       rownames = FALSE,
       colnames = c(
@@ -24,6 +25,6 @@ coef_tbl_datatbl <- function(lm_fit) {
         "t-statistic" = "statistic",
         "p-value" = "p.value"
       )
-    ) %>% 
+    ) %>%
     formatRound(columns = c(2:7), digits = 4, mark = "")
 }

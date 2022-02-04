@@ -9,7 +9,8 @@ smmry_tbl_datatbl <- function(lm_fit) {
         paging = FALSE,
         ordering = FALSE,
         info = FALSE,
-        lengthChange = FALSE
+        lengthChange = FALSE,
+        scrollX = TRUE
       ),
       rownames = FALSE,
       colnames = c(

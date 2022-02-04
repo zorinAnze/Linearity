@@ -12,7 +12,7 @@ library(gridExtra)
 library(DT)
 library(flextable)
 library(officer)
-library(reactable)
+library(waiter)
 
 
 # Options ---------------------------------------------------------------------
@@ -69,6 +69,7 @@ ui <- dashboardPage(
   dashboardBody(
     useShinyFeedback(),
     useShinyjs(),
+    useWaiter(),
     tabItems(
       tabItem(
         tabName = "home",
@@ -90,12 +91,6 @@ ui <- dashboardPage(
             ),
             conditionalPanel(
               "output.import_ready",
-              selectInput("conc_lvl", "Concentration level column:",
-                choices = c(Choose = "")
-              )
-            ),
-            conditionalPanel(
-              "input.conc_lvl",
               selectInput("conc_sol", "Concentration of solution column:",
                 choices = c(Choose = "")
               )
@@ -106,9 +101,31 @@ ui <- dashboardPage(
                 choices = c(Choose = "")
               )
             ),
+            conditionalPanel(
+              "input.pk_area",
+              textInput(
+                "unit_conc", "Unit concentration of solution:",
+                "mg/ml"
+              )
+            ),
+            conditionalPanel(
+              "input.pk_area",
+              textInput(
+                "unit_pk_area", "Unit peak area:",
+                "mAU*min"
+              )
+            ),
+            conditionalPanel(
+              "input.pk_area",
+              numericInput(
+                "ref_conc", "Reference concentration:",
+                1,
+                step = 0.01
+              )
+            ),
             # Action button for calculation
             conditionalPanel(
-              "input.conc_sol",
+              "input.pk_area",
               actionBttn(
                 "calc",
                 "Calculate",
@@ -210,6 +227,15 @@ ui <- dashboardPage(
       tabItem(
         tabName = "report",
         box(
+          materialSwitch(
+            inputId = "det_res_swtch",
+            label = "Detailed Assay Results",
+            value = FALSE,
+            status = "primary"
+          ),
+          selectInput("conc_lvl", "Concentration level column:",
+            choices = c(Choose = "")
+          ),
           textInput(
             "file_name",
             "File Name:",
@@ -304,37 +330,10 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     updateSelectInput(
       session,
-      "conc_lvl",
+      "conc_sol",
       choices = c(Choose = "", names(data$orig_df))
     )
   })
-
-  observeEvent(input$conc_lvl,
-    {
-      if (is.numeric(data$orig_df[[input$conc_lvl]])) {
-        hideFeedback("conc_lvl")
-        choices <- names(data$orig_df)[!(names(data$orig_df) %in%
-          c(
-            input$conc_lvl
-          ))]
-        updateSelectInput(
-          session,
-          "conc_sol",
-          choices = c(Choose = "", choices)
-        )
-      } else if (input$conc_lvl == "") {
-        hideFeedback("conc_lvl")
-      } else {
-        showFeedbackWarning(
-          inputId = "conc_lvl",
-          text = "Values must be numeric!",
-          color = "#EC9A1E",
-          icon = NULL
-        )
-      }
-    },
-    ignoreInit = TRUE
-  )
 
   observeEvent(input$conc_sol,
     {
@@ -342,7 +341,6 @@ server <- function(input, output, session) {
         hideFeedback("conc_sol")
         choices <- names(data$orig_df)[!(names(data$orig_df) %in%
           c(
-            input$conc_lvl,
             input$conc_sol
           ))]
         updateSelectInput(
@@ -386,19 +384,94 @@ server <- function(input, output, session) {
     ignoreInit = TRUE
   )
 
+  observeEvent(input$calc, {
+    choices <- names(data$orig_df)[!(names(data$orig_df) %in%
+      c(
+        input$conc_sol,
+        input$pk_area
+      ))]
+    updateSelectInput(
+      session,
+      "conc_lvl",
+      choices = c(Choose = "", choices)
+    )
+  })
+
+  observeEvent(input$conc_lvl,
+    {
+      if (is.numeric(data$orig_df[[input$conc_lvl]])) {
+        hideFeedback("conc_lvl")
+      } else if (input$conc_lvl == "") {
+        hideFeedback("conc_lvl")
+      } else {
+        showFeedbackWarning(
+          inputId = "conc_lvl",
+          text = "Values must be numeric!",
+          color = "#EC9A1E",
+          icon = NULL
+        )
+      }
+    },
+    ignoreInit = TRUE
+  )
+
 
   # Reset inputs when new file is uploaded ------------------------------------
   observeEvent(input$upload, {
     reset("conc_lvl")
     reset("conc_sol")
     reset("pk_area")
+    reset("unit_conc")
+    reset("unit_pk_area")
+    reset("ref_conc")
     reset("calc")
   })
 
 
-  # Disable download button if inputs are missing -----------------------------
+  # Show/Hide inputs for detailed report --------------------------------------
+  shiny::observe(if (input$det_res_swtch == FALSE) {
+    shinyjs::hide("conc_lvl")
+  } else {
+    shinyjs::show("conc_lvl")
+  })
+
+
+  # Disable calculate button when inputs are missing ---------------------------
+  shiny::observe(if (input$unit_conc == "" || input$unit_pk_area == "") {
+    disable("calc")
+  } else {
+    enable("calc")
+  })
+
+  shiny::observe(if (input$unit_conc == "") {
+    showFeedbackWarning(
+      inputId = "unit_conc",
+      text = "Please enter a unit!",
+      color = "#EC9A1E",
+      icon = NULL
+    )
+  } else {
+    hideFeedback("unit_conc")
+  })
+
+  shiny::observe(if (input$unit_pk_area == "") {
+    showFeedbackWarning(
+      inputId = "unit_pk_area",
+      text = "Please enter a unit!",
+      color = "#EC9A1E",
+      icon = NULL
+    )
+  } else {
+    hideFeedback("unit_pk_area")
+  })
+
+
+  # Disable download button when inputs are missing ---------------------------
   shiny::observe(if (is.null(input$inc_report) || input$pk_area == "" ||
-    is.null(input$pk_area) || input$file_name == "") {
+    is.null(input$pk_area) || input$file_name == "" ||
+    (input$conc_lvl == "" && input$det_res_swtch == TRUE) ||
+    (!is.numeric(data$orig_df[[input$conc_lvl]]) &&
+      input$det_res_swtch == TRUE)) {
     disable("gen_report_bttn")
     disable("gen_report")
   } else {
@@ -432,7 +505,7 @@ server <- function(input, output, session) {
 
   output$mod_coef <- renderDT({
     coef_tbl_datatbl(lm_fit())
-    })
+  })
 
   # Model Summary
   output$mod_smmry <- renderDT({
@@ -444,14 +517,17 @@ server <- function(input, output, session) {
     anova(lm_fit()$fit)
   })
 
-  output$mod_anova <- renderReactable({
+  output$mod_anova <- renderDT({
     anova_tbl_datatbl(anova_fit())
   })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
   plt_ftd_line <- eventReactive(input$calc, {
-    line_plot(data$orig_df, input$conc_sol, input$pk_area, app = TRUE)
+    line_plot(data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
+      input$unit_pk_area,
+      app = TRUE
+    )
   })
   output$plt_line <- renderPlot(plt_ftd_line())
 
@@ -474,6 +550,13 @@ server <- function(input, output, session) {
   )
 
 
+  # Waiter when report is generated -------------------------------------------
+  w <- Waiter$new(
+    id = "download_box", html = spin_loaders(id = 5, color = "#0460A9"),
+    color = transparent(0.5)
+  )
+
+
   # Final report --------------------------------------------------------------
   # Report generation
   output$gen_report <- downloadHandler(
@@ -481,14 +564,23 @@ server <- function(input, output, session) {
       fs::path_sanitize(paste0(input$file_name, ".docx"))
     },
     content = function(file) {
-      assay_rslts <- assay_rslts_rprt(
-        data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area
-      )
+      w$show()
+      if (input$det_res_swtch) {
+        assay_rslts <- assay_rslts_rprt(
+          data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
+          input$unit_conc, input$unit_pk_area
+        )
+      } else {
+        assay_rslts <- assay_rslts_rprt_smpl(
+          data$orig_df, input$conc_sol, input$pk_area,
+          input$unit_conc, input$unit_pk_area
+        )
+      }
 
-      # anova_tbl <- anova_rprt(
-      #   data$modif_df, input$Id_var, input$Value_var, input$Analyst_var,
-      #   mod_orig(), input$Batch
-      # )
+      lin_reg_rslts <- lin_reg_rslts_rprt(
+        lm_fit(), input$conc_sol,
+        input$ref_conc
+      )
 
       doc <- read_docx("www/template_officer.docx")
 
@@ -503,13 +595,25 @@ server <- function(input, output, session) {
           body_add_par("")
       }
 
+      if ("Linear Regression Results" %in% input$inc_report &&
+        "Linear Regression Results" == tail(input$inc_report, n = 1)) {
+        doc <- doc %>%
+          body_add_flextable(lin_reg_rslts)
+      } else if ("Linear Regression Results" %in% input$inc_report) {
+        doc <- doc %>%
+          body_add_flextable(lin_reg_rslts) %>%
+          body_add_break() %>%
+          body_add_par("")
+      }
+
       if ("Linear Regression Plot" %in% input$inc_report &&
         "Linear Regression Plot" == tail(input$inc_report,
           n = 1
         )) {
         doc <- doc %>%
           body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area,
+            data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
+            input$unit_pk_area,
             app = FALSE
           ),
           width = 6.3,
@@ -518,7 +622,8 @@ server <- function(input, output, session) {
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
           body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area,
+            data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
+            input$unit_pk_area,
             app = FALSE
           ),
           width = 6.3,
@@ -532,13 +637,20 @@ server <- function(input, output, session) {
         "Diagnostic Plots" %in% input$inc_report
       ) {
         doc <- doc %>%
-          body_add_gg(residual_plots(data$orig_df, lm_fit(), app = FALSE),
+          body_add_gg(
+            ggplot_conv(
+              residual_plots(data$orig_df, lm_fit(), app = FALSE)
+            ),
             width = 6.3,
             height = 3.54
           )
       }
 
       print(doc, target = file)
+
+      on.exit({
+        w$hide()
+      })
     }
   )
 }

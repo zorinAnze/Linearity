@@ -67,7 +67,7 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
       shape = 21,
       size = dot_size_p4,
       stroke = stroke_size,
-      fill = "black", 
+      fill = "black",
       color = "white"
     ) +
     geom_abline(
@@ -84,9 +84,5 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
 
   p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
 
-  if (app == TRUE) {
-    return(p_comb)
-  } else {
-    return(as.ggplot(p_comb))
-  }
+  return(p_comb)
 }

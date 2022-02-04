@@ -119,7 +119,7 @@ ui <- dashboardPage(
               "input.pk_area",
               numericInput(
                 "ref_conc", "Reference concentration:",
-                1,
+                0,
                 step = 0.01
               )
             ),
@@ -525,7 +525,7 @@ server <- function(input, output, session) {
   # Plot fitted line
   plt_ftd_line <- eventReactive(input$calc, {
     line_plot(data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
-      input$unit_pk_area,
+      input$unit_pk_area, lm_fit(), input$ref_conc,
       app = TRUE
     )
   })
@@ -613,7 +613,7 @@ server <- function(input, output, session) {
         doc <- doc %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
-            input$unit_pk_area,
+            input$unit_pk_area, lm_fit(), input$ref_conc,
             app = FALSE
           ),
           width = 6.3,
@@ -623,7 +623,7 @@ server <- function(input, output, session) {
         doc <- doc %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
-            input$unit_pk_area,
+            input$unit_pk_area, lm_fit(), input$ref_conc,
             app = FALSE
           ),
           width = 6.3,

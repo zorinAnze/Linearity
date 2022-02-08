@@ -545,7 +545,8 @@ server <- function(input, output, session) {
   output$data_table <- renderDT(
     src_data(),
     options = list(
-      pageLength = 15
+      pageLength = 15,
+      scrollX = TRUE
     )
   )
 

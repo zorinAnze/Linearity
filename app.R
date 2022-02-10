@@ -348,7 +348,6 @@ server <- function(input, output, session) {
           "pk_area",
           choices = c(Choose = "", choices)
         )
-        disable("calc")
       } else if (input$conc_sol == "") {
         hideFeedback("conc_sol")
       } else {

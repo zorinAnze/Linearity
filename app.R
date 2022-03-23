@@ -13,6 +13,9 @@ library(DT)
 library(flextable)
 library(officer)
 library(waiter)
+library(reactlog)
+
+reactlog_enable()
 
 
 # Options ---------------------------------------------------------------------
@@ -73,11 +76,31 @@ ui <- dashboardPage(
     tabItems(
       tabItem(
         tabName = "home",
-        box(includeHTML("www/information.html"),
-          id = "info_box",
+        box(h1("Linearity", class = "info_title"),
+          box(includeHTML("www/objectives.html"),
+            title = "Objectives",
+            status = "primary", width = 12
+          ) %>%
+            tagAppendAttributes(class = "info_sub_box"),
+          box(includeHTML("www/statistical_methods.html"),
+            title = "Statistical Methods",
+            status = "primary", width = 12, collapsed = TRUE
+          ) %>%
+            tagAppendAttributes(class = "info_sub_box"),
+          box(includeHTML("www/user_instructions.html"),
+            title = "User Instructions",
+            status = "primary", width = 12, collapsed = TRUE
+          ) %>%
+            tagAppendAttributes(class = "info_sub_box"),
+          box(includeHTML("www/results.html"),
+            title = "Results",
+            status = "primary", width = 12, collapsed = TRUE
+          ) %>%
+            tagAppendAttributes(class = "info_sub_box"),
           width = 12,
           headerBorder = FALSE
-        )
+        ) %>%
+          tagAppendAttributes(class = "info_box"),
       ),
       tabItem(
         tabName = "data_import",
@@ -101,28 +124,28 @@ ui <- dashboardPage(
                 choices = c(Choose = "")
               )
             ),
-            conditionalPanel(
-              "input.pk_area",
-              textInput(
-                "unit_conc", "Unit concentration of solution:",
-                "mg/ml"
-              )
-            ),
-            conditionalPanel(
-              "input.pk_area",
-              textInput(
-                "unit_pk_area", "Unit peak area:",
-                "mAU*min"
-              )
-            ),
-            conditionalPanel(
-              "input.pk_area",
-              numericInput(
-                "ref_conc", "Reference concentration:",
-                0,
-                step = 0.01
-              )
-            ),
+            # conditionalPanel(
+            #   "input.pk_area",
+            #   textInput(
+            #     "unit_conc", "Unit concentration of solution:",
+            #     "mg/ml"
+            #   )
+            # ),
+            # conditionalPanel(
+            #   "input.pk_area",
+            #   textInput(
+            #     "unit_pk_area", "Unit peak area:",
+            #     "mAU*min"
+            #   )
+            # ),
+            # conditionalPanel(
+            #   "input.pk_area",
+            #   numericInput(
+            #     "ref_conc", "Reference concentration:",
+            #     0,
+            #     step = 0.01
+            #   )
+            # ),
             # Action button for calculation
             conditionalPanel(
               "input.pk_area",
@@ -140,133 +163,145 @@ ui <- dashboardPage(
             status = "primary",
             solidHeader = TRUE
           ),
-          box(
-            conditionalPanel(
-              "input.calc",
-              DTOutput("data_table")
-            ),
-            title = "Imported data",
-            width = 8,
-            status = "primary",
-            solidHeader = TRUE
-          )
+          hidden(div(
+            id = "dt_box", class = "col-sm-8",
+            box(
+              DTOutput("data_table"),
+              title = "Imported data",
+              width = 12,
+              status = "primary",
+              solidHeader = TRUE
+            )
+          ))
         )
       ),
       tabItem(
         tabName = "rslt",
-        fluidRow(
-          box(conditionalPanel(
-            "input.calc",
-            withSpinner(plotOutput("plt_line"),
-              type = 8,
-              color = "#0460A9"
+        hidden(
+          div(
+            id = "rslt_boxes",
+            fluidRow(
+              box(dropdownButton(
+                textInput(
+                  "unit_conc", "Unit concentration of solution:",
+                  "mg/ml"
+                ),
+                textInput(
+                  "unit_pk_area", "Unit peak area:",
+                  "mAU*min"
+                ),
+                numericInput(
+                  "ref_conc", "Reference concentration:",
+                  0,
+                  step = 0.01
+                ),
+                circle = TRUE, status = "primary",
+                icon = icon("sliders-h"), width = "300px",
+                size = "sm",
+                tooltip = tooltipOptions(title = "Plot settings")),
+                withSpinner(plotOutput("plt_line"),
+                  type = 8,
+                  color = "#0460A9"
+                ),
+                title = "Fitted Line Plot",
+                width = 6,
+                status = "primary",
+                solidHeader = TRUE
+              ),
+              box(
+                withSpinner(plotOutput("plt_resid"),
+                  type = 8,
+                  color = "#0460A9"
+                ),
+                title = "Residual Plots",
+                width = 6,
+                status = "primary",
+                solidHeader = TRUE
+              )
+            ),
+            fluidRow(
+              box(
+                withSpinner(DTOutput("mod_coef"),
+                  type = 8,
+                  color = "#0460A9"
+                ),
+                title = "Model Coefficients",
+                width = 6,
+                status = "primary",
+                solidHeader = TRUE
+              ),
+              box(
+                withSpinner(DTOutput("mod_anova"),
+                  type = 8,
+                  color = "#0460A9"
+                ),
+                title = "Analysis of Variance",
+                width = 6,
+                status = "primary",
+                solidHeader = TRUE
+              )
+            ),
+            fluidRow(
+              box(
+                withSpinner(DTOutput("mod_smmry"),
+                  type = 8,
+                  color = "#0460A9"
+                ),
+                title = "Model Summary",
+                width = 6,
+                status = "primary",
+                solidHeader = TRUE
+              )
             )
-          ),
-          title = "Fitted Line Plot",
-          width = 6,
-          status = "primary",
-          solidHeader = TRUE
-          ),
-          box(conditionalPanel(
-            "input.calc",
-            withSpinner(plotOutput("plt_resid"),
-              type = 8,
-              color = "#0460A9"
-            )
-          ),
-          title = "Residual Plots",
-          width = 6,
-          status = "primary",
-          solidHeader = TRUE
-          )
-        ),
-        fluidRow(
-          box(
-            conditionalPanel(
-              "input.calc",
-              withSpinner(DTOutput("mod_coef"),
-                type = 8,
-                color = "#0460A9"
-              )
-            ),
-            title = "Model Coefficients",
-            width = 6,
-            status = "primary",
-            solidHeader = TRUE
-          ),
-          box(
-            conditionalPanel(
-              "input.calc",
-              withSpinner(DTOutput("mod_anova"),
-                type = 8,
-                color = "#0460A9"
-              )
-            ),
-            title = "Analysis of Variance",
-            width = 6,
-            status = "primary",
-            solidHeader = TRUE
-          )
-        ),
-        fluidRow(
-          box(
-            conditionalPanel(
-              "input.calc",
-              withSpinner(DTOutput("mod_smmry"),
-                type = 8,
-                color = "#0460A9"
-              )
-            ),
-            title = "Model Summary",
-            width = 6,
-            status = "primary",
-            solidHeader = TRUE
           )
         )
       ),
       tabItem(
         tabName = "report",
-        box(
-          materialSwitch(
-            inputId = "det_res_swtch",
-            label = "Detailed Assay Results",
-            value = FALSE,
-            status = "primary"
-          ),
-          selectInput("conc_lvl", "Concentration level column:",
-            choices = c(Choose = "")
-          ),
-          textInput(
-            "file_name",
-            "File Name:",
-            value = paste(format(Sys.time(), "%y%m%d"), "Report", sep = "_")
-          ),
-          awesomeCheckboxGroup(
-            "inc_report", "Include in Report:",
-            choices = c(
-              "Assay Results", "Linear Regression Results",
-              "Linear Regression Plot",
-              "Diagnostic Plots"
+        hidden(div(
+          id = "rprt_box",
+          box(
+            materialSwitch(
+              inputId = "det_res_swtch",
+              label = "Detailed Assay Results",
+              value = FALSE,
+              status = "primary"
             ),
-            selected = c(
-              "Assay Results", "Linear Regression Results",
-              "Linear Regression Plot",
-              "Diagnostic Plots"
+            selectInput("conc_lvl", "Concentration level column:",
+              choices = c(Choose = "")
             ),
-            status = "primary"
-          ),
-          downloadBttn(
-            "gen_report",
-            "Generate Report",
-            style = "simple",
-            color = "primary",
-            size = "sm"
-          ),
-          title = "Report",
-          status = "primary",
-          solidHeader = TRUE,
-          id = "download_box"
-        )
+            textInput(
+              "file_name",
+              "File Name:",
+              value = paste(format(Sys.time(), "%y%m%d"), "Report", sep = "_")
+            ),
+            awesomeCheckboxGroup(
+              "inc_report", "Include in Report:",
+              choices = c(
+                "Assay Results", "Linear Regression Results",
+                "Linear Regression Plot",
+                "Diagnostic Plots"
+              ),
+              selected = c(
+                "Assay Results", "Linear Regression Results",
+                "Linear Regression Plot",
+                "Diagnostic Plots"
+              ),
+              status = "primary"
+            ),
+            downloadBttn(
+              "gen_report",
+              "Generate Report",
+              style = "simple",
+              color = "primary",
+              size = "sm"
+            ),
+            title = "Report",
+            status = "primary",
+            solidHeader = TRUE,
+            id = "download_box"
+          )
+        ))
       )
     )
   ),
@@ -279,6 +314,24 @@ ui <- dashboardPage(
 # Server ======================================================================
 server <- function(input, output, session) {
   data <- reactiveValues()
+
+
+  # Fix profile picture in the header -----------------------------------------
+  rvalues <- reactiveValues(auth = NULL)
+
+  shiny::observe({
+    rvalues$auth <- Authentication$new(configFile = "www/config.json")
+    img_path <- paste0(
+      "//my.novartis.net/User%20Photos/Profilbilder/",
+      rvalues$auth$get521(),
+      "_novartis_net_LThumb.jpg"
+    )
+    runjs(paste0(
+      'document.querySelector(".img-circle.elevation-4.profile-pic").src="',
+      img_path,
+      '";'
+    ))
+  })
 
 
   # Load file -----------------------------------------------------------------
@@ -328,24 +381,26 @@ server <- function(input, output, session) {
 
   # Update the dropdown menus for the column variables ----------------------
   observeEvent(input$upload, {
+    freezeReactiveValue(input, "conc_sol")
     updateSelectInput(
-      session,
-      "conc_sol",
+      inputId = "conc_sol",
       choices = c(Choose = "", names(data$orig_df))
     )
   })
 
   observeEvent(input$conc_sol,
     {
+      freezeReactiveValue(input, "pk_area")
       if (is.numeric(data$orig_df[[input$conc_sol]])) {
         hideFeedback("conc_sol")
-        choices <- names(data$orig_df)[!(names(data$orig_df) %in%
+        choices <- setdiff(
+          names(data$orig_df),
           c(
             input$conc_sol
-          ))]
+          )
+        )
         updateSelectInput(
-          session,
-          "pk_area",
+          inputId = "pk_area",
           choices = c(Choose = "", choices)
         )
       } else if (input$conc_sol == "") {
@@ -384,14 +439,16 @@ server <- function(input, output, session) {
   )
 
   observeEvent(input$calc, {
-    choices <- names(data$orig_df)[!(names(data$orig_df) %in%
+    freezeReactiveValue(input, "conc_lvl")
+    choices <- setdiff(
+      names(data$orig_df),
       c(
         input$conc_sol,
         input$pk_area
-      ))]
+      )
+    )
     updateSelectInput(
-      session,
-      "conc_lvl",
+      inputId = "conc_lvl",
       choices = c(Choose = "", choices)
     )
   })
@@ -427,11 +484,25 @@ server <- function(input, output, session) {
   })
 
 
+  # Show elements hidden at startup -------------------------------------------
+  observeEvent(input$calc, {
+    show("rslt_boxes")
+    show("rprt_box")
+    show("dt_box")
+  })
+
+  observeEvent(input$upload, {
+    hide("rslt_boxes")
+    hide("rprt_box")
+    hide("dt_box")
+  })
+
+
   # Show/Hide inputs for detailed report --------------------------------------
   shiny::observe(if (input$det_res_swtch == FALSE) {
-    shinyjs::hide("conc_lvl")
+    hide("conc_lvl")
   } else {
-    shinyjs::show("conc_lvl")
+    show("conc_lvl")
   })
 
 
@@ -495,7 +566,8 @@ server <- function(input, output, session) {
   lm_spec <- linear_reg() %>%
     set_engine("lm")
 
-  lm_fit <- eventReactive(input$calc, {
+  lm_fit <- reactive({
+    req(input$pk_area, input$conc_sol, data$orig_df)
     lm_spec %>%
       fit(as.formula(paste0(input$pk_area, "~", input$conc_sol)),
         data = data$orig_df
@@ -512,7 +584,7 @@ server <- function(input, output, session) {
   })
 
   # Analysis of variance
-  anova_fit <- eventReactive(input$calc, {
+  anova_fit <- reactive({
     anova(lm_fit()$fit)
   })
 
@@ -522,27 +594,27 @@ server <- function(input, output, session) {
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
-  plt_ftd_line <- eventReactive(input$calc, {
+  output$plt_line <- renderPlot({
+    req(
+      data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
+      input$unit_pk_area, lm_fit(), input$ref_conc
+    )
     line_plot(data$orig_df, input$conc_sol, input$pk_area, input$unit_conc,
       input$unit_pk_area, lm_fit(), input$ref_conc,
       app = TRUE
     )
   })
-  output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
-  plt_sum_resid <- eventReactive(input$calc, {
+  output$plt_resid <- renderPlot({
+    req(data$orig_df, lm_fit())
     residual_plots(data$orig_df, lm_fit(), app = TRUE)
   })
-  output$plt_resid <- renderPlot(plt_sum_resid())
 
 
   # Source data ---------------------------------------------------------------
-  src_data <- eventReactive(input$calc, {
-    data$orig_df
-  })
   output$data_table <- renderDT(
-    src_data(),
+    data$orig_df,
     options = list(
       pageLength = 15,
       scrollX = TRUE

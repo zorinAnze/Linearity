@@ -1,0 +1,28 @@
+{
+		"authorize" : {
+		  "active" : true,
+		  "orgs":[
+		    // Below is an example of how to grant access to all GDD / CD&A associates
+        /*{ 
+  			  "access" : true , 
+  			  "pairs" : {	"division":"Development",
+  				 						"department":"CD&A GDD" }, 
+  				"op" : "AND"
+			  }*/
+  		],
+  		// list of 521 to grant access
+  		"white_list":[
+  		],
+  		// list of 521 to deny access
+  		"black_list":[
+  		  // Add your 521 here to check authorization
+  		  //"LARBAMU2"
+  		]
+		},
+		// list of 521 that administer your App
+		// give access to administration tools: tracking and authorization 
+		"admins" : [
+		  
+		]
+
+}

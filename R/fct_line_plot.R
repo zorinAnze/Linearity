@@ -15,17 +15,26 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   y_100 <- predict(lm_fit, new_data = tibble(!!conc := ref_conc)) %>%
     pull(.pred)
 
-  df %>%
-    ggplot(aes(get(conc), get(pk_area))) +
-    annotate("segment",
-      x = ref_conc, xend = ref_conc, y = -Inf, yend = y_100,
-      colour = "gray20", size = line_size, linetype = "dashed"
+  p1 <- df %>%
+    ggplot(aes(get(conc), get(pk_area)))
+
+  if (ref_conc != 0) {
+    p1 <- p1 +
+      annotate("segment",
+        x = ref_conc, xend = ref_conc, y = -Inf, yend = y_100,
+        colour = "gray20", size = line_size, linetype = "dashed"
+      ) +
+      annotate("segment",
+        x = -Inf, xend = ref_conc, y = y_100, yend = y_100,
+        colour = "gray20", size = line_size, linetype = "dashed"
+      )
+  }
+
+  p1 +
+    geom_smooth(
+      method = lm, formula = y ~ x,
+      color = "#0460A9", size = line_size, se = TRUE
     ) +
-    annotate("segment",
-      x = -Inf, xend = ref_conc, y = y_100, yend = y_100,
-      colour = "gray20", size = line_size, linetype = "dashed"
-    ) +
-    geom_smooth(method = lm, color = "#0460A9", size = line_size, se = TRUE) +
     geom_point(size = dot_size) +
     labs(
       x = lab_x_axis,

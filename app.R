@@ -5,7 +5,8 @@ library(shinycssloaders)
 library(shinyFeedback)
 library(shinyjs)
 library(shinyWidgets)
-library(tidyverse)
+library(readr)
+library(readxl)
 library(tidymodels)
 library(ggplotify)
 library(gridExtra)
@@ -150,48 +151,56 @@ ui <- dashboardPage(
         fluidRow(
           box(
             conditionalPanel(
-            "input.calc",
-            dropdownButton(
-              textInput(
-                "unit_conc", "Unit concentration of solution:",
-                "mg/ml"
+              "input.calc",
+              dropdownButton(
+                textInput(
+                  "lab_x", "X-Axis Label:",
+                  "Concentration [mg/ml]"
+                ),
+                textInput(
+                  "lab_y", "Y-Axis Label:",
+                  "Peak Area [mAU*min]"
+                ),
+                numericInput(
+                  "ref_conc", "Reference concentration:",
+                  0,
+                  step = 0.01
+                ),
+                actionBttn(
+                  "update_plot",
+                  "Update Plot",
+                  icon = icon("redo-alt"),
+                  style = "simple",
+                  color = "primary",
+                  size = "sm"
+                ),
+                circle = TRUE, status = "primary",
+                icon = icon("sliders-h"), width = "300px",
+                size = "sm",
+                tooltip = tooltipOptions(title = "Plot settings")
               ),
-              textInput(
-                "unit_pk_area", "Unit peak area:",
-                "mAU*min"
-              ),
-              numericInput(
-                "ref_conc", "Reference concentration:",
-                0,
-                step = 0.01
-              ),
-              circle = TRUE, status = "primary",
-              icon = icon("sliders-h"), width = "300px",
-              size = "sm",
-              tooltip = tooltipOptions(title = "Plot settings")
+              withSpinner(plotOutput("plt_line"),
+                type = 8,
+                color = "#0460A9"
+              )
             ),
-            withSpinner(plotOutput("plt_line"),
-              type = 8,
-              color = "#0460A9"
-            )
-          ),
-          title = "Fitted Line Plot",
-          width = 6,
-          status = "primary",
-          solidHeader = TRUE
+            title = "Fitted Line Plot",
+            width = 6,
+            status = "primary",
+            solidHeader = TRUE
           ),
           box(
             conditionalPanel(
-            "input.calc",
-            withSpinner(plotOutput("plt_resid"),
-              type = 8,
-              color = "#0460A9"
-            )
-          ),
-          title = "Residual Plots",
-          width = 6,
-          status = "primary",
-          solidHeader = TRUE
+              "input.calc",
+              withSpinner(plotOutput("plt_resid"),
+                type = 8,
+                color = "#0460A9"
+              )
+            ),
+            title = "Residual Plots",
+            width = 6,
+            status = "primary",
+            solidHeader = TRUE
           )
         ),
         fluidRow(
@@ -240,48 +249,47 @@ ui <- dashboardPage(
       ),
       tabItem(
         tabName = "report",
-          box(
-            materialSwitch(
-              inputId = "det_res_swtch",
-              label = "Detailed Assay Results",
-              value = FALSE,
-              status = "primary"
+        box(
+          materialSwitch(
+            inputId = "det_res_swtch",
+            label = "Detailed Assay Results",
+            value = FALSE,
+            status = "primary"
+          ),
+          selectInput("conc_lvl", "Concentration level column:",
+            choices = c(Choose = "")
+          ),
+          textInput(
+            "file_name",
+            "File Name:",
+            value = paste(format(Sys.time(), "%y%m%d"), "Report", sep = "_")
+          ),
+          awesomeCheckboxGroup(
+            "inc_report", "Include in Report:",
+            choices = c(
+              "Assay Results", "Linear Regression Results",
+              "Linear Regression Plot",
+              "Diagnostic Plots"
             ),
-            selectInput("conc_lvl", "Concentration level column:",
-              choices = c(Choose = "")
+            selected = c(
+              "Assay Results", "Linear Regression Results",
+              "Linear Regression Plot",
+              "Diagnostic Plots"
             ),
-            textInput(
-              "file_name",
-              "File Name:",
-              value = paste(format(Sys.time(), "%y%m%d"), "Report", sep = "_")
-            ),
-            awesomeCheckboxGroup(
-              "inc_report", "Include in Report:",
-              choices = c(
-                "Assay Results", "Linear Regression Results",
-                "Linear Regression Plot",
-                "Diagnostic Plots"
-              ),
-              selected = c(
-                "Assay Results", "Linear Regression Results",
-                "Linear Regression Plot",
-                "Diagnostic Plots"
-              ),
-              status = "primary"
-            ),
-            downloadBttn(
-              "gen_report",
-              "Generate Report",
-              style = "simple",
-              color = "primary",
-              size = "sm"
-            ),
-            title = "Report",
-            status = "primary",
-            solidHeader = TRUE,
-            id = "download_box"
-          )
-        
+            status = "primary"
+          ),
+          downloadBttn(
+            "gen_report",
+            "Generate Report",
+            style = "simple",
+            color = "primary",
+            size = "sm"
+          ),
+          title = "Report",
+          status = "primary",
+          solidHeader = TRUE,
+          id = "download_box"
+        )
       )
     )
   ),
@@ -525,13 +533,16 @@ server <- function(input, output, session) {
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
-  plt_ftd_line <- eventReactive(input$calc, {
-    line_plot(data$orig_df, input$conc_sol, input$pk_area, input$lab_x,
-      input$lab_y, lm_fit(), input$ref_conc,
-      app = TRUE
-    )
-  })
-  
+  plt_ftd_line <- eventReactive(c(input$calc, input$update_plot),
+    # ignoreInit = TRUE,
+    {
+      line_plot(data$orig_df, input$conc_sol, input$pk_area, input$lab_x,
+        input$lab_y, lm_fit(), input$ref_conc,
+        app = TRUE
+      )
+    }
+  )
+
   output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
@@ -545,7 +556,7 @@ server <- function(input, output, session) {
   src_data <- eventReactive(input$calc, {
     data$orig_df
   })
-  
+
   output$data_table <- renderDT(
     src_data(),
     options = list(

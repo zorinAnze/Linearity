@@ -42,12 +42,15 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
       y = "Residual"
     ) +
     theme_bw(base_size = text_size)
+  
+  # Calculate optimal binwidth with Freedmann-Diaconis rule
+  bw <- 2 * IQR(lm_fit$fit$residuals) / length(lm_fit$fit$residuals)^(1/3)
 
   p3 <- ggplot(
     data = df,
     aes(x = lm_fit$fit$residuals)
   ) +
-    geom_histogram(binwidth = 0.1, color = "black", fill = "#0460A9") +
+    geom_histogram(binwidth = bw, color = "black", fill = "#0460A9") +
     labs(
       x = "Residual",
       y = "Frequency"

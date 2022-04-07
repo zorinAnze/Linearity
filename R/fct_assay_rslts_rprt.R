@@ -1,6 +1,6 @@
 # Function returns a flextable with the assay results
 
-assay_rslts_rprt <- function(df, lvl, conc, pk_area, unit_conc, unit_pk_area) {
+assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc, title_pk_area) {
   # Modify data frame
   df <- df %>%
     select(all_of(c(lvl, conc, pk_area))) %>%
@@ -16,17 +16,9 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, unit_conc, unit_pk_area) {
   # Format flextable
   ft <- ft %>%
     set_header_labels(
-      C1 = "[%]",
-      C2 = paste0("[", unit_conc, "]"),
-      C3 = paste0("[", unit_pk_area, "]")
-    ) %>%
-    add_header_row(
-      values = c(
-        "Concentration level",
-        "Concentration of solution ",
-        "Peak area"
-      ),
-      colwidths = c(1, 1, 1)
+      C1 = "Concentration level [%]",
+      C2 = title_conc,
+      C3 = title_pk_area
     ) %>%
     align(align = "center", part = "all") %>%
     border_remove() %>%

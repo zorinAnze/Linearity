@@ -1,7 +1,7 @@
 # Function returns a flextable with the assay results (without concentration
 # levels)
 
-assay_rslts_rprt_smpl <- function(df, conc, pk_area, unit_conc, unit_pk_area) {
+assay_rslts_rprt_smpl <- function(df, conc, pk_area, title_conc, title_pk_area) {
 
   # Modify data frame
   df <- df %>%
@@ -17,15 +17,8 @@ assay_rslts_rprt_smpl <- function(df, conc, pk_area, unit_conc, unit_pk_area) {
   # Format flextable
   ft <- ft %>%
     set_header_labels(
-      C1 = paste0("[", unit_conc, "]"),
-      C2 = paste0("[", unit_pk_area, "]")
-    ) %>%
-    add_header_row(
-      values = c(
-        "Concentration of solution ",
-        "Peak area"
-      ),
-      colwidths = c(1, 1)
+      C1 = title_conc,
+      C2 = title_pk_area
     ) %>%
     align(align = "center", part = "all") %>%
     border_remove() %>%

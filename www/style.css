@@ -6,14 +6,6 @@ b {
   font-weight: 600;
 }
 
-.progress-bar {
-  background-color: #0460A9
-}
-
-element.style {
- background-color: #0460A9 
-}
-
 .brand-link {
   font-size: 24px;
   font-weight: 500;
@@ -73,12 +65,14 @@ h3.info_title {
 
 .bttn-simple.bttn-primary {
   background-color: #0460A9;
-}
+} 
 
+/* Make waiter overlay bigger when creating report*/
 .waiter-overlay-content {
   zoom: 2.5;
 }
 
+/* Style boxes on langing page*/
 .info_sub_box {
   text-align: justify;
 }
@@ -113,6 +107,7 @@ h3.info_title {
   color: #343a40;
 }
 
+/* Style table in result section in the home tab */
 table.desc_table {
   table-layout: auto;
   width: 100%;
@@ -138,4 +133,14 @@ table.desc_table {
 
 .desc_table tr:last-child td {
   border-bottom: 1px solid #000;
+}
+
+/* Align buttons in the dropdownButton */
+.dropdown-shinyWidgets > li:nth-child(4) > div > div:nth-child(1) {
+  display: inline-block;
+}
+
+.dropdown-shinyWidgets > li:nth-child(4) > div > div:nth-child(2) {
+  display: inline-block;
+  float: right;
 }

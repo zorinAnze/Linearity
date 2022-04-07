@@ -166,14 +166,23 @@ ui <- dashboardPage(
                   0,
                   step = 0.01
                 ),
-                actionBttn(
+                # divs around actionBttn are used to align them on one line
+                div(div(actionBttn(
                   "update_plot",
                   "Update Plot",
                   icon = icon("redo-alt"),
                   style = "simple",
                   color = "primary",
                   size = "sm"
-                ),
+                )),
+                div(actionBttn(
+                  "reset_input",
+                  "Reset Inputs",
+                  icon = icon("eraser"),
+                  style = "simple",
+                  color = "primary",
+                  size = "sm"
+                ))),
                 circle = TRUE, status = "primary",
                 icon = icon("sliders-h"), width = "300px",
                 size = "sm",
@@ -199,6 +208,7 @@ ui <- dashboardPage(
             ),
             title = "Residual Plots",
             width = 6,
+            height = 475,
             status = "primary",
             solidHeader = TRUE
           )
@@ -301,7 +311,14 @@ ui <- dashboardPage(
 
 # Server ======================================================================
 server <- function(input, output, session) {
+  # Reactive values for data
   data <- reactiveValues()
+  # Reactive values for plot inputs
+  plot_inputs <- reactiveValues(
+    label_x = NULL,
+    label_y = NULL,
+    ref_concentration = NULL
+  )
 
 
   # Fix profile picture in the header -----------------------------------------
@@ -499,6 +516,13 @@ server <- function(input, output, session) {
     hideFeedback("file_name")
   })
 
+  
+  # Reset plot inputs when reset button is pressed
+  observeEvent(input$reset_input, {
+    updateNumericInput(inputId = "ref_conc", value = 0)
+    updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
+    updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
+  })
 
   # Models --------------------------------------------------------------------
   # Model coefficients
@@ -533,11 +557,20 @@ server <- function(input, output, session) {
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
-  plt_ftd_line <- eventReactive(c(input$calc, input$update_plot),
+  plt_ftd_line <- eventReactive(
+    c(input$calc, input$update_plot),
     # ignoreInit = TRUE,
     {
-      line_plot(data$orig_df, input$conc_sol, input$pk_area, input$lab_x,
-        input$lab_y, lm_fit(), input$ref_conc,
+      # Store the inputs made in the plot settings. This is required so that
+      # the values are only used in the report when the update button has
+      # actually been pressed.
+      plot_inputs$label_x <- input$lab_x
+      plot_inputs$label_y <- input$lab_y
+      plot_inputs$ref_concentration <- input$ref_conc
+
+      line_plot(data$orig_df, input$conc_sol, input$pk_area,
+        plot_inputs$label_x, plot_inputs$label_y, lm_fit(),
+        plot_inputs$ref_concentration,
         app = TRUE
       )
     }
@@ -550,7 +583,7 @@ server <- function(input, output, session) {
     residual_plots(data$orig_df, lm_fit(), app = TRUE)
   })
 
-  output$plt_resid <- renderPlot(plt_sum_resid())
+  output$plt_resid <- renderPlot(plt_sum_resid(), height = 435)
 
   # Source data ---------------------------------------------------------------
   src_data <- eventReactive(input$calc, {
@@ -584,18 +617,18 @@ server <- function(input, output, session) {
       if (input$det_res_swtch) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-          input$lab_x, input$lab_y
+          plot_inputs$label_x, plot_inputs$label_y
         )
       } else {
         assay_rslts <- assay_rslts_rprt_smpl(
           data$orig_df, input$conc_sol, input$pk_area,
-          input$lab_x, input$lab_y
+          plot_inputs$label_x, plot_inputs$label_y
         )
       }
 
       lin_reg_rslts <- lin_reg_rslts_rprt(
         lm_fit(), input$conc_sol,
-        input$ref_conc
+        plot_inputs$ref_concentration
       )
 
       doc <- read_docx("www/template_officer.docx")
@@ -628,8 +661,8 @@ server <- function(input, output, session) {
         )) {
         doc <- doc %>%
           body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area, input$lab_x,
-            input$lab_y, lm_fit(), input$ref_conc,
+            data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
+            plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
             app = FALSE
           ),
           width = 6.3,
@@ -638,8 +671,8 @@ server <- function(input, output, session) {
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
           body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area, input$lab_x,
-            input$lab_y, lm_fit(), input$ref_conc,
+            data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
+            plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
             app = FALSE
           ),
           width = 6.3,

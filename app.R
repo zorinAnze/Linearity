@@ -21,7 +21,7 @@ options(readr.show_progress = FALSE)
 options(readxl.show_progress = FALSE)
 options(
   appName = "Method Validation",
-  appDesc = "",
+  appDesc = "Linearity",
   deployVersion = "Beta",
   email = "dominic.schaerer@novartis.com",
   author = "Dominic Schärer"
@@ -154,15 +154,20 @@ ui <- dashboardPage(
               "input.calc",
               dropdownButton(
                 textInput(
-                  "lab_x", "X-Axis Label:",
+                  "lab_x", "X-axis label:",
                   "Concentration [mg/ml]"
                 ),
                 textInput(
-                  "lab_y", "Y-Axis Label:",
+                  "lab_y", "Y-axis label:",
                   "Peak Area [mAU*min]"
                 ),
                 numericInput(
                   "ref_conc", "Reference concentration:",
+                  0,
+                  step = 0.01
+                ),
+                numericInput(
+                  "declared_content", "% of declared content:",
                   0,
                   step = 0.01
                 ),
@@ -186,7 +191,7 @@ ui <- dashboardPage(
                 circle = TRUE, status = "primary",
                 icon = icon("sliders-h"), width = "300px",
                 size = "sm",
-                tooltip = tooltipOptions(title = "Plot settings")
+                tooltip = tooltipOptions(title = "Plot Settings")
               ),
               withSpinner(plotOutput("plt_line"),
                 type = 8,
@@ -201,14 +206,14 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(plotOutput("plt_resid"),
+              withSpinner(plotOutput("plt_resid",
+                                     height = 435),
                 type = 8,
                 color = "#0460A9"
               )
             ),
             title = "Residual Plots",
             width = 6,
-            height = 475,
             status = "primary",
             solidHeader = TRUE
           )
@@ -317,7 +322,8 @@ server <- function(input, output, session) {
   plot_inputs <- reactiveValues(
     label_x = NULL,
     label_y = NULL,
-    ref_concentration = NULL
+    ref_concentration = NULL,
+    perc_declared_content = NULL
   )
 
 
@@ -328,7 +334,7 @@ server <- function(input, output, session) {
     rvalues$auth <- Authentication$new(configFile = "www/config.json")
     img_path <- paste0(
       "//my.novartis.net/User%20Photos/Profilbilder/",
-      rvalues$auth$get521(),
+      tolower(rvalues$auth$get521()),
       "_novartis_net_LThumb.jpg"
     )
     runjs(paste0(
@@ -519,9 +525,10 @@ server <- function(input, output, session) {
   
   # Reset plot inputs when reset button is pressed
   observeEvent(input$reset_input, {
-    updateNumericInput(inputId = "ref_conc", value = 0)
     updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
     updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
+    updateNumericInput(inputId = "ref_conc", value = 0)
+    updateNumericInput(inputId = "declared_content", value = 0)
   })
 
   # Models --------------------------------------------------------------------
@@ -567,6 +574,7 @@ server <- function(input, output, session) {
       plot_inputs$label_x <- input$lab_x
       plot_inputs$label_y <- input$lab_y
       plot_inputs$ref_concentration <- input$ref_conc
+      plot_inputs$perc_declared_content <- input$declared_content
 
       line_plot(data$orig_df, input$conc_sol, input$pk_area,
         plot_inputs$label_x, plot_inputs$label_y, lm_fit(),
@@ -583,7 +591,7 @@ server <- function(input, output, session) {
     residual_plots(data$orig_df, lm_fit(), app = TRUE)
   })
 
-  output$plt_resid <- renderPlot(plt_sum_resid(), height = 435)
+  output$plt_resid <- renderPlot(plt_sum_resid())
 
   # Source data ---------------------------------------------------------------
   src_data <- eventReactive(input$calc, {
@@ -628,7 +636,8 @@ server <- function(input, output, session) {
 
       lin_reg_rslts <- lin_reg_rslts_rprt(
         lm_fit(), input$conc_sol,
-        plot_inputs$ref_concentration
+        plot_inputs$ref_concentration,
+        plot_inputs$perc_declared_content
       )
 
       doc <- read_docx("www/template_officer.docx")

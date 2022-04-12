@@ -136,11 +136,16 @@ table.desc_table {
 }
 
 /* Align buttons in the dropdownButton */
-.dropdown-shinyWidgets > li:nth-child(4) > div > div:nth-child(1) {
+.dropdown-shinyWidgets > li:nth-child(5) > div > div:nth-child(1) {
   display: inline-block;
 }
 
-.dropdown-shinyWidgets > li:nth-child(4) > div > div:nth-child(2) {
+.dropdown-shinyWidgets > li:nth-child(5) > div > div:nth-child(2) {
   display: inline-block;
   float: right;
+}
+
+/* Hide app description in the header*/
+.eictxm .description {
+  display: none;
 }

@@ -8,15 +8,15 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "Correlation of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
-      "Standard deviation",
+      "Standard error",
       "Confidence interval (P = 0.95)",
       "y-intercept (b)",
       "absolute",
-      "Standard deviation",
+      "Standard error",
       "Confidence interval (P = 0.95)",
       paste0("relative to ", declared_content, "% of declared content"),
       paste0("y for x = ", declared_content, "% (y = a * x + b)"),
-      "Residual standard deviation",
+      "Residual standard error",
       "absolute",
       paste0("relative to ", declared_content, "% of declared content"),
       "Residual sum of squares"
@@ -27,14 +27,13 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "Correlation of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
-      "Standard deviation",
+      "Standard error",
       "Confidence interval (P = 0.95)",
       "y-intercept (b)",
       "absolute",
-      "Standard deviation",
+      "Standard error",
       "Confidence interval (P = 0.95)",
-      "Residual standard deviation",
-      "absolute",
+      "Residual standard error",
       "Residual sum of squares"
     )
   }
@@ -84,7 +83,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
     filter(term == "(Intercept)") %>%
     pull(conf.high)
 
-  res_sd <- mod_sum %>%
+  res_se <- mod_sum %>%
     pull(sigma)
 
   res_ss <- mod_sum %>%
@@ -96,7 +95,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
 
     b_rel <- b / y_100 * 100
 
-    res_rel <- res_sd / y_100 * 100
+    res_rel <- res_se / y_100 * 100
   }
 
   # Final data frame containing data in the right format
@@ -118,12 +117,12 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     df[11, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
     df[12, 2] <- sprintf("%.4f", round(y_100, 4))
-    df[14, 2] <- sprintf("%.4f", round(res_sd, 4))
+    df[14, 2] <- sprintf("%.4f", round(res_se, 4))
     df[15, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
     df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
   } else {
-    df[12, 2] <- sprintf("%.4f", round(res_sd, 4))
-    df[13, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[11, 2] <- sprintf("%.4f", round(res_se, 4))
+    df[12, 2] <- sprintf("%.4f", round(res_ss, 4))
   }
 
   # Convert data frame to flextable
@@ -162,7 +161,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   } else {
     ft <- ft %>%
       padding(
-        i = c(4:6, 8:10, 12), j = 1,
+        i = c(4:6, 8:10), j = 1,
         padding.left = 14, part = "body"
       )
   }

@@ -1148,10 +1148,10 @@
     },
     "survival": {
       "Package": "survival",
-      "Version": "3.2-11",
+      "Version": "3.3-1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "f4d706b25d640dbaeb56d9c9b6ce9a22"
+      "Hash": "f6189c70451d3d68e0d571235576e833"
     },
     "sys": {
       "Package": "sys",

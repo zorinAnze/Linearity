@@ -16,7 +16,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
     pull(.pred)
 
   p1 <- df %>%
-    ggplot(aes(get(conc), get(pk_area)))
+    ggplot(aes_string(conc, pk_area))
 
   if (ref_conc != 0) {
     p1 <- p1 +

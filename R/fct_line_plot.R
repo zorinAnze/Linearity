@@ -1,7 +1,7 @@
 # Function returns a scatter plot with the a regression line fitted to the data
 
 line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
-                      lm_fit, ref_conc, app = TRUE) {
+                      lm_fit, ref_conc, plt_title, app = TRUE) {
   if (app == TRUE) {
     text_size <- 16
     dot_size <- 3
@@ -30,7 +30,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
       )
   }
 
-  p1 +
+  p1 <- p1 +
     geom_smooth(
       method = lm, formula = y ~ x,
       color = "#0460A9", size = line_size, se = TRUE
@@ -41,4 +41,13 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
       y = lab_y_axis
     ) +
     theme_bw(base_size = text_size)
+
+  if (plt_title != "") {
+    p1 <- p1 +
+      ggtitle(plt_title) +
+      theme(plot.title = element_text(face = "bold",
+                                      size = rel(1.4)))
+  }
+
+  return(p1)
 }

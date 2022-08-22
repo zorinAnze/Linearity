@@ -154,6 +154,10 @@ ui <- dashboardPage(
               "input.calc",
               dropdownButton(
                 textInput(
+                  "plt_title", "Title:",
+                  ""
+                ),
+                textInput(
                   "lab_x", "X-axis label:",
                   "Concentration [mg/ml]"
                 ),
@@ -323,6 +327,7 @@ server <- function(input, output, session) {
   data <- reactiveValues()
   # Reactive values for plot inputs
   plot_inputs <- reactiveValues(
+    title_plt = "",
     label_x = "Concentration [mg/ml]",
     label_y = "Peak Area [mAU*min]",
     ref_concentration = 0,
@@ -528,6 +533,7 @@ server <- function(input, output, session) {
 
   # Reset plot inputs when reset button is pressed
   observeEvent(input$reset_input, {
+    updateTextInput(inputId = "plt_title", value = "")
     updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
     updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
     updateNumericInput(inputId = "ref_conc", value = 0)
@@ -574,6 +580,7 @@ server <- function(input, output, session) {
       # Store the inputs made in the plot settings. This is required so that
       # the values are only used in the report when the update button has
       # actually been pressed.
+      plot_inputs$title_plt <- input$plt_title
       plot_inputs$label_x <- input$lab_x
       plot_inputs$label_y <- input$lab_y
       plot_inputs$ref_concentration <- input$ref_conc
@@ -581,7 +588,7 @@ server <- function(input, output, session) {
 
       line_plot(data$orig_df, input$conc_sol, input$pk_area,
         plot_inputs$label_x, plot_inputs$label_y, lm_fit(),
-        plot_inputs$ref_concentration,
+        plot_inputs$ref_concentration, plot_inputs$title_plt,
         app = TRUE
       )
     }
@@ -645,9 +652,9 @@ server <- function(input, output, session) {
           plot_inputs$perc_declared_content
         )
       }
-      
+
       if ("Diagnostic Plots" %in% input$inc_report) {
-        res_plots <- residual_plots(data$orig_df, lm_fit(), app = FALSE) 
+        res_plots <- residual_plots(data$orig_df, lm_fit(), app = FALSE)
       }
 
 
@@ -683,6 +690,7 @@ server <- function(input, output, session) {
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
             plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
+            plot_inputs$title_plt,
             app = FALSE
           ),
           width = 6.3,
@@ -716,24 +724,24 @@ server <- function(input, output, session) {
           body_add_gg(res_plots$p1,
             width = 6.3,
             height = 3.54
-          ) %>% 
+          ) %>%
           body_add_break() %>%
-          body_add_par("") %>% 
+          body_add_par("") %>%
           body_add_gg(res_plots$p2,
-                      width = 6.3,
-                      height = 3.54
-          ) %>% 
+            width = 6.3,
+            height = 3.54
+          ) %>%
           body_add_break() %>%
-          body_add_par("") %>% 
+          body_add_par("") %>%
           body_add_gg(res_plots$p3,
-                      width = 6.3,
-                      height = 3.54
-          ) %>% 
+            width = 6.3,
+            height = 3.54
+          ) %>%
           body_add_break() %>%
-          body_add_par("") %>% 
+          body_add_par("") %>%
           body_add_gg(res_plots$p4,
-                      width = 6.3,
-                      height = 3.54
+            width = 6.3,
+            height = 3.54
           )
       }
 

@@ -172,22 +172,24 @@ ui <- dashboardPage(
                   step = 0.01
                 ),
                 # divs around actionBttn are used to align them on one line
-                div(div(actionBttn(
-                  "update_plot",
-                  "Update Plot",
-                  icon = icon("redo-alt"),
-                  style = "simple",
-                  color = "primary",
-                  size = "sm"
-                )),
-                div(actionBttn(
-                  "reset_input",
-                  "Reset Inputs",
-                  icon = icon("eraser"),
-                  style = "simple",
-                  color = "primary",
-                  size = "sm"
-                ))),
+                div(
+                  div(actionBttn(
+                    "update_plot",
+                    "Update Plot",
+                    icon = icon("redo-alt"),
+                    style = "simple",
+                    color = "primary",
+                    size = "sm"
+                  )),
+                  div(actionBttn(
+                    "reset_input",
+                    "Reset Inputs",
+                    icon = icon("eraser"),
+                    style = "simple",
+                    color = "primary",
+                    size = "sm"
+                  ))
+                ),
                 circle = TRUE, status = "primary",
                 icon = icon("sliders-h"), width = "300px",
                 size = "sm",
@@ -207,9 +209,10 @@ ui <- dashboardPage(
             conditionalPanel(
               "input.calc",
               withSpinner(plotOutput("plt_resid",
-                                     height = 435),
-                type = 8,
-                color = "#0460A9"
+                height = 435
+              ),
+              type = 8,
+              color = "#0460A9"
               )
             ),
             title = "Residual Plots",
@@ -522,7 +525,7 @@ server <- function(input, output, session) {
     hideFeedback("file_name")
   })
 
-  
+
   # Reset plot inputs when reset button is pressed
   observeEvent(input$reset_input, {
     updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
@@ -622,23 +625,27 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       w$show()
-      if (input$det_res_swtch) {
+      if (input$det_res_swtch &&
+        "Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y
         )
-      } else {
+      } else if ("Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt_smpl(
           data$orig_df, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y
         )
       }
 
-      lin_reg_rslts <- lin_reg_rslts_rprt(
-        lm_fit(), input$conc_sol,
-        plot_inputs$ref_concentration,
-        plot_inputs$perc_declared_content
-      )
+      if ("Linear Regression Results" %in% input$inc_report) {
+        lin_reg_rslts <- lin_reg_rslts_rprt(
+          lm_fit(), input$conc_sol,
+          plot_inputs$ref_concentration,
+          plot_inputs$perc_declared_content
+        )
+      }
+
 
       doc <- read_docx("www/template_officer.docx")
 

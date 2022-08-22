@@ -323,10 +323,10 @@ server <- function(input, output, session) {
   data <- reactiveValues()
   # Reactive values for plot inputs
   plot_inputs <- reactiveValues(
-    label_x = NULL,
-    label_y = NULL,
-    ref_concentration = NULL,
-    perc_declared_content = NULL
+    label_x = "Concentration [mg/ml]",
+    label_y = "Peak Area [mAU*min]",
+    ref_concentration = 0,
+    perc_declared_content = 0
   )
 
 
@@ -645,6 +645,10 @@ server <- function(input, output, session) {
           plot_inputs$perc_declared_content
         )
       }
+      
+      if ("Diagnostic Plots" %in% input$inc_report) {
+        res_plots <- residual_plots(data$orig_df, lm_fit(), app = FALSE) 
+      }
 
 
       doc <- read_docx("www/template_officer.docx")
@@ -702,12 +706,34 @@ server <- function(input, output, session) {
         "Diagnostic Plots" %in% input$inc_report
       ) {
         doc <- doc %>%
-          body_add_gg(
-            ggplot_conv(
-              residual_plots(data$orig_df, lm_fit(), app = FALSE)
-            ),
+          # body_add_gg(
+          #   ggplot_conv(
+          #     residual_plots(data$orig_df, lm_fit(), app = FALSE)
+          #   ),
+          #   width = 6.3,
+          #   height = 3.54
+          # )
+          body_add_gg(res_plots$p1,
             width = 6.3,
             height = 3.54
+          ) %>% 
+          body_add_break() %>%
+          body_add_par("") %>% 
+          body_add_gg(res_plots$p2,
+                      width = 6.3,
+                      height = 3.54
+          ) %>% 
+          body_add_break() %>%
+          body_add_par("") %>% 
+          body_add_gg(res_plots$p3,
+                      width = 6.3,
+                      height = 3.54
+          ) %>% 
+          body_add_break() %>%
+          body_add_par("") %>% 
+          body_add_gg(res_plots$p4,
+                      width = 6.3,
+                      height = 3.54
           )
       }
 

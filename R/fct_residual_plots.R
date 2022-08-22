@@ -42,9 +42,9 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
       y = "Residual"
     ) +
     theme_bw(base_size = text_size)
-  
+
   # Calculate optimal binwidth with Freedmann-Diaconis rule
-  bw <- 2 * IQR(lm_fit$fit$residuals) / length(lm_fit$fit$residuals)^(1/3)
+  bw <- 2 * IQR(lm_fit$fit$residuals) / length(lm_fit$fit$residuals)^(1 / 3)
 
   p3 <- ggplot(
     data = df,
@@ -85,7 +85,10 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
     ) +
     theme_bw(base_size = text_size)
 
-  p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
-
-  return(p_comb)
+  if (app == TRUE) {
+    p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
+    return(p_comb)
+  } else {
+    return(list(p1 = p1, p2 = p2, p3 = p3, p4 = p4))
+  }
 }

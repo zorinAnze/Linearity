@@ -20,6 +20,7 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc, title_pk_area) 
       C2 = title_conc,
       C3 = title_pk_area
     ) %>%
+    colformat_num(j = 2, big.mark = "") %>%
     align(align = "center", part = "all") %>%
     border_remove() %>%
     hline_top(

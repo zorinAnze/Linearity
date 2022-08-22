@@ -6,6 +6,7 @@ coef_tbl_datatbl <- function(lm_fit) {
       term, estimate, std.error, conf.low, conf.high, statistic,
       p.value
     ) %>%
+    mutate(sig = if_else(p.value <= 0.05, "yes", "no")) %>% 
     datatable(
       options = list(
         searching = FALSE,
@@ -23,7 +24,8 @@ coef_tbl_datatbl <- function(lm_fit) {
         "95% CI (low)" = "conf.low",
         "95% CI (high)" = "conf.high",
         "t-statistic" = "statistic",
-        "p-value" = "p.value"
+        "p-value" = "p.value",
+        "significantly different from 0" = "sig"
       )
     ) %>%
     formatRound(columns = c(2:7), digits = 4, mark = "")

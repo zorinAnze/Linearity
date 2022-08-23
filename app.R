@@ -636,12 +636,12 @@ server <- function(input, output, session) {
         "Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-          plot_inputs$label_x, plot_inputs$label_y
+          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
         )
       } else if ("Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt_smpl(
           data$orig_df, input$conc_sol, input$pk_area,
-          plot_inputs$label_x, plot_inputs$label_y
+          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
         )
       }
 
@@ -701,6 +701,7 @@ server <- function(input, output, session) {
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
             plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
+            plot_inputs$title_plt,
             app = FALSE
           ),
           width = 6.3,

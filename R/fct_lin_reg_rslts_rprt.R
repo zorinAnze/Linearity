@@ -10,10 +10,14 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "absolute",
       "Standard error",
       "Confidence interval (P = 0.95)",
+      "P-Value",
+      "Significantly different from 0?",
       "y-intercept (b)",
       "absolute",
       "Standard error",
       "Confidence interval (P = 0.95)",
+      "P-Value",
+      "Significantly different from 0?",
       paste0("relative to ", declared_content, "% of declared content"),
       paste0("y for x = ", declared_content, "% (y = a * x + b)"),
       "Residual standard error",
@@ -29,10 +33,14 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "absolute",
       "Standard error",
       "Confidence interval (P = 0.95)",
+      "P-Value",
+      "Significantly different from 0?",
       "y-intercept (b)",
       "absolute",
       "Standard error",
       "Confidence interval (P = 0.95)",
+      "P-Value",
+      "Significantly different from 0?",
       "Residual standard error",
       "Residual sum of squares"
     )
@@ -66,6 +74,12 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   a_ci_h <- mod_coef %>%
     filter(term != "(Intercept)") %>%
     pull(conf.high)
+  
+  a_pval <- mod_coef %>%
+    filter(term != "(Intercept)") %>%
+    pull(p.value)
+  
+  a_sig <- if_else(a_pval <= 0.05, "yes", "no")
 
   b <- mod_coef %>%
     filter(term == "(Intercept)") %>%
@@ -82,6 +96,12 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   b_ci_h <- mod_coef %>%
     filter(term == "(Intercept)") %>%
     pull(conf.high)
+  
+  b_pval <- mod_coef %>%
+    filter(term == "(Intercept)") %>%
+    pull(p.value)
+  
+  b_sig <- if_else(b_pval <= 0.05, "yes", "no")
 
   res_se <- mod_sum %>%
     pull(sigma)
@@ -107,22 +127,26 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
     sprintf("%.4f", round(a_ci_l, 4)), " – ",
     sprintf("%.4f", round(a_ci_h, 4))
   )
-  df[8, 2] <- sprintf("%.4f", round(b, 4))
-  df[9, 2] <- sprintf("%.4f", round(b_se, 4))
-  df[10, 2] <- paste0(
+  df[7, 2] <- sprintf("%.4f", round(a_pval, 4))
+  df[8, 2] <- a_sig
+  df[10, 2] <- sprintf("%.4f", round(b, 4))
+  df[11, 2] <- sprintf("%.4f", round(b_se, 4))
+  df[12, 2] <- paste0(
     sprintf("%.4f", round(b_ci_l, 4)), " – ",
     sprintf("%.4f", round(b_ci_h, 4))
   )
+  df[13, 2] <- sprintf("%.4f", round(b_pval, 4))
+  df[14, 2] <- b_sig
 
   if (ref_conc != 0 && declared_content != 0) {
-    df[11, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
-    df[12, 2] <- sprintf("%.4f", round(y_100, 4))
-    df[14, 2] <- sprintf("%.4f", round(res_se, 4))
-    df[15, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
-    df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[15, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
+    df[16, 2] <- sprintf("%.4f", round(y_100, 4))
+    df[17, 2] <- sprintf("%.4f", round(res_se, 4))
+    df[18, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
+    df[19, 2] <- sprintf("%.4f", round(res_ss, 4))
   } else {
-    df[11, 2] <- sprintf("%.4f", round(res_se, 4))
-    df[12, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[15, 2] <- sprintf("%.4f", round(res_se, 4))
+    df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
   }
 
   # Convert data frame to flextable
@@ -155,13 +179,13 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     ft <- ft %>%
       padding(
-        i = c(4:6, 8:11, 14:15), j = 1,
+        i = c(4:8, 10:16, 18:19), j = 1,
         padding.left = 14, part = "body"
       )
   } else {
     ft <- ft %>%
       padding(
-        i = c(4:6, 8:10), j = 1,
+        i = c(4:8, 10:14), j = 1,
         padding.left = 14, part = "body"
       )
   }

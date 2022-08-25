@@ -14,6 +14,7 @@ library(DT)
 library(flextable)
 library(officer)
 library(waiter)
+library(outliers)
 
 
 # Options ---------------------------------------------------------------------
@@ -108,6 +109,12 @@ ui <- dashboardPage(
             ),
             conditionalPanel(
               "output.import_ready",
+              selectInput("conc_lvl", "Concentration level column:",
+                choices = c(Choose = "")
+              )
+            ),
+            conditionalPanel(
+              "input.conc_lvl",
               selectInput("conc_sol", "Concentration of solution column:",
                 choices = c(Choose = "")
               )
@@ -266,21 +273,25 @@ ui <- dashboardPage(
             width = 6,
             status = "primary",
             solidHeader = TRUE
-          )
+          )#,
+          # box(
+          #   conditionalPanel(
+          #     "input.calc",
+          #     withSpinner(verbatimTextOutput("mod_hmscdstcty"),
+          #       type = 8,
+          #       color = "#0460A9"
+          #     )
+          #   ),
+          #   title = "Homoscedasticity",
+          #   width = 6,
+          #   status = "primary",
+          #   solidHeader = TRUE
+          # )
         )
       ),
       tabItem(
         tabName = "report",
         box(
-          materialSwitch(
-            inputId = "det_res_swtch",
-            label = "Detailed Assay Results",
-            value = FALSE,
-            status = "primary"
-          ),
-          selectInput("conc_lvl", "Concentration level column:",
-            choices = c(Choose = "")
-          ),
           textInput(
             "file_name",
             "File Name:",
@@ -403,10 +414,38 @@ server <- function(input, output, session) {
   # Update the dropdown menus for the column variables ----------------------
   observeEvent(input$upload, {
     updateSelectInput(
-      inputId = "conc_sol",
+      inputId = "conc_lvl",
       choices = c(Choose = "", names(data$orig_df))
     )
   })
+
+  observeEvent(input$conc_lvl,
+    {
+      if (is.numeric(data$orig_df[[input$conc_lvl]])) {
+        hideFeedback("conc_lvl")
+        choices <- setdiff(
+          names(data$orig_df),
+          c(
+            input$conc_lvl
+          )
+        )
+        updateSelectInput(
+          inputId = "conc_sol",
+          choices = c(Choose = "", choices)
+        )
+      } else if (input$conc_lvl == "") {
+        hideFeedback("conc_lvl")
+      } else {
+        showFeedbackWarning(
+          inputId = "conc_lvl",
+          text = "Values must be numeric!",
+          color = "#EC9A1E",
+          icon = NULL
+        )
+      }
+    },
+    ignoreInit = TRUE
+  )
 
   observeEvent(input$conc_sol,
     {
@@ -415,6 +454,7 @@ server <- function(input, output, session) {
         choices <- setdiff(
           names(data$orig_df),
           c(
+            input$conc_lvl,
             input$conc_sol
           )
         )
@@ -457,61 +497,22 @@ server <- function(input, output, session) {
     ignoreInit = TRUE
   )
 
-  observeEvent(input$calc, {
-    choices <- setdiff(
-      names(data$orig_df),
-      c(
-        input$conc_sol,
-        input$pk_area
-      )
-    )
-    updateSelectInput(
-      inputId = "conc_lvl",
-      choices = c(Choose = "", choices)
-    )
-  })
-
-  observeEvent(input$conc_lvl,
-    {
-      if (is.numeric(data$orig_df[[input$conc_lvl]])) {
-        hideFeedback("conc_lvl")
-      } else if (input$conc_lvl == "") {
-        hideFeedback("conc_lvl")
-      } else {
-        showFeedbackWarning(
-          inputId = "conc_lvl",
-          text = "Values must be numeric!",
-          color = "#EC9A1E",
-          icon = NULL
-        )
-      }
-    },
-    ignoreInit = TRUE
-  )
-
 
   # Reset inputs when new file is uploaded ------------------------------------
   observeEvent(input$upload, {
     reset("conc_lvl")
     reset("conc_sol")
     reset("pk_area")
+    reset("plt_title")
     reset("lab_x")
     reset("lab_y")
     reset("ref_conc")
-    reset("calc")
   })
-
-
-  # Toggle inputs for detailed report --------------------------------------
-  shiny::observe(toggle(id = "conc_lvl", condition = input$det_res_swtch))
 
 
   # Disable download button when inputs are missing ---------------------------
   shiny::observe(if (is.null(input$inc_report) || input$pk_area == "" ||
-    is.null(input$pk_area) || input$file_name == "" ||
-    (input$conc_lvl == "" && input$det_res_swtch == TRUE) ||
-    (!is.numeric(data$orig_df[[input$conc_lvl]]) &&
-      input$det_res_swtch == TRUE)) {
+    is.null(input$pk_area) || input$file_name == "") {
     disable("gen_report_bttn")
     disable("gen_report")
   } else {
@@ -539,6 +540,7 @@ server <- function(input, output, session) {
     updateNumericInput(inputId = "ref_conc", value = 0)
     updateNumericInput(inputId = "declared_content", value = 0)
   })
+  
 
   # Models --------------------------------------------------------------------
   # Model coefficients
@@ -570,6 +572,13 @@ server <- function(input, output, session) {
   output$mod_anova <- renderDT({
     anova_tbl_datatbl(anova_fit())
   })
+
+  # Homoscedasticity
+  output$mod_hmscdstcty <- renderPrint(
+    cochran.test(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
+      data = data$orig_df
+    )
+  )
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
@@ -632,18 +641,18 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       w$show()
-      if (input$det_res_swtch &&
+      if (#input$det_res_swtch &&
         "Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
         )
-      } else if ("Assay Results" %in% input$inc_report) {
-        assay_rslts <- assay_rslts_rprt_smpl(
-          data$orig_df, input$conc_sol, input$pk_area,
-          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
-        )
-      }
+      } # else if ("Assay Results" %in% input$inc_report) {
+      #   assay_rslts <- assay_rslts_rprt_smpl(
+      #     data$orig_df, input$conc_sol, input$pk_area,
+      #     plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
+      #   )
+      # }
 
       if ("Linear Regression Results" %in% input$inc_report) {
         lin_reg_rslts <- lin_reg_rslts_rprt(
@@ -715,13 +724,6 @@ server <- function(input, output, session) {
         "Diagnostic Plots" %in% input$inc_report
       ) {
         doc <- doc %>%
-          # body_add_gg(
-          #   ggplot_conv(
-          #     residual_plots(data$orig_df, lm_fit(), app = FALSE)
-          #   ),
-          #   width = 6.3,
-          #   height = 3.54
-          # )
           body_add_gg(res_plots$p1,
             width = 6.3,
             height = 3.54

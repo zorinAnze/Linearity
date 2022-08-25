@@ -59,8 +59,17 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
     ) %>%
     padding(padding.bottom = 2, padding.top = 1, part = "all") %>%
     set_table_properties(layout = "autofit", width = 1) %>%
-    fontsize(size = 9, part = "all") %>%
-    bold(i = 1:2, part = "header") %>%
+    fontsize(size = 9, part = "all")
+  
+  if (prjct_title != "") {
+    ft <- ft %>%
+      bold(i = 1:2, part = "header")
+  } else {
+    ft <- ft %>%
+      bold(i = 1, part = "header")
+  }
+  
+  ft <- ft %>%
     font(fontname = "Arial", part = "all")
 
   return(ft)

@@ -273,20 +273,20 @@ ui <- dashboardPage(
             width = 6,
             status = "primary",
             solidHeader = TRUE
-          )#,
-          # box(
-          #   conditionalPanel(
-          #     "input.calc",
-          #     withSpinner(verbatimTextOutput("mod_hmscdstcty"),
-          #       type = 8,
-          #       color = "#0460A9"
-          #     )
-          #   ),
-          #   title = "Homoscedasticity",
-          #   width = 6,
-          #   status = "primary",
-          #   solidHeader = TRUE
-          # )
+          ),
+          box(
+            conditionalPanel(
+              "input.calc",
+              withSpinner(DTOutput("mod_hmscdstcty"),
+                type = 8,
+                color = "#0460A9"
+              )
+            ),
+            title = "Homoscedasticity",
+            width = 6,
+            status = "primary",
+            solidHeader = TRUE
+          )
         )
       ),
       tabItem(
@@ -540,7 +540,7 @@ server <- function(input, output, session) {
     updateNumericInput(inputId = "ref_conc", value = 0)
     updateNumericInput(inputId = "declared_content", value = 0)
   })
-  
+
 
   # Models --------------------------------------------------------------------
   # Model coefficients
@@ -574,11 +574,14 @@ server <- function(input, output, session) {
   })
 
   # Homoscedasticity
-  output$mod_hmscdstcty <- renderPrint(
+  cochran <- reactive({
     cochran.test(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
       data = data$orig_df
     )
-  )
+  })
+  output$mod_hmscdstcty <- renderDT({
+    cochran_tbl_datatbl(cochran())
+  })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
@@ -641,7 +644,7 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       w$show()
-      if (#input$det_res_swtch &&
+      if ( # input$det_res_swtch &&
         "Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,

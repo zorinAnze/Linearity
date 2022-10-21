@@ -135,17 +135,41 @@ table.desc_table {
   border-bottom: 1px solid #000;
 }
 
-/* Align buttons in the dropdownButton */
-.dropdown-shinyWidgets > li:nth-child(6) > div > div:nth-child(1) {
-  display: inline-block;
-}
-
-.dropdown-shinyWidgets > li:nth-child(6) > div > div:nth-child(2) {
-  display: inline-block;
-  float: right;
-}
-
 /* Hide app description in the header*/
 .eictxm .description {
   display: none;
+}
+
+/* Align buttons in the box sidebar  */
+.sidebar-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Style box sidebar */
+.direct-chat-contacts {
+  color: black;
+  border-left: 1px solid #9d9d9d;
+  transition: transform 0.5s ease-in-out 0s, box-shadow 0.5s ease 0s !important;
+  left: 0px;
+}
+
+.direct-chat-contacts-open .direct-chat-contacts {
+  box-shadow: -5px 0px 10px -1px rgb(0 0 0 / 22%) !important;
+}
+      
+.reverse-tool-order .card-tools {
+  direction: rtl;
+}
+
+.reverse-tool-order .card-body {
+  padding: 20px !important;
+}
+
+.conc-container {
+  display: flex;
+  flex-wrap: wrap;
+  /*gap: 10px;*/
+  align-items: flex-end;
+  justify-content: space-between;
 }

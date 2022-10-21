@@ -1,27 +1,46 @@
 # Function returns a flextable with the assay results
 
 assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
-                             title_pk_area, prjct_title) {
+                             title_pk_area, prjct_title, thrtcl_conc,
+                             thrtcl_unit) {
   # Modify data frame
   df <- df %>%
     select(all_of(c(lvl, conc, pk_area))) %>%
+    arrange(.data[[lvl]]) %>% 
     rename(
       C1 = all_of(lvl),
       C2 = all_of(conc),
       C3 = all_of(pk_area)
     )
+  
+  if (thrtcl_conc != 0 && thrtcl_unit != "") {
+    df$C4 <- NA
+    df[1, 4] <- thrtcl_conc
+  }
 
   # Convert data frame to flextable
   ft <- flextable(df)
 
   # Format flextable
-  ft <- ft %>%
+  if (thrtcl_conc != 0 && thrtcl_unit != "") {
+    ft <- ft %>%
+      set_header_labels(
+        C1 = "Concentration level [%]",
+        C2 = title_conc,
+        C3 = title_pk_area,
+        C4 = glue("Theoretical concentration [{thrtcl_unit}]")
+      ) %>%
+      colformat_num(j = c(2, 4), big.mark = "")
+  } else {
+    ft <- ft %>%
     set_header_labels(
       C1 = "Concentration level [%]",
       C2 = title_conc,
       C3 = title_pk_area
     ) %>%
     colformat_num(j = 2, big.mark = "")
+  }
+  
 
   # Add project title, if provided
   if (prjct_title != "") {

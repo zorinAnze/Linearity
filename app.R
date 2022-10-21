@@ -160,12 +160,6 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              # dropdownButton(,
-              #   circle = TRUE, status = "primary",
-              #   icon = icon("sliders-h"), width = "300px",
-              #   size = "sm",
-              #   tooltip = tooltipOptions(title = "Plot Settings")
-              # ),
               withSpinner(plotOutput("plt_line"),
                 type = 8,
                 color = "#0460A9"

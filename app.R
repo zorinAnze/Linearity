@@ -635,7 +635,7 @@ server <- function(input, output, session) {
 
   # Plot residuals
   plt_sum_resid <- eventReactive(input$calc, {
-    residual_plots(data$orig_df, lm_fit(), app = TRUE)
+    residual_plots(data$orig_df, lm_fit(), plot_inputs$label_x, app = TRUE)
   })
 
   output$plt_resid <- renderPlot(plt_sum_resid())
@@ -695,7 +695,8 @@ server <- function(input, output, session) {
       }
       
       if ("Diagnostic Plots" %in% input$inc_report) {
-        res_plots <- residual_plots(data$orig_df, lm_fit(), app = FALSE)
+        res_plots <- residual_plots(data$orig_df, lm_fit(), 
+                                    plot_inputs$label_x, app = FALSE)
       }
 
 

@@ -1,6 +1,6 @@
 # Function returns a combination of four diagnostic residual plots
 
-residual_plots <- function(df, lm_fit, app = TRUE) {
+residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
   if (app == TRUE) {
     text_size <- 16
     dot_size <- 3
@@ -28,7 +28,7 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
 
   p2 <- ggplot(
     data = df,
-    aes(lm_fit$fit$fitted, lm_fit$fit$residuals)
+    aes(lm_fit$fit$model[, 2], lm_fit$fit$residuals)
   ) +
     geom_point(size = dot_size) +
     geom_abline(
@@ -38,7 +38,7 @@ residual_plots <- function(df, lm_fit, app = TRUE) {
       linetype = "dashed"
     ) +
     labs(
-      x = "Fitted value",
+      x = x_lab,
       y = "Residual"
     ) +
     theme_bw(base_size = text_size)

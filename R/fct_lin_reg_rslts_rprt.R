@@ -155,7 +155,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   # Format flextable
   ft <- ft %>%
     compose(i = 2, j = 1, value = as_paragraph(
-      "Correlation of determination (R", as_sup("2"), ")"
+      "Coefficient of determination (R", as_sup("2"), ")"
     )) %>%
     set_header_labels(
       C1 = "Statistical parameter",

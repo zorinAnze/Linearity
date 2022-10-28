@@ -5,7 +5,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     C1 <- c(
       "Correlation coefficient (R)",
-      "Correlation of determination (R2)",
+      "Coefficient of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
       "Standard error",
@@ -28,7 +28,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   } else {
     C1 <- c(
       "Correlation coefficient (R)",
-      "Correlation of determination (R2)",
+      "Coefficient of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
       "Standard error",

@@ -1,13 +1,11 @@
 # Function returns a flextable with the user inputs from the linearity plot
-user_input_tbl <- function(ref_conc, ref_unit, dclrd_content, thrtcl_conc,
-                           thrtcl_unit) {
+user_input_tbl <- function(ref_conc, ref_unit, dclrd_content) {
   df <- tibble(
     Parameters = c(
       "Reference concentration",
-      "% of declared content",
-      "Theoretical concentration"
+      "% of declared content"
     ),
-    Values = c(NA, NA, NA)
+    Values = c(NA, NA)
   )
 
   if (ref_conc != 0 && ref_unit != "") {
@@ -17,11 +15,6 @@ user_input_tbl <- function(ref_conc, ref_unit, dclrd_content, thrtcl_conc,
   if (dclrd_content != 0) {
     df[2, 2] <- glue("{dclrd_content}%")
   }
-
-  if (thrtcl_conc != 0 && thrtcl_unit != "") {
-    df[3, 2] <- glue("{thrtcl_conc} {thrtcl_unit}")
-  }
-
 
 
   ft <- flextable(df)

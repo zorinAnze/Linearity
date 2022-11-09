@@ -182,7 +182,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
         i = c(4:8, 10:16, 18:19), j = 1,
         padding.left = 14, part = "body"
       ) %>% 
-      bold(i = c(1:2, 9, 16:17, 19))
+      bold(i = c(1:2, 9, 15, 17, 19))
   } else {
     ft <- ft %>%
       padding(

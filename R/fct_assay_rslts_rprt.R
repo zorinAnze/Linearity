@@ -1,8 +1,8 @@
 # Function returns a flextable with the assay results
 
 assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
-                             title_pk_area, prjct_title, thrtcl_conc,
-                             thrtcl_unit) {
+                             title_pk_area, prjct_title, ref_conc,
+                             ref_unit, dclrd_content) {
   # Modify data frame
   df <- df %>%
     select(all_of(c(lvl, conc, pk_area))) %>%
@@ -13,24 +13,27 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
       C3 = all_of(pk_area)
     )
   
-  if (thrtcl_conc != 0 && thrtcl_unit != "") {
+  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
     df$C4 <- NA
-    df[1, 4] <- thrtcl_conc
+    df$C5 <- NA
+    df[1, 4] <- ref_conc
+    df[1, 5] <- dclrd_content
   }
 
   # Convert data frame to flextable
   ft <- flextable(df)
 
   # Format flextable
-  if (thrtcl_conc != 0 && thrtcl_unit != "") {
+  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
     ft <- ft %>%
       set_header_labels(
         C1 = "Concentration level [%]",
         C2 = title_conc,
         C3 = title_pk_area,
-        C4 = glue("Theoretical concentration [{thrtcl_unit}]")
+        C4 = glue("Reference concentration [{ref_unit}]"),
+        C5 = "% of declared content"
       ) %>%
-      colformat_num(j = c(2, 4), big.mark = "")
+      colformat_num(j = c(1:5), big.mark = "")
   } else {
     ft <- ft %>%
     set_header_labels(
@@ -38,7 +41,7 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
       C2 = title_conc,
       C3 = title_pk_area
     ) %>%
-    colformat_num(j = 2, big.mark = "")
+    colformat_num(j = c(1:3), big.mark = "")
   }
   
 

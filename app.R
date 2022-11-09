@@ -200,18 +200,6 @@ ui <- dashboardPage(
                 0,
                 step = 0.01
               ),
-              div(
-                class = "conc-container",
-                numericInput(
-                  "thrtcl_conc", "Theoretical concentration:",
-                  0,
-                  step = 0.01,
-                  width = validateCssUnit("calc(70% - 10px)")
-                ),
-                textInput("thrtcl_unit", "Unit:", "mg/ml",
-                  width = "30%"
-                )
-              ),
               # div around actionBttn is used to align them on one line
               div(
                 class = "sidebar-buttons",
@@ -365,8 +353,6 @@ server <- function(input, output, session) {
     ref_concentration = 0,
     ref_conc_unit = "mg/ml",
     perc_declared_content = 0,
-    thrtcl_concentration = 0,
-    thrtcl_conc_unit = "mg/ml"
   )
 
 
@@ -562,8 +548,6 @@ server <- function(input, output, session) {
     updateNumericInput(inputId = "ref_conc", value = 0)
     updateTextInput(inputId = "ref_unit", value = "mg/ml")
     updateNumericInput(inputId = "declared_content", value = 0)
-    updateNumericInput(inputId = "thrtcl_conc", value = 0)
-    updateTextInput(inputId = "thrtcl_unit", value = "mg/ml")
   })
 
 
@@ -620,8 +604,6 @@ server <- function(input, output, session) {
       plot_inputs$ref_concentration <- input$ref_conc
       plot_inputs$ref_conc_unit <- input$ref_unit
       plot_inputs$perc_declared_content <- input$declared_content
-      plot_inputs$thrtcl_concentration <- input$thrtcl_conc
-      plot_inputs$thrtcl_conc_unit <- input$thrtcl_unit
 
       line_plot(data$orig_df, input$conc_sol, input$pk_area,
         plot_inputs$label_x, plot_inputs$label_y, lm_fit(),
@@ -674,7 +656,8 @@ server <- function(input, output, session) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-          plot_inputs$thrtcl_concentration, plot_inputs$thrtcl_conc_unit
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit, 
+          plot_inputs$perc_declared_content
         )
       }
 
@@ -689,8 +672,7 @@ server <- function(input, output, session) {
       if ("Linear Regression Plot" %in% input$inc_report){
         user_inputs <- user_input_tbl(
           plot_inputs$ref_concentration, plot_inputs$ref_conc_unit, 
-          plot_inputs$perc_declared_content, plot_inputs$thrtcl_concentration,
-          plot_inputs$thrtcl_conc_unit
+          plot_inputs$perc_declared_content
         )
       }
       

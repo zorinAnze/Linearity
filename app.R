@@ -282,20 +282,20 @@ ui <- dashboardPage(
             width = 6,
             status = "primary",
             solidHeader = TRUE
-          ) # ,
-          # box(
-          #   conditionalPanel(
-          #     "input.calc",
-          #     withSpinner(verbatimTextOutput("mod_hmscdstcty"),
-          #       type = 8,
-          #       color = "#0460A9"
-          #     )
-          #   ),
-          #   title = "Homoscedasticity",
-          #   width = 6,
-          #   status = "primary",
-          #   solidHeader = TRUE
-          # )
+          ),
+          box(
+            conditionalPanel(
+              "input.calc",
+              withSpinner(DTOutput("mod_hmscdstcty"),
+                type = 8,
+                color = "#0460A9"
+              )
+            ),
+            title = "Homoscedasticity",
+            width = 6,
+            status = "primary",
+            solidHeader = TRUE
+          )
         )
       ),
       tabItem(
@@ -583,11 +583,14 @@ server <- function(input, output, session) {
   })
 
   # Homoscedasticity
-  output$mod_hmscdstcty <- renderPrint(
+  cochran <- reactive({
     cochran.test(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
       data = data$orig_df
     )
-  )
+  })
+  output$mod_hmscdstcty <- renderDT({
+    cochran_tbl_datatbl(cochran())
+  })
 
   # Plots ---------------------------------------------------------------------
   # Plot fitted line
@@ -651,12 +654,11 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       w$show()
-      if (
-        "Assay Results" %in% input$inc_report) {
+      if ("Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit, 
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
           plot_inputs$perc_declared_content
         )
       }
@@ -669,16 +671,18 @@ server <- function(input, output, session) {
         )
       }
 
-      if ("Linear Regression Plot" %in% input$inc_report){
+      if ("Linear Regression Plot" %in% input$inc_report) {
         user_inputs <- user_input_tbl(
-          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit, 
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
           plot_inputs$perc_declared_content
         )
       }
-      
+
       if ("Diagnostic Plots" %in% input$inc_report) {
-        res_plots <- residual_plots(data$orig_df, lm_fit(), 
-                                    plot_inputs$label_x, app = FALSE)
+        res_plots <- residual_plots(data$orig_df, lm_fit(),
+          plot_inputs$label_x,
+          app = FALSE
+        )
       }
 
 
@@ -719,8 +723,8 @@ server <- function(input, output, session) {
           ),
           width = 6.3,
           height = 3.54
-          ) %>% 
-          body_add_par_n(5) %>% 
+          ) %>%
+          body_add_par_n(5) %>%
           body_add_flextable(user_inputs)
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
@@ -732,8 +736,8 @@ server <- function(input, output, session) {
           ),
           width = 6.3,
           height = 3.54
-          ) %>% 
-          body_add_par_n(5) %>% 
+          ) %>%
+          body_add_par_n(5) %>%
           body_add_flextable(user_inputs) %>%
           body_add_break() %>%
           body_add_par("")

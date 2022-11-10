@@ -1,27 +1,49 @@
 # Function returns a flextable with the assay results
 
 assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
-                             title_pk_area, prjct_title) {
+                             title_pk_area, prjct_title, ref_conc,
+                             ref_unit, dclrd_content) {
   # Modify data frame
   df <- df %>%
     select(all_of(c(lvl, conc, pk_area))) %>%
+    arrange(.data[[lvl]]) %>% 
     rename(
       C1 = all_of(lvl),
       C2 = all_of(conc),
       C3 = all_of(pk_area)
     )
+  
+  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+    df$C4 <- NA
+    df$C5 <- NA
+    df[1, 4] <- ref_conc
+    df[1, 5] <- dclrd_content
+  }
 
   # Convert data frame to flextable
   ft <- flextable(df)
 
   # Format flextable
-  ft <- ft %>%
+  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+    ft <- ft %>%
+      set_header_labels(
+        C1 = "Concentration level [%]",
+        C2 = title_conc,
+        C3 = title_pk_area,
+        C4 = glue("Reference concentration [{ref_unit}]"),
+        C5 = "% of declared content"
+      ) %>%
+      colformat_num(j = c(1:5), big.mark = "")
+  } else {
+    ft <- ft %>%
     set_header_labels(
       C1 = "Concentration level [%]",
       C2 = title_conc,
       C3 = title_pk_area
     ) %>%
-    colformat_num(j = 2, big.mark = "")
+    colformat_num(j = c(1:3), big.mark = "")
+  }
+  
 
   # Add project title, if provided
   if (prjct_title != "") {

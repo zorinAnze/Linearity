@@ -15,6 +15,7 @@ library(flextable)
 library(officer)
 library(waiter)
 library(outliers)
+library(glue)
 
 
 # Options ---------------------------------------------------------------------
@@ -159,71 +160,79 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              dropdownButton(
-                textInput(
-                  "plt_title", "Title:",
-                  ""
-                ),
-                textInput(
-                  "lab_x", "X-axis label:",
-                  "Concentration [mg/ml]"
-                ),
-                textInput(
-                  "lab_y", "Y-axis label:",
-                  "Peak Area [mAU*min]"
-                ),
-                numericInput(
-                  "ref_conc", "Reference concentration:",
-                  0,
-                  step = 0.01
-                ),
-                numericInput(
-                  "declared_content", "% of declared content:",
-                  0,
-                  step = 0.01
-                ),
-                # divs around actionBttn are used to align them on one line
-                div(
-                  div(actionBttn(
-                    "update_plot",
-                    "Update Plot",
-                    icon = icon("redo-alt"),
-                    style = "simple",
-                    color = "primary",
-                    size = "sm"
-                  )),
-                  div(actionBttn(
-                    "reset_input",
-                    "Reset Inputs",
-                    icon = icon("eraser"),
-                    style = "simple",
-                    color = "primary",
-                    size = "sm"
-                  ))
-                ),
-                circle = TRUE, status = "primary",
-                icon = icon("sliders-h"), width = "300px",
-                size = "sm",
-                tooltip = tooltipOptions(title = "Plot Settings")
-              ),
               withSpinner(plotOutput("plt_line"),
                 type = 8,
                 color = "#0460A9"
+              )
+            ),
+            sidebar = boxSidebar(
+              id = "line_plt_sidebar",
+              background = "#fff",
+              startOpen = FALSE,
+              width = 50,
+              icon = icon("chart-bar"),
+              textInput(
+                "plt_title", "Title:",
+                ""
+              ),
+              textInput(
+                "lab_x", "X-axis label:",
+                "Concentration [mg/ml]"
+              ),
+              textInput(
+                "lab_y", "Y-axis label:",
+                "Peak Area [mAU*min]"
+              ),
+              div(
+                class = "conc-container",
+                numericInput(
+                  "ref_conc", "Reference concentration:",
+                  0,
+                  step = 0.01,
+                  width = validateCssUnit("calc(70% - 10px)")
+                ),
+                textInput("ref_unit", "Unit:", "mg/ml",
+                  width = "30%"
+                )
+              ),
+              numericInput(
+                "declared_content", "% of declared content:",
+                0,
+                step = 0.01
+              ),
+              # div around actionBttn is used to align them on one line
+              div(
+                class = "sidebar-buttons",
+                actionBttn(
+                  "update_plot",
+                  "Update Plot",
+                  icon = icon("redo-alt"),
+                  style = "simple",
+                  color = "primary",
+                  size = "sm"
+                ),
+                actionBttn(
+                  "reset_input",
+                  "Reset Inputs",
+                  icon = icon("eraser"),
+                  style = "simple",
+                  color = "primary",
+                  size = "sm"
+                )
               )
             ),
             title = "Fitted Line Plot",
             width = 6,
             status = "primary",
             solidHeader = TRUE
-          ),
+          ) %>%
+            tagAppendAttributes(class = "reverse-tool-order"),
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(plotOutput("plt_resid",
-                height = 435
-              ),
-              type = 8,
-              color = "#0460A9"
+              withSpinner(plotOutput("plt_resid"),
+                type = 8,
+                color = "#0460A9"
               )
             ),
             title = "Residual Plots",
@@ -342,7 +351,8 @@ server <- function(input, output, session) {
     label_x = "Concentration [mg/ml]",
     label_y = "Peak Area [mAU*min]",
     ref_concentration = 0,
-    perc_declared_content = 0
+    ref_conc_unit = "mg/ml",
+    perc_declared_content = 0,
   )
 
 
@@ -390,8 +400,6 @@ server <- function(input, output, session) {
       )
       colnames(tmp) <- make.names(colnames(tmp), unique = TRUE)
       data$orig_df <- tmp
-      # Use javascript to update datatable when hidden
-      runjs("$('#data_table table').DataTable().draw();")
     } else {
       showFeedbackWarning(
         inputId = "upload",
@@ -538,6 +546,7 @@ server <- function(input, output, session) {
     updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
     updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
     updateNumericInput(inputId = "ref_conc", value = 0)
+    updateTextInput(inputId = "ref_unit", value = "mg/ml")
     updateNumericInput(inputId = "declared_content", value = 0)
   })
 
@@ -596,6 +605,7 @@ server <- function(input, output, session) {
       plot_inputs$label_x <- input$lab_x
       plot_inputs$label_y <- input$lab_y
       plot_inputs$ref_concentration <- input$ref_conc
+      plot_inputs$ref_conc_unit <- input$ref_unit
       plot_inputs$perc_declared_content <- input$declared_content
 
       line_plot(data$orig_df, input$conc_sol, input$pk_area,
@@ -610,7 +620,7 @@ server <- function(input, output, session) {
 
   # Plot residuals
   plt_sum_resid <- eventReactive(input$calc, {
-    residual_plots(data$orig_df, lm_fit(), app = TRUE)
+    residual_plots(data$orig_df, lm_fit(), plot_inputs$label_x, app = TRUE)
   })
 
   output$plt_resid <- renderPlot(plt_sum_resid())
@@ -644,18 +654,14 @@ server <- function(input, output, session) {
     },
     content = function(file) {
       w$show()
-      if ( # input$det_res_swtch &&
-        "Assay Results" %in% input$inc_report) {
+      if ("Assay Results" %in% input$inc_report) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
+          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+          plot_inputs$perc_declared_content
         )
-      } # else if ("Assay Results" %in% input$inc_report) {
-      #   assay_rslts <- assay_rslts_rprt_smpl(
-      #     data$orig_df, input$conc_sol, input$pk_area,
-      #     plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt
-      #   )
-      # }
+      }
 
       if ("Linear Regression Results" %in% input$inc_report) {
         lin_reg_rslts <- lin_reg_rslts_rprt(
@@ -665,8 +671,18 @@ server <- function(input, output, session) {
         )
       }
 
+      if ("Linear Regression Plot" %in% input$inc_report) {
+        user_inputs <- user_input_tbl(
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+          plot_inputs$perc_declared_content
+        )
+      }
+
       if ("Diagnostic Plots" %in% input$inc_report) {
-        res_plots <- residual_plots(data$orig_df, lm_fit(), app = FALSE)
+        res_plots <- residual_plots(data$orig_df, lm_fit(),
+          plot_inputs$label_x,
+          app = FALSE
+        )
       }
 
 
@@ -707,7 +723,9 @@ server <- function(input, output, session) {
           ),
           width = 6.3,
           height = 3.54
-          )
+          ) %>%
+          body_add_par_n(5) %>%
+          body_add_flextable(user_inputs)
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
           body_add_gg(line_plot(
@@ -719,6 +737,8 @@ server <- function(input, output, session) {
           width = 6.3,
           height = 3.54
           ) %>%
+          body_add_par_n(5) %>%
+          body_add_flextable(user_inputs) %>%
           body_add_break() %>%
           body_add_par("")
       }

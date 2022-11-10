@@ -5,7 +5,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     C1 <- c(
       "Correlation coefficient (R)",
-      "Correlation of determination (R2)",
+      "Coefficient of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
       "Standard error",
@@ -20,7 +20,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "Significantly different from 0?",
       paste0("relative to ", declared_content, "% of declared content"),
       paste0("y for x = ", declared_content, "% (y = a * x + b)"),
-      "Residual standard error",
+      "Residual standard deviation",
       "absolute",
       paste0("relative to ", declared_content, "% of declared content"),
       "Residual sum of squares"
@@ -28,7 +28,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   } else {
     C1 <- c(
       "Correlation coefficient (R)",
-      "Correlation of determination (R2)",
+      "Coefficient of determination (R2)",
       "Slope of the regression line (a)",
       "absolute",
       "Standard error",
@@ -41,7 +41,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "Confidence interval (P = 0.95)",
       "P-Value",
       "Significantly different from 0?",
-      "Residual standard error",
+      "Residual standard deviation",
       "Residual sum of squares"
     )
   }
@@ -103,7 +103,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   
   b_sig <- if_else(b_pval <= 0.05, "yes", "no")
 
-  res_se <- mod_sum %>%
+  res_sd <- mod_sum %>%
     pull(sigma)
 
   res_ss <- mod_sum %>%
@@ -115,7 +115,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
 
     b_rel <- b / y_100 * 100
 
-    res_rel <- res_se / y_100 * 100
+    res_rel <- res_sd / y_100 * 100
   }
 
   # Final data frame containing data in the right format
@@ -141,11 +141,11 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     df[15, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
     df[16, 2] <- sprintf("%.4f", round(y_100, 4))
-    df[17, 2] <- sprintf("%.4f", round(res_se, 4))
-    df[18, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
-    df[19, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[18, 2] <- sprintf("%.4f", round(res_sd, 4))
+    df[19, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
+    df[20, 2] <- sprintf("%.4f", round(res_ss, 4))
   } else {
-    df[15, 2] <- sprintf("%.4f", round(res_se, 4))
+    df[15, 2] <- sprintf("%.4f", round(res_sd, 4))
     df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
   }
 
@@ -155,7 +155,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   # Format flextable
   ft <- ft %>%
     compose(i = 2, j = 1, value = as_paragraph(
-      "Correlation of determination (R", as_sup("2"), ")"
+      "Coefficient of determination (R", as_sup("2"), ")"
     )) %>%
     set_header_labels(
       C1 = "Statistical parameter",
@@ -181,13 +181,15 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       padding(
         i = c(4:8, 10:16, 18:19), j = 1,
         padding.left = 14, part = "body"
-      )
+      ) %>% 
+      bold(i = c(1:2, 9, 15, 17, 19))
   } else {
     ft <- ft %>%
       padding(
         i = c(4:8, 10:14), j = 1,
         padding.left = 14, part = "body"
-      )
+      ) %>% 
+      bold(i = c(1:2))
   }
 
   ft <- ft %>%

@@ -12,6 +12,29 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
     line_size <- 0.5
   }
 
+  # Summarise model
+  mod_coef <- tidy(lm_fit, conf.int = TRUE)
+  mod_sum <- glance(lm_fit)
+
+  # Extract individual parameters
+  R <- sprintf("%.5f", round(sqrt(mod_sum$r.squared), 5))
+
+  a <- mod_coef %>%
+    filter(term != "(Intercept)") %>%
+    pull(estimate)
+
+  a <- sprintf("%.4f", round(a, 4))
+
+  b <- mod_coef %>%
+    filter(term == "(Intercept)") %>%
+    pull(estimate)
+
+  b_abs <- sprintf("%.4f", round(abs(b), 4))
+  b_sign <- if_else(b >= 0, "+", "-")
+
+  # Equation of regression line
+  eq <- glue("y = {a}x {b_sign} {b_abs}\nR = {R}")
+
   y_100 <- predict(lm_fit, new_data = tibble(!!conc := ref_conc)) %>%
     pull(.pred)
 
@@ -47,14 +70,22 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
       (0 - min(df[[pk_area]])),
       max(df[[pk_area]]) * 1.5
     )) +
-    coord_cartesian(xlim = c(0, max(df[[conc]]) * 1.05),
-                    ylim = c(0, max(df[[pk_area]]) * 1.05)
-                    ) +
+    coord_cartesian(
+      xlim = c(0, max(df[[conc]]) * 1.05),
+      ylim = c(0, max(df[[pk_area]]) * 1.05)
+    ) +
     labs(
       x = lab_x_axis,
       y = lab_y_axis
     ) +
-    theme_bw(base_size = text_size)
+    theme_bw(base_size = text_size) +
+    annotate("text",
+      label = eq,
+      x = 0.05 * max(df[[conc]]),
+      y = 0.95 * max(df[[pk_area]]),
+      size = text_size * 0.36,
+      hjust = 0, vjust = 1
+    )
 
   if (plt_title != "") {
     p1 <- p1 +

@@ -89,6 +89,34 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
     p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
     return(p_comb)
   } else {
+    p1 <- p1 +
+      ggtitle("Quantile-Quantile Plot") +
+      theme(plot.title = element_text(
+        face = "bold",
+        size = rel(1.4)
+      ))
+
+    p2 <- p2 +
+      ggtitle("Residuals vs Independent Values Plot") +
+      theme(plot.title = element_text(
+        face = "bold",
+        size = rel(1.4)
+      ))
+
+    p3 <- p3 +
+      ggtitle("Residual Histogram") +
+      theme(plot.title = element_text(
+        face = "bold",
+        size = rel(1.4)
+      ))
+
+    p4 <- p4 +
+      ggtitle("Residual vs Order Plot") +
+      theme(plot.title = element_text(
+        face = "bold",
+        size = rel(1.4)
+      ))
+
     return(list(p1 = p1, p2 = p2, p3 = p3, p4 = p4))
   }
 }

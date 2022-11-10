@@ -19,11 +19,12 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
       "P-Value",
       "Significantly different from 0?",
       paste0("relative to ", declared_content, "% of declared content"),
-      paste0("y for x = ", declared_content, "% (y = a * x + b)"),
+      #paste0("y for x = ", declared_content, "% (y = a * x + b)"),
       "Residual standard deviation",
       "absolute",
       paste0("relative to ", declared_content, "% of declared content"),
-      "Residual sum of squares"
+      "Residual sum of squares",
+      paste0("y for x = ", declared_content, "% (y = a * x + b)")
     )
   } else {
     C1 <- c(
@@ -140,10 +141,10 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
 
   if (ref_conc != 0 && declared_content != 0) {
     df[15, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
-    df[16, 2] <- sprintf("%.4f", round(y_100, 4))
-    df[18, 2] <- sprintf("%.4f", round(res_sd, 4))
-    df[19, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
-    df[20, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[17, 2] <- sprintf("%.4f", round(res_sd, 4))
+    df[18, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
+    df[19, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[20, 2] <- sprintf("%.4f", round(y_100, 4))
   } else {
     df[15, 2] <- sprintf("%.4f", round(res_sd, 4))
     df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
@@ -179,17 +180,17 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   if (ref_conc != 0 && declared_content != 0) {
     ft <- ft %>%
       padding(
-        i = c(4:8, 10:16, 18:19), j = 1,
+        i = c(4:8, 10:15, 17:18), j = 1,
         padding.left = 14, part = "body"
       ) %>% 
-      bold(i = c(1:2, 9, 15, 17, 19))
+      bold(i = c(1:3, 9, 16, 19:20), j = 1)
   } else {
     ft <- ft %>%
       padding(
         i = c(4:8, 10:14), j = 1,
         padding.left = 14, part = "body"
       ) %>% 
-      bold(i = c(1:2))
+      bold(i = c(1:3, 9, 15:16), j = 1)
   }
 
   ft <- ft %>%

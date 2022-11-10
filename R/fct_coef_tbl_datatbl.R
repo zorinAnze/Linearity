@@ -6,7 +6,9 @@ coef_tbl_datatbl <- function(lm_fit) {
       term, estimate, std.error, conf.low, conf.high, statistic,
       p.value
     ) %>%
-    mutate(sig = if_else(p.value <= 0.05, "yes", "no")) %>% 
+    mutate(sig = if_else(p.value <= 0.05, "yes", "no"),
+           term = if_else(term == "(Intercept)", "Intercept (b)", "Slope (a)")
+           ) %>% 
     datatable(
       options = list(
         searching = FALSE,

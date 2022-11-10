@@ -7,15 +7,19 @@ library(shinyjs)
 library(shinyWidgets)
 library(readr)
 library(readxl)
-library(tidymodels)
-library(ggplotify)
-library(gridExtra)
+library(broom)
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(tidyr)
+library(parsnip)
 library(DT)
 library(flextable)
 library(officer)
 library(waiter)
 library(outliers)
 library(glue)
+library(shinyglide)
 
 
 # Options ---------------------------------------------------------------------
@@ -160,7 +164,7 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(plotOutput("plt_line"),
+              withSpinner(plotOutput("plt_line", height = "454px"),
                 type = 8,
                 color = "#0460A9"
               )
@@ -230,10 +234,28 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-              withSpinner(plotOutput("plt_resid"),
-                type = 8,
-                color = "#0460A9"
-              )
+                glide(
+                  shinyglide::screen(
+                    withSpinner(plotOutput("plt_resid_1"),
+                                type = 8,
+                                color = "#0460A9")
+                  ),
+                  shinyglide::screen(
+                    withSpinner(plotOutput("plt_resid_2"),
+                                type = 8,
+                                color = "#0460A9")
+                  ),
+                  shinyglide::screen(
+                    withSpinner(plotOutput("plt_resid_3"),
+                                type = 8,
+                                color = "#0460A9")
+                  ),
+                  shinyglide::screen(
+                    withSpinner(plotOutput("plt_resid_4"),
+                                type = 8,
+                                color = "#0460A9")
+                  )
+                )
             ),
             title = "Residual Plots",
             width = 6,
@@ -615,7 +637,7 @@ server <- function(input, output, session) {
       )
     }
   )
-
+  
   output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
@@ -623,7 +645,10 @@ server <- function(input, output, session) {
     residual_plots(data$orig_df, lm_fit(), plot_inputs$label_x, app = TRUE)
   })
 
-  output$plt_resid <- renderPlot(plt_sum_resid())
+  output$plt_resid_1 <- renderPlot(plt_sum_resid()$p1)
+  output$plt_resid_2 <- renderPlot(plt_sum_resid()$p2)
+  output$plt_resid_3 <- renderPlot(plt_sum_resid()$p3)
+  output$plt_resid_4 <- renderPlot(plt_sum_resid()$p4)
 
   # Source data ---------------------------------------------------------------
   src_data <- eventReactive(input$calc, {

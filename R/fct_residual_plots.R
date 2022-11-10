@@ -23,7 +23,12 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
       x = "Theoretical Quantiles",
       y = "Sample Quantiles"
     ) +
-    theme_bw(base_size = text_size)
+    theme_bw(base_size = text_size) +
+    ggtitle("Quantile-Quantile Plot") +
+    theme(plot.title = element_text(
+      face = "bold",
+      size = rel(1.4)
+    ))
 
 
   p2 <- ggplot(
@@ -41,7 +46,12 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
       x = x_lab,
       y = "Residual"
     ) +
-    theme_bw(base_size = text_size)
+    theme_bw(base_size = text_size) +
+    ggtitle("Residuals vs Independent Values Plot") +
+    theme(plot.title = element_text(
+      face = "bold",
+      size = rel(1.4)
+    ))
 
   # Calculate optimal binwidth with Freedmann-Diaconis rule
   bw <- 2 * IQR(lm_fit$fit$residuals) / length(lm_fit$fit$residuals)^(1 / 3)
@@ -56,7 +66,12 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
       y = "Frequency"
     ) +
     scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
-    theme_bw(base_size = text_size)
+    theme_bw(base_size = text_size) +
+    ggtitle("Residual Histogram") +
+    theme(plot.title = element_text(
+      face = "bold",
+      size = rel(1.4)
+    ))
 
   p4 <- ggplot(
     data = df,
@@ -83,40 +98,12 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
       x = "Observation Order",
       y = "Residual"
     ) +
-    theme_bw(base_size = text_size)
-
-  if (app == TRUE) {
-    p_comb <- grid.arrange(p1, p2, p3, p4, nrow = 2)
-    return(p_comb)
-  } else {
-    p1 <- p1 +
-      ggtitle("Quantile-Quantile Plot") +
-      theme(plot.title = element_text(
-        face = "bold",
-        size = rel(1.4)
-      ))
-
-    p2 <- p2 +
-      ggtitle("Residuals vs Independent Values Plot") +
-      theme(plot.title = element_text(
-        face = "bold",
-        size = rel(1.4)
-      ))
-
-    p3 <- p3 +
-      ggtitle("Residual Histogram") +
-      theme(plot.title = element_text(
-        face = "bold",
-        size = rel(1.4)
-      ))
-
-    p4 <- p4 +
-      ggtitle("Residual vs Order Plot") +
-      theme(plot.title = element_text(
-        face = "bold",
-        size = rel(1.4)
-      ))
-
+    theme_bw(base_size = text_size) +
+    ggtitle("Residual vs Order Plot") +
+    theme(plot.title = element_text(
+      face = "bold",
+      size = rel(1.4)
+    ))
+      
     return(list(p1 = p1, p2 = p2, p3 = p3, p4 = p4))
-  }
 }

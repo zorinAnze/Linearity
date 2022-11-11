@@ -337,7 +337,7 @@ ui <- dashboardPage(
             choices = c(
               "Assay Results", "Linear Regression Results",
               "Linear Regression Plot",
-              "Diagnostic Plots"
+              "Diagnostic Plots", "Results required by ANVISA"
             ),
             selected = c(
               "Assay Results", "Linear Regression Results",
@@ -710,21 +710,27 @@ server <- function(input, output, session) {
         )
       }
 
+      if ("Results required by ANVISA" %in% input$inc_report) {
+        anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), anova_fit())
+      }
+
 
       doc <- read_docx("www/template_officer.docx")
 
       if ("Assay Results" %in% input$inc_report &&
         "Assay Results" == tail(input$inc_report, n = 1)) {
         doc <- doc %>%
-          body_add_par("Data Verification Report for Linearity Assessment", 
-                       style = "heading 1") %>% 
-          body_add_par_n(2) %>% 
+          body_add_par("Data Verification Report for Linearity Assessment",
+            style = "heading 1"
+          ) %>%
+          body_add_par_n(2) %>%
           body_add_flextable(assay_rslts)
       } else if ("Assay Results" %in% input$inc_report) {
         doc <- doc %>%
-          body_add_par("Data Verification Report for Linearity Assessment", 
-                       style = "heading 1") %>% 
-          body_add_par_n(2) %>% 
+          body_add_par("Data Verification Report for Linearity Assessment",
+            style = "heading 1"
+          ) %>%
+          body_add_par_n(2) %>%
           body_add_flextable(assay_rslts) %>%
           body_add_break() %>%
           body_add_par("")
@@ -733,14 +739,16 @@ server <- function(input, output, session) {
       if ("Linear Regression Results" %in% input$inc_report &&
         "Linear Regression Results" == tail(input$inc_report, n = 1)) {
         doc <- doc %>%
-          body_add_par("Linear Regression Results", 
-                       style = "heading 1") %>% 
+          body_add_par("Linear Regression Results",
+            style = "heading 1"
+          ) %>%
           body_add_par_n(2) %>%
           body_add_flextable(lin_reg_rslts)
       } else if ("Linear Regression Results" %in% input$inc_report) {
         doc <- doc %>%
-          body_add_par("Linear Regression Results", 
-                       style = "heading 1") %>% 
+          body_add_par("Linear Regression Results",
+            style = "heading 1"
+          ) %>%
           body_add_par_n(2) %>%
           body_add_flextable(lin_reg_rslts) %>%
           body_add_break() %>%
@@ -752,8 +760,9 @@ server <- function(input, output, session) {
           n = 1
         )) {
         doc <- doc %>%
-          body_add_par("Linear Regression Plot", 
-                       style = "heading 1") %>% 
+          body_add_par("Linear Regression Plot",
+            style = "heading 1"
+          ) %>%
           body_add_par_n(2) %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
@@ -768,8 +777,9 @@ server <- function(input, output, session) {
           body_add_flextable(user_inputs)
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
-          body_add_par("Linear Regression Plot", 
-                       style = "heading 1") %>% 
+          body_add_par("Linear Regression Plot",
+            style = "heading 1"
+          ) %>%
           body_add_par_n(2) %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
@@ -787,17 +797,20 @@ server <- function(input, output, session) {
       }
 
       if (
-        "Diagnostic Plots" %in% input$inc_report
-      ) {
+        "Diagnostic Plots" %in% input$inc_report &&
+          "Diagnostic Plots" == tail(input$inc_report,
+            n = 1
+          )) {
         doc <- doc %>%
-          body_add_par("Diagnostic Plots", 
-                       style = "heading 1") %>% 
+          body_add_par("Diagnostic Plots",
+            style = "heading 1"
+          ) %>%
           body_add_par_n(2) %>%
           body_add_gg(res_plots$p1,
             width = 6.3,
             height = 3.54
           ) %>%
-          body_add_par_n(5) %>% 
+          body_add_par_n(5) %>%
           body_add_gg(res_plots$p2,
             width = 6.3,
             height = 3.54
@@ -808,11 +821,48 @@ server <- function(input, output, session) {
             width = 6.3,
             height = 3.54
           ) %>%
-          body_add_par_n(5) %>% 
+          body_add_par_n(5) %>%
           body_add_gg(res_plots$p4,
             width = 6.3,
             height = 3.54
           )
+      } else if ("Diagnostic Plots" %in% input$inc_report) {
+        doc <- doc %>%
+          body_add_par("Diagnostic Plots",
+            style = "heading 1"
+          ) %>%
+          body_add_par_n(2) %>%
+          body_add_gg(res_plots$p1,
+            width = 6.3,
+            height = 3.54
+          ) %>%
+          body_add_par_n(5) %>%
+          body_add_gg(res_plots$p2,
+            width = 6.3,
+            height = 3.54
+          ) %>%
+          body_add_break() %>%
+          body_add_par("") %>%
+          body_add_gg(res_plots$p3,
+            width = 6.3,
+            height = 3.54
+          ) %>%
+          body_add_par_n(5) %>%
+          body_add_gg(res_plots$p4,
+            width = 6.3,
+            height = 3.54
+          ) %>%
+          body_add_break() %>%
+          body_add_par("")
+      }
+
+      if ("Results required by ANVISA" %in% input$inc_report) {
+        doc <- doc %>%
+          body_add_par("Results required by ANVISA",
+            style = "heading 1"
+          ) %>%
+          body_add_par_n(2) %>%
+          body_add_flextable(anvisa_tbl)
       }
 
       # Add title and author name in the doc header

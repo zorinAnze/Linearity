@@ -20,7 +20,7 @@ library(waiter)
 library(outliers)
 library(glue)
 library(shinyglide)
-
+library(lubridate)
 
 # Options ---------------------------------------------------------------------
 options(readr.show_progress = FALSE)
@@ -234,28 +234,32 @@ ui <- dashboardPage(
           box(
             conditionalPanel(
               "input.calc",
-                glide(
-                  shinyglide::screen(
-                    withSpinner(plotOutput("plt_resid_1"),
-                                type = 8,
-                                color = "#0460A9")
-                  ),
-                  shinyglide::screen(
-                    withSpinner(plotOutput("plt_resid_2"),
-                                type = 8,
-                                color = "#0460A9")
-                  ),
-                  shinyglide::screen(
-                    withSpinner(plotOutput("plt_resid_3"),
-                                type = 8,
-                                color = "#0460A9")
-                  ),
-                  shinyglide::screen(
-                    withSpinner(plotOutput("plt_resid_4"),
-                                type = 8,
-                                color = "#0460A9")
+              glide(
+                shinyglide::screen(
+                  withSpinner(plotOutput("plt_resid_1"),
+                    type = 8,
+                    color = "#0460A9"
+                  )
+                ),
+                shinyglide::screen(
+                  withSpinner(plotOutput("plt_resid_2"),
+                    type = 8,
+                    color = "#0460A9"
+                  )
+                ),
+                shinyglide::screen(
+                  withSpinner(plotOutput("plt_resid_3"),
+                    type = 8,
+                    color = "#0460A9"
+                  )
+                ),
+                shinyglide::screen(
+                  withSpinner(plotOutput("plt_resid_4"),
+                    type = 8,
+                    color = "#0460A9"
                   )
                 )
+              )
             ),
             title = "Residual Plots",
             width = 6,
@@ -378,21 +382,17 @@ server <- function(input, output, session) {
   )
 
 
-  # Fix profile picture in the header -----------------------------------------
-  rvalues <- reactiveValues(auth = NULL)
+  # Store name of user --------------------------------------------------------
+  rvalues <- reactiveValues(
+    auth = NULL,
+    author_name = NULL
+  )
 
   shiny::observe({
     rvalues$auth <- Authentication$new(configFile = "www/config.json")
-    img_path <- paste0(
-      "//my.novartis.net/User%20Photos/Profilbilder/",
-      tolower(rvalues$auth$get521()),
-      "_novartis_net_LThumb.jpg"
+    rvalues$author_name <- glue(
+      "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
     )
-    runjs(paste0(
-      'document.querySelector(".img-circle.elevation-4.profile-pic").src="',
-      img_path,
-      '";'
-    ))
   })
 
 
@@ -637,7 +637,7 @@ server <- function(input, output, session) {
       )
     }
   )
-  
+
   output$plt_line <- renderPlot(plt_ftd_line())
 
   # Plot residuals
@@ -716,9 +716,15 @@ server <- function(input, output, session) {
       if ("Assay Results" %in% input$inc_report &&
         "Assay Results" == tail(input$inc_report, n = 1)) {
         doc <- doc %>%
+          body_add_par("Data Verification Report for Linearity Assessment", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>% 
           body_add_flextable(assay_rslts)
       } else if ("Assay Results" %in% input$inc_report) {
         doc <- doc %>%
+          body_add_par("Data Verification Report for Linearity Assessment", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>% 
           body_add_flextable(assay_rslts) %>%
           body_add_break() %>%
           body_add_par("")
@@ -727,9 +733,15 @@ server <- function(input, output, session) {
       if ("Linear Regression Results" %in% input$inc_report &&
         "Linear Regression Results" == tail(input$inc_report, n = 1)) {
         doc <- doc %>%
+          body_add_par("Linear Regression Results", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>%
           body_add_flextable(lin_reg_rslts)
       } else if ("Linear Regression Results" %in% input$inc_report) {
         doc <- doc %>%
+          body_add_par("Linear Regression Results", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>%
           body_add_flextable(lin_reg_rslts) %>%
           body_add_break() %>%
           body_add_par("")
@@ -740,6 +752,9 @@ server <- function(input, output, session) {
           n = 1
         )) {
         doc <- doc %>%
+          body_add_par("Linear Regression Plot", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
             plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
@@ -753,6 +768,9 @@ server <- function(input, output, session) {
           body_add_flextable(user_inputs)
       } else if ("Linear Regression Plot" %in% input$inc_report) {
         doc <- doc %>%
+          body_add_par("Linear Regression Plot", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>%
           body_add_gg(line_plot(
             data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
             plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
@@ -772,12 +790,14 @@ server <- function(input, output, session) {
         "Diagnostic Plots" %in% input$inc_report
       ) {
         doc <- doc %>%
+          body_add_par("Diagnostic Plots", 
+                       style = "heading 1") %>% 
+          body_add_par_n(2) %>%
           body_add_gg(res_plots$p1,
             width = 6.3,
             height = 3.54
           ) %>%
-          body_add_break() %>%
-          body_add_par("") %>%
+          body_add_par_n(5) %>% 
           body_add_gg(res_plots$p2,
             width = 6.3,
             height = 3.54
@@ -788,13 +808,28 @@ server <- function(input, output, session) {
             width = 6.3,
             height = 3.54
           ) %>%
-          body_add_break() %>%
-          body_add_par("") %>%
+          body_add_par_n(5) %>% 
           body_add_gg(res_plots$p4,
             width = 6.3,
             height = 3.54
           )
       }
+
+      # Add title and author name in the doc header
+      doc <- doc %>%
+        headers_replace_all_text("title", plot_inputs$title_plt,
+          warn = FALSE
+        ) %>%
+        headers_replace_all_text("date", format(today(), "%d-%b-%y"),
+          warn = FALSE
+        ) %>%
+        headers_replace_all_text("author_name", rvalues$author_name,
+          warn = FALSE
+        ) %>%
+        footers_replace_all_text("version",
+          glue("App Version: {getOption('deployVersion')}"),
+          warn = FALSE
+        )
 
       print(doc, target = file)
 

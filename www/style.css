@@ -173,3 +173,18 @@ table.desc_table {
   align-items: flex-end;
   justify-content: space-between;
 }
+
+/* Change color of checkboxes and radio buttons */
+.checkbox-primary input[type="checkbox"]:checked+label::before, 
+.checkbox-primary input[type="radio"]:checked+label::before {
+    background-color: #0460A9;
+    border-color: #0460A9;
+}
+
+.radio-primary input[type="radio"]:checked+label::before {
+    border-color: #0460A9;
+}
+
+.radio-primary input[type="radio"]:checked+label::after {
+    background-color: #0460A9;
+}

@@ -75,8 +75,8 @@ homosced_tbl_rprt <- function (lm_fit, c_test, anova_res) {
     ) %>% 
     set_table_properties(layout = "autofit", width = 1) %>%
     fontsize(size = 9, part = "all") %>%
-    bold(part = "header") %>%
-    font(fontname = "Arial", part = "all")
+    flextable::bold(part = "header") %>%
+    flextable::font(fontname = "Arial", part = "all")
   
   return(ft)
 }

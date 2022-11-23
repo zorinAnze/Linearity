@@ -37,8 +37,8 @@ user_input_tbl <- function(ref_conc, ref_unit, dclrd_content) {
     padding(padding.bottom = 2, padding.top = 1, part = "all") %>%
     set_table_properties(layout = "autofit", width = 0.4) %>%
     fontsize(size = 9, part = "all") %>%
-    bold(part = "header") %>%
-    font(fontname = "Arial", part = "all")
+    flextable::bold(part = "header") %>%
+    flextable::font(fontname = "Arial", part = "all")
 
   return(ft)
 }

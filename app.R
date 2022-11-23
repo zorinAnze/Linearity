@@ -21,6 +21,7 @@ library(outliers)
 library(glue)
 library(shinyglide)
 library(lubridate)
+library(huxtable)
 
 # Options ---------------------------------------------------------------------
 options(readr.show_progress = FALSE)
@@ -331,6 +332,13 @@ ui <- dashboardPage(
             "file_name",
             "File Name:",
             value = paste(format(Sys.time(), "%y%m%d"), "Report", sep = "_")
+          ),
+          awesomeRadio(
+            inputId = "doc_format",
+            label = "Document Format",
+            choices = c("PDF", "Word"),
+            selected = "PDF",
+            inline = TRUE
           ),
           awesomeCheckboxGroup(
             "inc_report", "Include in Report:",
@@ -675,32 +683,95 @@ server <- function(input, output, session) {
   # Report generation
   output$gen_report <- downloadHandler(
     filename = function() {
-      fs::path_sanitize(paste0(input$file_name, ".docx"))
+      fs::path_sanitize(paste(input$file_name, sep = ".", switch(input$doc_format,
+        PDF = "pdf",
+        Word = "docx"
+      )))
     },
     content = function(file) {
+
+      # Show waiter animation during report generation
       w$show()
+
+      # List of parameters for the pdf report
+      params <- list()
+
+      # Prepare tables and plots for the report
       if ("Assay Results" %in% input$inc_report) {
-        assay_rslts <- assay_rslts_rprt(
-          data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-          plot_inputs$perc_declared_content
-        )
+        if (input$doc_format == "Word") {
+          assay_rslts <- assay_rslts_rprt(
+            data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
+            plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+            plot_inputs$perc_declared_content
+          )
+        } else {
+          assay_rslts <- assay_rslts_rprt_huxtbl(
+            data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
+            plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+            plot_inputs$perc_declared_content
+          )
+        }
+
+        params <- append(params, list(
+          assay_rslts = assay_rslts,
+          eval_assay = TRUE
+        ))
+      } else {
+        params <- append(params, list(eval_assay = FALSE))
       }
 
       if ("Linear Regression Results" %in% input$inc_report) {
-        lin_reg_rslts <- lin_reg_rslts_rprt(
-          lm_fit(), input$conc_sol,
-          plot_inputs$ref_concentration,
-          plot_inputs$perc_declared_content
-        )
+        if (input$doc_format == "Word") {
+          lin_reg_rslts <- lin_reg_rslts_rprt(
+            lm_fit(), input$conc_sol,
+            plot_inputs$ref_concentration,
+            plot_inputs$perc_declared_content
+          )
+        } else {
+          lin_reg_rslts <- lin_reg_rslts_rprt_huxtbl(
+            lm_fit(), input$conc_sol,
+            plot_inputs$ref_concentration,
+            plot_inputs$perc_declared_content
+          )
+        }
+
+        params <- append(params, list(
+          lin_reg_rslts = lin_reg_rslts,
+          eval_reg_rslts = TRUE
+        ))
+      } else {
+        params <- append(params, list(eval_reg_rslts = FALSE))
       }
 
       if ("Linear Regression Plot" %in% input$inc_report) {
-        user_inputs <- user_input_tbl(
-          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-          plot_inputs$perc_declared_content
+        reg_gg <- line_plot(
+          data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
+          plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
+          plot_inputs$title_plt,
+          app = FALSE
         )
+
+        if (input$doc_format == "Word") {
+          user_inputs <- user_input_tbl(
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+            plot_inputs$perc_declared_content
+          )
+        } else {
+          user_inputs <- user_input_tbl_huxtbl(
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+            plot_inputs$perc_declared_content
+          )
+        }
+
+        params <- append(params, list(
+          reg_gg = reg_gg,
+          user_inputs = user_inputs,
+          eval_reg_plot = TRUE
+        ))
+      } else {
+        params <- append(params, list(eval_reg_plot = FALSE))
       }
 
       if ("Diagnostic Plots" %in% input$inc_report) {
@@ -708,180 +779,216 @@ server <- function(input, output, session) {
           plot_inputs$label_x,
           app = FALSE
         )
+
+        params <- append(params, list(
+          res_plots = res_plots,
+          eval_res_plots = TRUE
+        ))
+      } else {
+        params <- append(params, list(eval_res_plots = FALSE))
       }
 
       if ("Results required by ANVISA" %in% input$inc_report) {
-        anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), anova_fit())
+        if (input$doc_format == "Word") {
+          anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), anova_fit())
+        } else {
+          anvisa_tbl <- homosced_tbl_rprt_huxtbl(
+            lm_fit(), cochran(),
+            anova_fit()
+          )
+        }
+
+        params <- append(params, list(
+          anvisa_tbl = anvisa_tbl,
+          eval_anvisa_tbl = TRUE
+        ))
+      } else {
+        params <- append(params, list(eval_anvisa_tbl = FALSE))
       }
 
+      # Code chunk for creating the word report
+      if (input$doc_format == "Word") {
+        doc <- read_docx("www/template_officer.docx")
 
-      doc <- read_docx("www/template_officer.docx")
+        if ("Assay Results" %in% input$inc_report &&
+          "Assay Results" == tail(input$inc_report, n = 1)) {
+          doc <- doc %>%
+            body_add_par("Data Verification Report for Linearity Assessment",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_flextable(assay_rslts, keepnext = FALSE)
+        } else if ("Assay Results" %in% input$inc_report) {
+          doc <- doc %>%
+            body_add_par("Data Verification Report for Linearity Assessment",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_flextable(assay_rslts, keepnext = FALSE) %>%
+            body_add_break() %>%
+            body_add_par("")
+        }
 
-      if ("Assay Results" %in% input$inc_report &&
-        "Assay Results" == tail(input$inc_report, n = 1)) {
-        doc <- doc %>%
-          body_add_par("Data Verification Report for Linearity Assessment",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_flextable(assay_rslts)
-      } else if ("Assay Results" %in% input$inc_report) {
-        doc <- doc %>%
-          body_add_par("Data Verification Report for Linearity Assessment",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_flextable(assay_rslts) %>%
-          body_add_break() %>%
-          body_add_par("")
-      }
+        if ("Linear Regression Results" %in% input$inc_report &&
+          "Linear Regression Results" == tail(input$inc_report, n = 1)) {
+          doc <- doc %>%
+            body_add_par("Linear Regression Results",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_flextable(lin_reg_rslts)
+        } else if ("Linear Regression Results" %in% input$inc_report) {
+          doc <- doc %>%
+            body_add_par("Linear Regression Results",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_flextable(lin_reg_rslts) %>%
+            body_add_break() %>%
+            body_add_par("")
+        }
 
-      if ("Linear Regression Results" %in% input$inc_report &&
-        "Linear Regression Results" == tail(input$inc_report, n = 1)) {
-        doc <- doc %>%
-          body_add_par("Linear Regression Results",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_flextable(lin_reg_rslts)
-      } else if ("Linear Regression Results" %in% input$inc_report) {
-        doc <- doc %>%
-          body_add_par("Linear Regression Results",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_flextable(lin_reg_rslts) %>%
-          body_add_break() %>%
-          body_add_par("")
-      }
-
-      if ("Linear Regression Plot" %in% input$inc_report &&
-        "Linear Regression Plot" == tail(input$inc_report,
-          n = 1
-        )) {
-        doc <- doc %>%
-          body_add_par("Linear Regression Plot",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
-            plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
-            plot_inputs$title_plt,
-            app = FALSE
-          ),
-          width = 6.3,
-          height = 3.54
-          ) %>%
-          body_add_par_n(5) %>%
-          body_add_flextable(user_inputs)
-      } else if ("Linear Regression Plot" %in% input$inc_report) {
-        doc <- doc %>%
-          body_add_par("Linear Regression Plot",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_gg(line_plot(
-            data$orig_df, input$conc_sol, input$pk_area, plot_inputs$label_x,
-            plot_inputs$label_y, lm_fit(), plot_inputs$ref_concentration,
-            plot_inputs$title_plt,
-            app = FALSE
-          ),
-          width = 6.3,
-          height = 3.54
-          ) %>%
-          body_add_par_n(5) %>%
-          body_add_flextable(user_inputs) %>%
-          body_add_break() %>%
-          body_add_par("")
-      }
-
-      if (
-        "Diagnostic Plots" %in% input$inc_report &&
-          "Diagnostic Plots" == tail(input$inc_report,
+        if ("Linear Regression Plot" %in% input$inc_report &&
+          "Linear Regression Plot" == tail(input$inc_report,
             n = 1
           )) {
+          doc <- doc %>%
+            body_add_par("Linear Regression Plot",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_gg(reg_gg,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_flextable(user_inputs)
+        } else if ("Linear Regression Plot" %in% input$inc_report) {
+          doc <- doc %>%
+            body_add_par("Linear Regression Plot",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_gg(reg_gg,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_flextable(user_inputs) %>%
+            body_add_break() %>%
+            body_add_par("")
+        }
+
+        if (
+          "Diagnostic Plots" %in% input$inc_report &&
+            "Diagnostic Plots" == tail(input$inc_report,
+              n = 1
+            )) {
+          doc <- doc %>%
+            body_add_par("Diagnostic Plots",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_gg(res_plots$p1,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_gg(res_plots$p2,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_break() %>%
+            body_add_par("") %>%
+            body_add_gg(res_plots$p3,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_gg(res_plots$p4,
+              width = 6.3,
+              height = 3.54
+            )
+        } else if ("Diagnostic Plots" %in% input$inc_report) {
+          doc <- doc %>%
+            body_add_par("Diagnostic Plots",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_gg(res_plots$p1,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_gg(res_plots$p2,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_break() %>%
+            body_add_par("") %>%
+            body_add_gg(res_plots$p3,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_par_n(5) %>%
+            body_add_gg(res_plots$p4,
+              width = 6.3,
+              height = 3.54
+            ) %>%
+            body_add_break() %>%
+            body_add_par("")
+        }
+
+        if ("Results required by ANVISA" %in% input$inc_report) {
+          doc <- doc %>%
+            body_add_par("Results required by ANVISA",
+              style = "heading 1"
+            ) %>%
+            body_add_par_n(2) %>%
+            body_add_flextable(anvisa_tbl)
+        }
+
+        # Add title and author name in the doc header
         doc <- doc %>%
-          body_add_par("Diagnostic Plots",
-            style = "heading 1"
+          headers_replace_all_text("title", plot_inputs$title_plt,
+            warn = FALSE
           ) %>%
-          body_add_par_n(2) %>%
-          body_add_gg(res_plots$p1,
-            width = 6.3,
-            height = 3.54
+          headers_replace_all_text("date", format(today(), "%d-%b-%y"),
+            warn = FALSE
           ) %>%
-          body_add_par_n(5) %>%
-          body_add_gg(res_plots$p2,
-            width = 6.3,
-            height = 3.54
+          headers_replace_all_text("author_name", rvalues$author_name,
+            warn = FALSE
           ) %>%
-          body_add_break() %>%
-          body_add_par("") %>%
-          body_add_gg(res_plots$p3,
-            width = 6.3,
-            height = 3.54
-          ) %>%
-          body_add_par_n(5) %>%
-          body_add_gg(res_plots$p4,
-            width = 6.3,
-            height = 3.54
+          footers_replace_all_text("version",
+            glue("App Version: {getOption('deployVersion')}"),
+            warn = FALSE
           )
-      } else if ("Diagnostic Plots" %in% input$inc_report) {
-        doc <- doc %>%
-          body_add_par("Diagnostic Plots",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_gg(res_plots$p1,
-            width = 6.3,
-            height = 3.54
-          ) %>%
-          body_add_par_n(5) %>%
-          body_add_gg(res_plots$p2,
-            width = 6.3,
-            height = 3.54
-          ) %>%
-          body_add_break() %>%
-          body_add_par("") %>%
-          body_add_gg(res_plots$p3,
-            width = 6.3,
-            height = 3.54
-          ) %>%
-          body_add_par_n(5) %>%
-          body_add_gg(res_plots$p4,
-            width = 6.3,
-            height = 3.54
-          ) %>%
-          body_add_break() %>%
-          body_add_par("")
-      }
 
-      if ("Results required by ANVISA" %in% input$inc_report) {
-        doc <- doc %>%
-          body_add_par("Results required by ANVISA",
-            style = "heading 1"
-          ) %>%
-          body_add_par_n(2) %>%
-          body_add_flextable(anvisa_tbl)
-      }
+        print(doc, target = file)
+      } else {
+        # Copy the report file to a temporary directory before processing it, in
+        # case we don't have write permissions to the current working dir
+        tempReport <- file.path(tempdir(), "report.Rmd")
+        file.copy("www/report.Rmd", tempReport, overwrite = TRUE)
 
-      # Add title and author name in the doc header
-      doc <- doc %>%
-        headers_replace_all_text("title", plot_inputs$title_plt,
-          warn = FALSE
-        ) %>%
-        headers_replace_all_text("date", format(today(), "%d-%b-%y"),
-          warn = FALSE
-        ) %>%
-        headers_replace_all_text("author_name", rvalues$author_name,
-          warn = FALSE
-        ) %>%
-        footers_replace_all_text("version",
-          glue("App Version: {getOption('deployVersion')}"),
-          warn = FALSE
+        # Set parameters for header and footer
+        params <- append(params, list(
+          title = plot_inputs$title_plt,
+          date = format(today(), "%d-%b-%y"),
+          author_name = rvalues$author_name,
+          version = glue("App Version: {getOption('deployVersion')}")
+        ))
+
+
+        # Knit the document, passing in the `params` list, and eval it in a
+        # child of the global environment (this isolates the code in the document
+        # from the code in this app).
+        rmarkdown::render(tempReport,
+          output_file = file,
+          params = params,
+          envir = new.env(parent = globalenv())
         )
-
-      print(doc, target = file)
+      }
 
       on.exit({
         w$hide()

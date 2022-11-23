@@ -183,21 +183,21 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
         i = c(4:8, 10:15, 17:18), j = 1,
         padding.left = 14, part = "body"
       ) %>% 
-      bold(i = c(1:3, 9, 16, 19:20), j = 1)
+      flextable::bold(i = c(1:3, 9, 16, 19:20), j = 1)
   } else {
     ft <- ft %>%
       padding(
         i = c(4:8, 10:14), j = 1,
         padding.left = 14, part = "body"
       ) %>% 
-      bold(i = c(1:3, 9, 15:16), j = 1)
+      flextable::bold(i = c(1:3, 9, 15:16), j = 1)
   }
 
   ft <- ft %>%
     set_table_properties(layout = "autofit", width = 1) %>%
     fontsize(size = 9, part = "all") %>%
-    bold(part = "header") %>%
-    font(fontname = "Arial", part = "all")
+    flextable::bold(part = "header") %>%
+    flextable::font(fontname = "Arial", part = "all")
 
   return(ft)
 }

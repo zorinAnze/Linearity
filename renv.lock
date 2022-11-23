@@ -125,6 +125,14 @@
         "sys"
       ]
     },
+    "assertthat": {
+      "Package": "assertthat",
+      "Version": "0.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "50c838a310445e954bc13f26f26a6ecf",
+      "Requirements": []
+    },
     "ava2": {
       "Package": "ava2",
       "Version": "0.6.0",
@@ -780,6 +788,26 @@
         "jsonlite",
         "mime",
         "openssl"
+      ]
+    },
+    "huxtable": {
+      "Package": "huxtable",
+      "Version": "5.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "633926f3332d7a937ff16a8a98aa2192",
+      "Requirements": [
+        "R6",
+        "assertthat",
+        "commonmark",
+        "generics",
+        "glue",
+        "memoise",
+        "rlang",
+        "stringi",
+        "stringr",
+        "tidyselect",
+        "xml2"
       ]
     },
     "ini": {

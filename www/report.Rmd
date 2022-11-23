@@ -1,0 +1,188 @@
+---
+output: 
+  pdf_document:
+    number_sections: true
+    fig_crop: no
+    keep_tex: true
+fontfamily: arev
+geometry: "left=3cm, right=1.98cm, top=3.03cm, bottom=2.12cm, includefoot, headsep=29pt,   footskip=48pt"
+header-includes:
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{array}
+  - \usepackage{caption}
+  - \usepackage{graphicx}
+  - \usepackage{siunitx}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{colortbl}
+  - \usepackage{multirow}
+  - \usepackage{hhline}
+  - \usepackage{calc}
+  - \usepackage{tabularx}
+  - \usepackage{threeparttable}
+  - \usepackage{wrapfig}
+  - \usepackage{adjustbox}
+  - \usepackage{hyperref}
+params:
+  assay_rslts: NA
+  lin_reg_rslts: NA
+  reg_gg: NA
+  res_plots: NA
+  user_inputs: NA
+  anvisa_tbl: NA
+  eval_assay: NA
+  eval_reg_rslts: NA
+  eval_reg_plot: NA
+  eval_res_plots: NA
+  eval_anvisa_tbl: NA
+  title: NA
+  date: NA
+  author_name: NA
+  version: NA
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(list(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  fig.align = "center",
+  fig.height = 3.54,
+  fig.width = 6.3
+))
+
+library(huxtable)
+library(magrittr)
+library(purrr)
+```
+
+```{r include=FALSE}
+header_title <- ifelse(nchar(params$title) > 39,
+  paste0(substr(params$title, 1, 35), "..."),
+  params$title
+)
+```
+
+
+<!-- Configuration of header and footer with Latex commands -->
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{} <!-- clear existing header/footer entries -->
+\fancyhead[L]{`r ifelse(params$title == "", "Linearity Report", header_title)`}
+\fancyhead[C]{`r params$date`}
+\fancyhead[R]{`r params$author_name`}
+\fancyfoot[L]{`r params$version`}
+\fancyfoot[R]{Page \thepage\, of\, \pageref{LastPage}}
+
+
+```{r results='asis', eval=params$eval_assay}
+cat("# Data Verification Report for Linearity Assessment")
+cat("\\vskip 7pt")
+```
+
+```{r results='asis', eval=params$eval_assay}
+hux_list <- params$assay_rslts
+
+if (vec_depth(hux_list) > 2) {
+  hux_lat <- imap_chr(
+    hux_list,
+    ~ .x %>%
+      set_label(
+        paste0(
+          "tab:",
+          knitr::opts_current$get("label"), "-", .y
+        )
+      ) %>%
+      to_latex()
+  ) %>%
+    paste(collapse = "\\newpage")
+
+  cat(hux_lat)
+} else {
+  print_latex(hux_list)
+}
+```
+
+\newpage
+
+
+
+```{r results='asis', eval=params$eval_reg_rslts}
+cat("# Linear Regression Results")
+cat("\\vskip 7pt")
+```
+
+```{r eval=params$eval_reg_rslts}
+params$lin_reg_rslts
+```
+
+\newpage
+
+
+
+```{r results='asis', eval=params$eval_reg_plot}
+cat("# Linear Regression Plot")
+cat("\\vskip 7pt")
+```
+
+```{r eval=params$eval_reg_plot}
+params$reg_gg
+```
+
+```{r results='asis', eval=params$eval_reg_plot}
+cat("\\vskip 55pt")
+```
+
+```{r eval=params$eval_reg_plot}
+params$user_inputs
+```
+
+\newpage
+
+
+
+```{r results='asis', eval=params$eval_res_plots}
+cat("# Diagnostic Plots")
+cat("\\vskip 7pt")
+```
+
+```{r eval=params$eval_res_plots}
+params$res_plots$p1
+```
+
+```{r results='asis', eval=params$eval_res_plots}
+cat("\\vskip 55pt")
+```
+
+```{r eval=params$eval_res_plots}
+params$res_plots$p2
+```
+
+\newpage
+
+```{r eval=params$eval_res_plots}
+params$res_plots$p3
+```
+
+```{r results='asis', eval=params$eval_res_plots}
+cat("\\vskip 55pt")
+```
+
+```{r eval=params$eval_res_plots}
+params$res_plots$p4
+```
+
+\newpage
+
+
+
+```{r results='asis', eval=params$eval_anvisa_tbl}
+cat("# Results required by ANVISA")
+cat("\\vskip 7pt")
+```
+
+```{r eval=params$eval_anvisa_tbl}
+params$anvisa_tbl
+```
+
+\newpage

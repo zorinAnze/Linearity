@@ -52,7 +52,7 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
   }
 
   ft <- ft %>%
-    align(align = "center", part = "all") %>%
+    flextable::align(align = "center", part = "all") %>%
     border_remove() %>%
     hline_top(
       border = fp_border(color = "black", width = 0.5),
@@ -85,14 +85,14 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
   
   if (prjct_title != "") {
     ft <- ft %>%
-      bold(i = 1:2, part = "header")
+      flextable::bold(i = 1:2, part = "header")
   } else {
     ft <- ft %>%
-      bold(i = 1, part = "header")
+      flextable::bold(i = 1, part = "header")
   }
   
   ft <- ft %>%
-    font(fontname = "Arial", part = "all")
+    flextable::font(fontname = "Arial", part = "all")
 
   return(ft)
 }

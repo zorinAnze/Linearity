@@ -52,7 +52,6 @@ knitr::opts_chunk$set(list(
 
 library(huxtable)
 library(magrittr)
-library(purrr)
 ```
 
 ```{r include=FALSE}
@@ -82,8 +81,8 @@ cat("\\vskip 7pt")
 ```{r results='asis', eval=params$eval_assay}
 hux_list <- params$assay_rslts
 
-if (vec_depth(hux_list) > 2) {
-  hux_lat <- imap_chr(
+if (purrr::vec_depth(hux_list) > 2) {
+  hux_lat <- purrr::imap_chr(
     hux_list,
     ~ .x %>%
       set_label(

@@ -85,16 +85,19 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
 
   if (prjct_title != "") {
     ht <- ht %>%
-      set_bold(1:2, everywhere)
+      set_bold(1:2, everywhere) %>% 
+      set_number_format(1:2, 1:ncol(ht), NA) %>% 
+      set_number_format(3:nrow(ht), 1, glue("%.{max_decimals[[lvl]]}f")) %>%
+      set_number_format(3:nrow(ht), 2, glue("%.{max_decimals[[conc]]}f")) %>%
+      set_number_format(3:nrow(ht), 3, glue("%.{max_decimals[[pk_area]]}f"))
   } else {
     ht <- ht %>%
-      set_bold(1, everywhere)
+      set_bold(1, everywhere) %>% 
+      set_number_format(1, 1:ncol(ht), NA) %>% 
+      set_number_format(2:nrow(ht), 1, glue("%.{max_decimals[[lvl]]}f")) %>%
+      set_number_format(2:nrow(ht), 2, glue("%.{max_decimals[[conc]]}f")) %>%
+      set_number_format(2:nrow(ht), 3, glue("%.{max_decimals[[pk_area]]}f"))
   }
-
-  ht <- ht %>%
-    set_number_format(everywhere, 1, glue("%.{max_decimals[[lvl]]}f")) %>%
-    set_number_format(everywhere, 2, glue("%.{max_decimals[[conc]]}f")) %>%
-    set_number_format(everywhere, 3, glue("%.{max_decimals[[pk_area]]}f"))
 
   # 6.29 inch is approximately the text width in the markdown file
   if (sum(dim_pretty(as_flextable(ht))$widths) > 6.29) {

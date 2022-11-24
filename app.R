@@ -949,8 +949,12 @@ server <- function(input, output, session) {
         }
 
         # Add title and author name in the doc header
+        header_title <- if_else(
+          plot_inputs$title_plt == "", 
+          "Linearity Report", plot_inputs$title_plt)
+        
         doc <- doc %>%
-          headers_replace_all_text("title", plot_inputs$title_plt,
+          headers_replace_all_text("title", header_title,
             warn = FALSE
           ) %>%
           headers_replace_all_text("date", format(today(), "%d-%b-%y"),

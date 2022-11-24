@@ -1,9 +1,17 @@
+<h3 class="info_title">Requirements</h3>
+<ul>
+  <li>The file format is restricted to <b>.csv</b>, <b>.tsv</b> and 
+    <b>single sheet .xlsx</b>.</li>
+  <li>The data has to be structured in a <b>stacked format</b> (see 
+    <a class="temp_link" href="Template.csv" download>template</a>).</li>
+  <li>The file must contain columns with the following information: 
+    <b>concentration levels</b>, <b>concentration of solutions</b> and 
+    <b>peak areas</b>. Column names can be freely chosen. It is not necessary 
+    to use the same names as in the example file.</li>
+</ul>
 <h3 class="info_title">Import</h3>
 <ol start="1">
-  <li>In the "Import Data" tab, enter your data file.The file format is 
-    restricted to .csv, .tsv and single sheet .xlsx. The data has to be 
-    structured in a stacked format (see  
-    <a class="temp_link" href="Template.csv" download>template</a>).<br>
+  <li>In the "Import Data" tab, enter your data file.<br>
     <img src="Import_data.JPG" class="intro_img" alt="Import Data tab"><br></li> 
   <li>In the next steps, specify the columns that contain the corresponding 
     data.<br>
@@ -18,28 +26,56 @@
   <li>The calculated results can be viewed in the "Results" section under the 
     corresponding tab.<br>
     <img src="Result_section.JPG" class="intro_img" alt="Result section"><br></li>
-  <li>The settings of the plot can be changed by clicking on the "Plot 
-    Settings" button.<br>
-    <img src="Plot_settings_button.JPG" class="intro_img" alt="Plot settings button"><br></li>
-  <li>If the reference concentration is set to 0 it is not displayed in the 
-    plot. Reference concentration and % of declared content are also used for 
-    the calculation of some sections in the linear regression results. If 
-    reference concentration, % of declared content or both are set to 0, the 
-    respective sections are not included in the results table. The "Update Plot" 
-    button is used to update the plot and the "Reset Input" button resets all 
-    inputs in the plot settings to their default values. The plot is not 
-    automatically updated by pressing the "Reset Input" button. For this, the 
-    "Update Plot" button must be pressed afterwards.<br>
-    <img src="Plot_settings.JPG" class="intro_img" alt="Plot settings"><br></li>
+  <li>The settings of the "Fitted Line Plot" can be changed by clicking on the 
+    bar chart icon in the top-right corner of the box.<br>
+    <img src="Plot_settings_button.JPG" class="intro_img" alt="Plot settings button"><br>
+    <img src="Plot_settings.JPG" class="intro_img" alt="Plot settings"><br>
+    <ul>
+      <li>
+        <b>Title:</b> is displayed above the "Fitted Line Plot", as a title in 
+        the "Assay Results" table and in the left corner of the report header. 
+        If left blank, "Linearity Report" is displayed in the report header.
+      </li>
+      <li>
+        <b>X-axis label, Y-axis label:</b> are displayed in the "Fitted Line 
+        Plot" and are used as column headers in the "Assay Results" table for 
+        the corresponding column.
+      </li>
+      <li>
+        <b>Reference concentration:</b> is displayed in the "Fitted Line Plot",
+        provided it is not 0. If reference concentration is provided, the 
+        intercept and the residual standard deviation in the "Linear Regression 
+        Results" table are expressed as a percentage of the analytical signal 
+        at a target or reference concentration (e.g. 100% working concentration 
+        for assay determinations or specification limit concentration for 
+        impurities determinations)
+      </li>
+      <li>
+        <b>% of declared content:</b> is the corresponding concentration level
+        to the reference concentration e.g. for 100% working concentration 
+        enter 100 or if your concentration at the specification limit 
+        corresponds to 0.17% enter 0.17.
+      </li>
+      <li>
+        <b>Update Plot:</b> is used to update the plot with the values entered 
+        above. 
+      </li>
+      <li>
+        <b>Reset Input:</b> is used to resets all inputs in the plot settings 
+        to their default values. The plot is not automatically updated by 
+        pressing the "Reset Input" button. To confirm the reset, press the 
+        "Update Plot" button afterwards.
+      </li>
+    </ul>
+  </li>
 </ol>
 
 <h3 class="info_title">Report</h3>
-<ol start="7">
-  <li>Finally, the results can be downloaded in tabular form as a .docx file in 
-    the "Download Report" tab.<br>
+<ol start="6">
+  <li>Finally, the results can be downloaded in tabular form in the "Download 
+    Report" tab.<br>
     <img src="Download_report.JPG" class="intro_img" alt="Download Report tab"><br></li>
-  <li>Enter a file name and optionally provide concentration level information 
-    if the "Detailed Assay Results" option is selected. Tick the boxes for all 
+  <li>Enter a file name, choose a document format and tick the boxes for all 
     results and plots to be included in the report.<br>
     <img src="Report_settings.JPG" class="intro_img" alt="Report settings"><br></li>
   <li>Confirm your entries and download the report by pressing the "Generate 

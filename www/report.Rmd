@@ -3,7 +3,6 @@ output:
   pdf_document:
     number_sections: true
     fig_crop: no
-    keep_tex: true
 fontfamily: arev
 geometry: "left=3cm, right=1.98cm, top=3.03cm, bottom=2.12cm, includefoot, headsep=29pt,   footskip=48pt"
 header-includes:

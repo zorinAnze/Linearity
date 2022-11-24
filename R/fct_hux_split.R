@@ -1,3 +1,7 @@
+# Function estimates how many lines wrapped text occupies in the rows and then 
+# calculates the maximum number of rows that can fit on a page without causing 
+# table overflow.
+
 hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
                       max_rows_per_page) {
 
@@ -12,26 +16,13 @@ hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
     number_of_lines_per_row[n] <- ceiling((gdtools::m_str_extents(prjct_title,
       fontname = "arev", fontsize = 9,
       bold = TRUE
-    )[[1]] / 72) / (max_width - 0.22)) # 1 inch = 72px
-    n <- n + 1
+      # space left and right from the text in the cell: 2 * 0.11 inch = 0.22
+    )[[1]] / 72) / (max_width - 0.22)) # 1 inch = 72px, 
+    n <- n + 1              
   }
 
   # Calculate the width of each column
   col_width <- max_width / ncol(huxtbl)
-  
-  print(col_width)
-
-  print(purrr::map(
-    huxtbl[n, ],
-    function(x) {
-      ceiling((gdtools::m_str_extents(x,
-                                      fontname = "arev", fontsize = 9,
-                                      bold = TRUE
-      )[[1]] / 72) / (col_width - 0.22))
-    }
-  ))
-  
-  print(huxtbl[n, ])
   
   number_of_lines_per_row[n] <- max(unlist(purrr::map(
     huxtbl[n, ],
@@ -64,7 +55,7 @@ hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
       (max_rows_per_page - if_else(prjct_title != "",
         number_of_lines_per_row[2],
         number_of_lines_per_row[1]
-      )) #+ 1)
+      ))
     )) {
       sum_lines <- sum_lines + number_of_lines_per_row[[i]]
     } else {
@@ -73,7 +64,5 @@ hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
     }
   }
 
-  print(number_of_lines_per_row)
-  print(splits)
   return(splits)
 }

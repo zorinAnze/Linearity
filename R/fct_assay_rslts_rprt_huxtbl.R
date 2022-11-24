@@ -125,6 +125,5 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
       split_across(after = splits)
   }
 
-
   return(ht)
 }

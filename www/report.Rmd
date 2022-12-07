@@ -69,7 +69,7 @@ header_title <- ifelse(nchar(params$title) > 39,
 \fancyhead[L]{`r ifelse(params$title == "", "Linearity Report", header_title)`}
 \fancyhead[C]{`r params$date`}
 \fancyhead[R]{`r params$author_name`}
-\fancyfoot[L]{`r params$version`}
+<!-- \fancyfoot[L]{`r params$version`} -->
 \fancyfoot[R]{Page \thepage\, of\, \pageref{LastPage}}
 
 

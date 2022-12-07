@@ -962,11 +962,11 @@ server <- function(input, output, session) {
           ) %>%
           headers_replace_all_text("author_name", rvalues$author_name,
             warn = FALSE
-          ) %>%
-          footers_replace_all_text("version",
-            glue("App Version: {getOption('deployVersion')}"),
-            warn = FALSE
-          )
+          ) #%>%
+          # footers_replace_all_text("version",
+          #   glue("App Version: {getOption('deployVersion')}"),
+          #   warn = FALSE
+          # )
 
         print(doc, target = file)
       } else {

@@ -153,7 +153,7 @@ lin_reg_rslts_rprt_huxtbl <- function(lm_fit, conc, ref_conc, declared_content) 
   # Convert data frame to huxtable
   ht <- as_huxtable(df)
 
-  # Format flextable
+  # Format huxtable
   ht <- ht %>%
     # Some Latex is needed for the superscript
     set_contents(

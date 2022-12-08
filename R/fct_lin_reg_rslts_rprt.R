@@ -110,44 +110,68 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   res_ss <- mod_sum %>%
     pull(deviance)
 
+  
+  # Define number of decimals
+  num_dec <- function(num){
+    case_when(num >= 0.01 ~ 4,
+              num >= 0.001 ~ 5,
+              num >= 0.0001 ~ 6,
+              TRUE ~ 7)
+  }
+  
+  decimals_a <- num_dec(abs(a))
+  format_a <- glue("%.{decimals_a}f")
+  
+  decimals_b <- num_dec(abs(b))
+  format_b <- glue("%.{decimals_b}f")
+  
+  min_res <- min(abs(res_sd), abs(res_ss))
+  decimals_res <- num_dec(min_res)
+  format_res <- glue("%.{decimals_res}f")
+  
+  # Numbers only calculated when required input is provided in the app
   if (ref_conc != 0 && declared_content != 0) {
     y_100 <- predict(lm_fit, new_data = tibble(!!conc := ref_conc)) %>%
       pull(.pred)
-
+    
     b_rel <- b / y_100 * 100
-
+    
     res_rel <- res_sd / y_100 * 100
+    
+    # Number of decimals
+    decimals_y_100 <- num_dec(abs(y_100))
+    format_y_100 <- glue("%.{decimals_y_100}f")
   }
 
   # Final data frame containing data in the right format
   df[1, 2] <- R
   df[2, 2] <- R2
-  df[4, 2] <- sprintf("%.4f", round(a, 4))
-  df[5, 2] <- sprintf("%.4f", round(a_se, 4))
+  df[4, 2] <- sprintf(format_a, round(a, decimals_a))
+  df[5, 2] <- sprintf(format_a, round(a_se, decimals_a))
   df[6, 2] <- paste0(
-    sprintf("%.4f", round(a_ci_l, 4)), " – ",
-    sprintf("%.4f", round(a_ci_h, 4))
+    sprintf(format_a, round(a_ci_l, decimals_a)), " – ",
+    sprintf(format_a, round(a_ci_h, decimals_a))
   )
   df[7, 2] <- sprintf("%.4f", round(a_pval, 4))
   df[8, 2] <- a_sig
-  df[10, 2] <- sprintf("%.4f", round(b, 4))
-  df[11, 2] <- sprintf("%.4f", round(b_se, 4))
+  df[10, 2] <- sprintf(format_b, round(b, decimals_b))
+  df[11, 2] <- sprintf(format_b, round(b_se, decimals_b))
   df[12, 2] <- paste0(
-    sprintf("%.4f", round(b_ci_l, 4)), " – ",
-    sprintf("%.4f", round(b_ci_h, 4))
+    sprintf(format_b, round(b_ci_l, decimals_b)), " – ",
+    sprintf(format_b, round(b_ci_h, decimals_b))
   )
   df[13, 2] <- sprintf("%.4f", round(b_pval, 4))
   df[14, 2] <- b_sig
 
   if (ref_conc != 0 && declared_content != 0) {
     df[15, 2] <- paste0(sprintf("%.1f", round(b_rel, 1)), "%")
-    df[17, 2] <- sprintf("%.4f", round(res_sd, 4))
+    df[17, 2] <- sprintf(format_res, round(res_sd, decimals_res))
     df[18, 2] <- paste0(sprintf("%.1f", round(res_rel, 1)), "%")
-    df[19, 2] <- sprintf("%.4f", round(res_ss, 4))
-    df[20, 2] <- sprintf("%.4f", round(y_100, 4))
+    df[19, 2] <- sprintf(format_res, round(res_ss, decimals_res))
+    df[20, 2] <- sprintf(format_y_100, round(y_100, decimals_y_100))
   } else {
-    df[15, 2] <- sprintf("%.4f", round(res_sd, 4))
-    df[16, 2] <- sprintf("%.4f", round(res_ss, 4))
+    df[15, 2] <- sprintf(format_res, round(res_sd, decimals_res))
+    df[16, 2] <- sprintf(format_res, round(res_ss, decimals_res))
   }
 
   # Convert data frame to flextable

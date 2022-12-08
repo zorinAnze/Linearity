@@ -17,19 +17,36 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   mod_sum <- glance(lm_fit)
 
   # Extract individual parameters
+
+  # Define number of decimals
+  num_dec <- function(num) {
+    case_when(
+      num >= 0.01 ~ 4,
+      num >= 0.001 ~ 5,
+      num >= 0.0001 ~ 6,
+      TRUE ~ 7
+    )
+  }
+
   R <- sprintf("%.5f", round(sqrt(mod_sum$r.squared), 5))
 
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%
     pull(estimate)
+  
+  decimals_a <- num_dec(abs(a))
+  format_a <- glue("%.{decimals_a}f")
 
-  a <- sprintf("%.4f", round(a, 4))
+  a <- sprintf(format_a, round(a, decimals_a))
 
   b <- mod_coef %>%
     filter(term == "(Intercept)") %>%
     pull(estimate)
+  
+  decimals_b <- num_dec(abs(b))
+  format_b <- glue("%.{decimals_b}f")
 
-  b_abs <- sprintf("%.4f", round(abs(b), 4))
+  b_abs <- sprintf(format_b, round(abs(b), decimals_b))
   b_sign <- if_else(b >= 0, "+", "-")
 
   # Equation of regression line

@@ -960,7 +960,7 @@ server <- function(input, output, session) {
           headers_replace_all_text("date", format(today(), "%d-%b-%y"),
             warn = FALSE
           ) %>%
-          headers_replace_all_text("author_name", rvalues$author_name,
+          footers_replace_all_text("author_name", rvalues$author_name,
             warn = FALSE
           ) #%>%
           # footers_replace_all_text("version",

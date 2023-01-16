@@ -52,13 +52,14 @@ knitr::opts_chunk$set(list(
 
 library(huxtable)
 library(magrittr)
+library(Hmisc)
 ```
 
 ```{r include=FALSE}
-header_title <- ifelse(nchar(params$title) > 39,
-  paste0(substr(params$title, 1, 35), "..."),
-  params$title
-)
+# header_title <- ifelse(nchar(params$title) > 39,
+#   paste0(substr(params$title, 1, 35), "..."),
+#   params$title
+# )
 ```
 
 
@@ -66,10 +67,10 @@ header_title <- ifelse(nchar(params$title) > 39,
 \pagestyle{fancy}
 \renewcommand{\headrulewidth}{0pt}
 \fancyhf{} <!-- clear existing header/footer entries -->
-\fancyhead[L]{`r ifelse(params$title == "", "Linearity Report", header_title)`}
-\fancyhead[C]{`r params$date`}
-\fancyhead[R]{`r params$author_name`}
+\fancyhead[L]{`r ifelse(params$title == "", "Linearity Report", latexTranslate(params$title))`}
+\fancyhead[R]{`r params$date`}
 <!-- \fancyfoot[L]{`r params$version`} -->
+\fancyfoot[C]{`r params$author_name`}
 \fancyfoot[R]{Page \thepage\, of\, \pageref{LastPage}}
 
 

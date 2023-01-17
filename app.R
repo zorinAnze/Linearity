@@ -950,9 +950,10 @@ server <- function(input, output, session) {
 
         # Add title and author name in the doc header
         header_title <- if_else(
-          plot_inputs$title_plt == "", 
-          "Linearity Report", plot_inputs$title_plt)
-        
+          plot_inputs$title_plt == "",
+          "Linearity Report", plot_inputs$title_plt
+        )
+
         doc <- doc %>%
           headers_replace_all_text("title", header_title,
             warn = FALSE
@@ -960,13 +961,14 @@ server <- function(input, output, session) {
           headers_replace_all_text("date", format(today(), "%d-%b-%y"),
             warn = FALSE
           ) %>%
-          footers_replace_all_text("author_name", rvalues$author_name,
+          footers_replace_all_text("author_name",
+            as.character(rvalues$author_name),
             warn = FALSE
-          ) #%>%
-          # footers_replace_all_text("version",
-          #   glue("App Version: {getOption('deployVersion')}"),
-          #   warn = FALSE
-          # )
+          ) # %>%
+        # footers_replace_all_text("version",
+        #   glue("App Version: {getOption('deployVersion')}"),
+        #   warn = FALSE
+        # )
 
         print(doc, target = file)
       } else {
@@ -979,7 +981,7 @@ server <- function(input, output, session) {
         params <- append(params, list(
           title = plot_inputs$title_plt,
           date = format(today(), "%d-%b-%y"),
-          author_name = rvalues$author_name,
+          author_name = as.character(rvalues$author_name),
           version = glue("App Version: {getOption('deployVersion')}")
         ))
 

@@ -45,6 +45,7 @@ ui <- dashboardPage(
     skin = "light",
     minified = FALSE,
     includeCSS("www/style.css"),
+    includeScript("www/auth.js"),
     sidebarMenu(
       br(),
       p("DataScience@", class = "title title_gray"),
@@ -335,7 +336,7 @@ ui <- dashboardPage(
           ),
           awesomeRadio(
             inputId = "doc_format",
-            label = "Document Format",
+            label = "Document Format:",
             choices = c("PDF", "Word"),
             selected = "PDF",
             inline = TRUE
@@ -391,17 +392,27 @@ server <- function(input, output, session) {
 
 
   # Store name of user --------------------------------------------------------
+  # Workaround with custom javascript
+  # Previously used authentication is not working anymore, but might be fixed 
+  # at some point.
   rvalues <- reactiveValues(
-    auth = NULL,
+    #auth = NULL,
     author_name = NULL
   )
-
-  shiny::observe({
-    rvalues$auth <- Authentication$new(configFile = "www/config.json")
-    rvalues$author_name <- glue(
-      "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
-    )
-  })
+  
+  observeEvent(input$current_user, {
+    if (is.null(input$current_user)) {
+      session$sendCustomMessage("authenticate-user", TRUE)
+    }
+    rvalues$author_name <- input$current_user$NIBRFull 
+  }, ignoreNULL = FALSE)
+  
+  # shiny::observe({
+  #   rvalues$auth <- Authentication$new(configFile = "www/config.json")
+  #   rvalues$author_name <- glue(
+  #     "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
+  #   )
+  # })
 
 
   # Load file -----------------------------------------------------------------

@@ -413,6 +413,9 @@ server <- function(input, output, session) {
   #     "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
   #   )
   # })
+  
+  # Hide ava2 profile picture since it is not properly working ----------------
+  runjs("document.querySelector('.profile-pic').style.display='none';")
 
 
   # Load file -----------------------------------------------------------------

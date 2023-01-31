@@ -346,7 +346,7 @@ ui <- dashboardPage(
             choices = c(
               "Assay Results", "Linear Regression Results",
               "Linear Regression Plot",
-              "Diagnostic Plots", "Results required by ANVISA"
+              "Diagnostic Plots", "Homoscedasticity Assessment (ANVISA)"
             ),
             selected = c(
               "Assay Results", "Linear Regression Results",
@@ -802,7 +802,7 @@ server <- function(input, output, session) {
         params <- append(params, list(eval_res_plots = FALSE))
       }
 
-      if ("Results required by ANVISA" %in% input$inc_report) {
+      if ("Homoscedasticity Assessment (ANVISA)" %in% input$inc_report) {
         if (input$doc_format == "Word") {
           anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), anova_fit())
         } else {
@@ -953,9 +953,9 @@ server <- function(input, output, session) {
             body_add_par("")
         }
 
-        if ("Results required by ANVISA" %in% input$inc_report) {
+        if ("Homoscedasticity Assessment (ANVISA)" %in% input$inc_report) {
           doc <- doc %>%
-            body_add_par("Results required by ANVISA",
+            body_add_par("Homoscedasticity Evaluation in Accordance with ANVISA Requirements",
               style = "heading 1"
             ) %>%
             body_add_par_n(2) %>%

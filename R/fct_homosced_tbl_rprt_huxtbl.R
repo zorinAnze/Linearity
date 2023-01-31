@@ -3,9 +3,9 @@
 
 homosced_tbl_rprt_huxtbl <- function(lm_fit, c_test, anova_res) {
   C1 <- c(
-    "Intercept P-Value",
-    "Slope P-Value",
-    "ANOVA P-Value",
+    "Regression Intercept P-Value",
+    "Regression Slope P-Value",
+    "ANOVA for Regression P-Value",
     "Cochran Test P-Value",
     "Homogeneity of Variance",
     "Normality Test for External Studentized Residuals P-Value"

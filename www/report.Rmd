@@ -176,7 +176,7 @@ params$res_plots$p4
 
 
 ```{r results='asis', eval=params$eval_anvisa_tbl}
-cat("# Results required by ANVISA")
+cat("# Homoscedasticity Evaluation in Accordance with ANVISA Requirements")
 cat("\\vskip 7pt")
 ```
 

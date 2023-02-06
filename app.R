@@ -344,12 +344,14 @@ ui <- dashboardPage(
           awesomeCheckboxGroup(
             "inc_report", "Include in Report:",
             choices = c(
-              "Assay Results", "Linear Regression Results",
+              # "Assay Results", 
+              "Linear Regression Results",
               "Linear Regression Plot",
               "Diagnostic Plots", "Homoscedasticity Assessment (ANVISA)"
             ),
             selected = c(
-              "Assay Results", "Linear Regression Results",
+              # "Assay Results", 
+              "Linear Regression Results",
               "Linear Regression Plot",
               "Diagnostic Plots"
             ),
@@ -711,7 +713,7 @@ server <- function(input, output, session) {
       params <- list()
 
       # Prepare tables and plots for the report
-      if ("Assay Results" %in% input$inc_report) {
+      # if ("Assay Results" %in% input$inc_report) {
         if (input$doc_format == "Word") {
           assay_rslts <- assay_rslts_rprt(
             data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
@@ -732,9 +734,9 @@ server <- function(input, output, session) {
           assay_rslts = assay_rslts,
           eval_assay = TRUE
         ))
-      } else {
-        params <- append(params, list(eval_assay = FALSE))
-      }
+      # } else {
+      #   params <- append(params, list(eval_assay = FALSE))
+      # }
 
       if ("Linear Regression Results" %in% input$inc_report) {
         if (input$doc_format == "Word") {
@@ -824,15 +826,15 @@ server <- function(input, output, session) {
       if (input$doc_format == "Word") {
         doc <- read_docx("www/template_officer.docx")
 
-        if ("Assay Results" %in% input$inc_report &&
-          "Assay Results" == tail(input$inc_report, n = 1)) {
-          doc <- doc %>%
-            body_add_par("Data Verification Report for Linearity Assessment",
-              style = "heading 1"
-            ) %>%
-            body_add_par_n(2) %>%
-            body_add_flextable(assay_rslts, keepnext = FALSE)
-        } else if ("Assay Results" %in% input$inc_report) {
+        # if ("Assay Results" %in% input$inc_report &&
+        #   "Assay Results" == tail(input$inc_report, n = 1)) {
+        #   doc <- doc %>%
+        #     body_add_par("Data Verification Report for Linearity Assessment",
+        #       style = "heading 1"
+        #     ) %>%
+        #     body_add_par_n(2) %>%
+        #     body_add_flextable(assay_rslts, keepnext = FALSE)
+        # } else if ("Assay Results" %in% input$inc_report) {
           doc <- doc %>%
             body_add_par("Data Verification Report for Linearity Assessment",
               style = "heading 1"
@@ -841,7 +843,7 @@ server <- function(input, output, session) {
             body_add_flextable(assay_rslts, keepnext = FALSE) %>%
             body_add_break() %>%
             body_add_par("")
-        }
+        # }
 
         if ("Linear Regression Results" %in% input$inc_report &&
           "Linear Regression Results" == tail(input$inc_report, n = 1)) {

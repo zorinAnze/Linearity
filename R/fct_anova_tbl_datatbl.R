@@ -1,5 +1,13 @@
-# Function returns a datatable of anova results from a linear model
-
+#' Summarize ANOVA for displaying in datatable
+#'
+#' `anova_tbl_datatbl()` creates a summary table of the ANOVA for
+#' the linear regression model.
+#'
+#' @param anova_fit an object of class `anova`
+#'
+#' @return a datatable
+#' @export
+#'
 anova_tbl_datatbl <- function(anova_fit) {
   tidy(anova_fit) %>%
     datatable(

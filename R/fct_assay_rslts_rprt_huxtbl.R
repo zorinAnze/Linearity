@@ -1,8 +1,39 @@
-# Function returns a huxtable with the assay results
-
+#' Create summary table of dataset for PDF report
+#'
+#' `assay_rslts_rprt_huxtbl()` creates a summary table of the input dataset for
+#' PDF reports. Table is included in the report to guarantee reproducibility of
+#' the analysis.
+#'
+#' @param df dataset
+#' @param lvl single character value. Column name of column containing
+#'  concentration levels
+#' @param conc single character value. Column name of column containing
+#'  concentrations
+#' @param pk_area single character value. Column name of column containing
+#'  measured values, usually peak area
+#' @param title_conc single character value. Column name displayed in final
+#'  table for concentration column
+#' @param title_pk_area single character value. Column name displayed in final
+#'  table for measured value column
+#' @param prjct_title single character value. Project title displayed as title
+#'  of the final table. If `prjct_title` = "" no title is displayed
+#' @param ref_conc numeric value. Reference concentration
+#' @param ref_unit single character value. Unit of reference concentration
+#' @param dclrd_content numeric value. Declared content corresponding to
+#'  reference concentration. For detais see WP-7004559
+#' @param max_width numeric value. Text width in inches of PDF file, corresponds
+#'  to page width - margin left - margin right
+#' @param rows_first_page numeric value. Maximal number of rows on the first
+#'  page
+#' @param max_rows_per_page numeric value. Maximal number of rows on all the
+#'  following pages
+#'
+#' @return a `huxtable` object
+#' @export
+#'
 assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
                                     title_pk_area, prjct_title, ref_conc,
-                                    ref_unit, dclrd_content, max_width, 
+                                    ref_unit, dclrd_content, max_width,
                                     rows_first_page, max_rows_per_page) {
 
   # Determine maximal number of decimal places in numeric columns
@@ -86,15 +117,15 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
 
   if (prjct_title != "") {
     ht <- ht %>%
-      set_bold(1:2, everywhere) %>% 
-      set_number_format(1:2, 1:ncol(ht), NA) %>% 
+      set_bold(1:2, everywhere) %>%
+      set_number_format(1:2, 1:ncol(ht), NA) %>%
       set_number_format(3:nrow(ht), 1, glue("%.{max_decimals[[lvl]]}f")) %>%
       set_number_format(3:nrow(ht), 2, glue("%.{max_decimals[[conc]]}f")) %>%
       set_number_format(3:nrow(ht), 3, glue("%.{max_decimals[[pk_area]]}f"))
   } else {
     ht <- ht %>%
-      set_bold(1, everywhere) %>% 
-      set_number_format(1, 1:ncol(ht), NA) %>% 
+      set_bold(1, everywhere) %>%
+      set_number_format(1, 1:ncol(ht), NA) %>%
       set_number_format(2:nrow(ht), 1, glue("%.{max_decimals[[lvl]]}f")) %>%
       set_number_format(2:nrow(ht), 2, glue("%.{max_decimals[[conc]]}f")) %>%
       set_number_format(2:nrow(ht), 3, glue("%.{max_decimals[[pk_area]]}f"))
@@ -123,7 +154,7 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
   splits <- hux_split(
     ht, max_width, prjct_title, rows_first_page, max_rows_per_page
   )
-  
+
   if (length(splits) != 0) {
     ht <- ht %>%
       split_across(after = splits)

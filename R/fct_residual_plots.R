@@ -1,5 +1,19 @@
-# Function returns a combination of four diagnostic residual plots
-
+#' Create four diagnostic plots
+#'
+#' `residual_plots()` creates four diagnostic plots for a linear regression
+#' model. The four plots are a quantile-quantile plot, a residuals vs
+#' independent values plot, a residual histogram and a residual vs order plot.
+#'
+#' @param df dataset
+#' @param lm_fit a `model_fit` object from a linear regression
+#' @param x_lab single character value. X-axis label in residuals vs
+#'  independent values plot
+#' @param app if FALSE, font size, line size and dot size are decreased e.g.
+#'  for including plot in report.
+#'
+#' @return a list of four `ggplot` objects
+#' @export
+#'
 residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
   if (app == TRUE) {
     text_size <- 16
@@ -104,6 +118,6 @@ residual_plots <- function(df, lm_fit, x_lab, app = TRUE) {
       face = "bold",
       size = rel(1.4)
     ))
-      
-    return(list(p1 = p1, p2 = p2, p3 = p3, p4 = p4))
+
+  return(list(p1 = p1, p2 = p2, p3 = p3, p4 = p4))
 }

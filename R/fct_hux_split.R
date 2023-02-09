@@ -1,7 +1,22 @@
-# Function estimates how many lines wrapped text occupies in the rows and then 
-# calculates the maximum number of rows that can fit on a page without causing 
-# table overflow.
-
+#' Calculate optimal number of rows for splitting the table
+#'
+#' `hux_split()` estimates how many lines wrapped text occupies in the rows and
+#' then calculates the maximum number of rows that can fit on a page without
+#' causing table overflow.
+#'
+#' @param huxtbl a huxtable
+#' @param max_width numeric value. Text width in inches of PDF file, corresponds
+#'  to page width - margin left - margin right
+#' @param prjct_title single character value. Project title. If
+#'  `prjct_title` = "" it is not considered in the splitting algorithm
+#' @param rows_first_page numeric value. Maximal number of rows on the first
+#'  page
+#' @param max_rows_per_page numeric value. Maximal number of rows on all the
+#'  following pages
+#'
+#' @return a numeric vector
+#' @export
+#'
 hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
                       max_rows_per_page) {
 
@@ -17,13 +32,13 @@ hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
       fontname = "arev", fontsize = 9,
       bold = TRUE
       # space left and right from the text in the cell: 2 * 0.11 inch = 0.22
-    )[[1]] / 72) / (max_width - 0.22)) # 1 inch = 72px, 
-    n <- n + 1              
+    )[[1]] / 72) / (max_width - 0.22)) # 1 inch = 72px,
+    n <- n + 1
   }
 
   # Calculate the width of each column
   col_width <- max_width / ncol(huxtbl)
-  
+
   number_of_lines_per_row[n] <- max(unlist(purrr::map(
     huxtbl[n, ],
     function(x) {

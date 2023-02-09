@@ -1,14 +1,22 @@
-# Function returns a datatable with coefficients of a linear model
-
+#' Summarize linear model in datatable
+#'
+#' `coef_tbl_datatbl()` creates a datatable with coefficients of a linear model
+#'
+#' @param lm_fit a `model_fit` object from a linear regression
+#'
+#' @return a datatable
+#' @export
+#'
 coef_tbl_datatbl <- function(lm_fit) {
   tidy(lm_fit, conf.int = TRUE) %>%
     select(
       term, estimate, std.error, conf.low, conf.high, statistic,
       p.value
     ) %>%
-    mutate(sig = if_else(p.value <= 0.05, "yes", "no"),
-           term = if_else(term == "(Intercept)", "Intercept (b)", "Slope (a)")
-           ) %>% 
+    mutate(
+      sig = if_else(p.value <= 0.05, "yes", "no"),
+      term = if_else(term == "(Intercept)", "Intercept (b)", "Slope (a)")
+    ) %>%
     datatable(
       options = list(
         searching = FALSE,

@@ -2,7 +2,8 @@
 
 assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
                                     title_pk_area, prjct_title, ref_conc,
-                                    ref_unit, dclrd_content) {
+                                    ref_unit, dclrd_content, max_width, 
+                                    rows_first_page, max_rows_per_page) {
 
   # Determine maximal number of decimal places in numeric columns
   max_decimals <- df %>%
@@ -100,7 +101,7 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
   }
 
   # 6.29 inch is approximately the text width in the markdown file
-  if (sum(dim_pretty(as_flextable(ht))$widths) > 6.29) {
+  if (sum(dim_pretty(as_flextable(ht))$widths) > max_width) {
     ht <- ht %>%
       set_wrap(everywhere, everywhere, TRUE) %>%
       set_width(1)
@@ -117,10 +118,10 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
     }
   }
 
-  # Values for max_width, rows_first_page and max_rows_per_page are hard-coded
-  # and need to be changed if the margins in the markdown file change
+  # Values for max_width, rows_first_page and max_rows_per_page need to be
+  # changed if the margins in the markdown file change
   splits <- hux_split(
-    ht, 6.29, prjct_title, 32, 33
+    ht, max_width, prjct_title, rows_first_page, max_rows_per_page
   )
   
   if (length(splits) != 0) {

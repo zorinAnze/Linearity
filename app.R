@@ -726,7 +726,7 @@ server <- function(input, output, session) {
             data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
             plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
             plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-            plot_inputs$perc_declared_content
+            plot_inputs$perc_declared_content, 6.29, 38, 38
           )
         }
 

@@ -1,0 +1,63 @@
+#' Summarize parameters relevant for homoscedasticity check
+#'
+#' `data_prep_homosced()` prepares parameters from linear regression model,
+#'  Cochran test and ANOVA in a data frame in a way that it can be styled
+#'  afterwards by table generating packages.
+#'
+#' @param lm_fit a `model_fit` object from a linear regression
+#' @param c_test a list with class `htest`; is the output of the function
+#'  `cochran.test()` from the `{outliers}` package
+#' @param anova_res an object of class `anova`
+#'
+#' @return a `data.frame`
+#' @export
+#'
+data_prep_homosced <- function(lm_fit, c_test, anova_res) {
+  C1 <- c(
+    "Regression Intercept P-Value",
+    "Regression Slope P-Value",
+    "ANOVA for Regression P-Value",
+    "Cochran Test P-Value",
+    "Homogeneity of Variance",
+    "Normality Test for External Studentized Residuals P-Value"
+  )
+
+  C2 <- rep(NA, length(C1))
+
+  df <- tibble(C1, C2)
+
+  # Summarise model
+  mod_coef <- tidy(lm_fit, conf.int = TRUE)
+
+  # Extract individual parameters
+  b_pval <- mod_coef %>%
+    filter(term == "(Intercept)") %>%
+    pull(p.value)
+
+  a_pval <- mod_coef %>%
+    filter(term != "(Intercept)") %>%
+    pull(p.value)
+
+  anova_pval <- tidy(anova_res) %>%
+    filter(term != "Residuals") %>%
+    pull(p.value)
+
+  # Cochran test p-value
+  c_test_pval <- c_test$p.value
+
+  homo_var <- if_else(c_test_pval > 0.05, "Variance is Homoscedastic",
+    "Variance is Heteroscedastic"
+  )
+
+  normal_pval <- shapiro.test(rstudent(lm_fit$fit))$p.value
+
+  # Final data frame containing data in the right format
+  df[1, 2] <- sprintf("%.4f", round(b_pval, 4))
+  df[2, 2] <- sprintf("%.4f", round(a_pval, 4))
+  df[3, 2] <- sprintf("%.4f", round(anova_pval, 4))
+  df[4, 2] <- sprintf("%.4f", round(c_test_pval, 4))
+  df[5, 2] <- homo_var
+  df[6, 2] <- sprintf("%.4f", round(normal_pval, 4))
+
+  return(df)
+}

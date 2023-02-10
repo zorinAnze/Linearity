@@ -1,8 +1,8 @@
 #' Prepare data from linear regression model in a data frame
 #'
 #' `data_prep_lin_reg()` prepares results of linear regression model in a data
-#'  frame in a way that it can be styled afterwards by table generating 
-#'  packages. 
+#'  frame in a way that it can be styled afterwards by table generating
+#'  packages.
 #'
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param conc single character value. Column name of column containing

@@ -1,27 +1,29 @@
-# Function returns a flextable with the user inputs from the linearity plot
+#' Create summary table with user inputs for Word report
+#'
+#' `user_input_tbl()` creates a table containing user inputs for
+#'  reference concentration, unit of reference concentration and declared
+#'  content
+#'
+#' @param ref_conc numeric value. Reference concentration
+#' @param ref_unit single character value. Unit of reference concentration
+#' @param dclrd_content numeric value. Declared content corresponding to
+#'  reference concentration. For detais see WP-7004559
+#'
+#' @return a `flextable` object
+#' @export
+#'
 user_input_tbl <- function(ref_conc, ref_unit, dclrd_content) {
-  df <- tibble(
-    Parameters = c(
-      "Reference concentration",
-      "% of declared content"
-    ),
-    Values = c(NA, NA)
-  )
 
-  if (ref_conc != 0 && ref_unit != "") {
-    df[1, 2] <- glue("{ref_conc} {ref_unit}")
-  }
+  # Combine user inputs in data frame
+  df <- data_prep_user_inputs(ref_conc, ref_unit, dclrd_content)
 
-  if (dclrd_content != 0) {
-    df[2, 2] <- glue("{dclrd_content}%")
-  }
-
-
+  # Convert data frame to flextable
   ft <- flextable(df)
 
+  # Format flextable
   ft <- ft %>%
     colformat_char(j = 2, na_str = "NA") %>%
-    colformat_lgl(j = 2, na_str = "NA") %>% 
+    colformat_lgl(j = 2, na_str = "NA") %>%
     hline_top(
       border = fp_border(color = "black", width = 0.5),
       part = "header"

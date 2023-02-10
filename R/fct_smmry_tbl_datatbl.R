@@ -1,5 +1,12 @@
-# Function returns a summary of a linear model
-
+#' Summarize linear regression model for displaying in datatable
+#'
+#' `smmry_tbl_datatbl()` creates a summary table of a linear regression model
+#'
+#' @param lm_fit a `model_fit` object from a linear regression
+#'
+#' @return a datatable
+#' @export
+#'
 smmry_tbl_datatbl <- function(lm_fit) {
   glance(lm_fit) %>%
     mutate(r = sqrt(r.squared)) %>%

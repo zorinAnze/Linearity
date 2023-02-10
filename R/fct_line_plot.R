@@ -1,5 +1,24 @@
-# Function returns a scatter plot with the a regression line fitted to the data
-
+#' Create regression plot
+#'
+#' `line_plot()` creates a scatter plot with a fitted linear regression line.
+#' Reference concentration is also represented in the plot.
+#'
+#' @param df dataset
+#' @param conc single character value. Column name of column containing
+#'  concentrations
+#' @param pk_area single character value. Column name of column containing
+#'  measured values, usually peak area
+#' @param lab_x_axis single character value. X-axis label
+#' @param lab_y_axis single character value. Y-axis label
+#' @param lm_fit a `model_fit` object from a linear regression
+#' @param ref_conc numeric value. Reference concentration
+#' @param plt_title single character value. Title of the plot
+#' @param app if FALSE, font size, line size and dot size are decreased e.g.
+#'  for including plot in report.
+#'
+#' @return a `ggplot` object
+#' @export
+#'
 line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
                       lm_fit, ref_conc, plt_title, app = TRUE) {
   if (app == TRUE) {
@@ -33,7 +52,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%
     pull(estimate)
-  
+
   decimals_a <- num_dec(abs(a))
   format_a <- glue("%.{decimals_a}f")
 
@@ -42,7 +61,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   b <- mod_coef %>%
     filter(term == "(Intercept)") %>%
     pull(estimate)
-  
+
   decimals_b <- num_dec(abs(b))
   format_b <- glue("%.{decimals_b}f")
 

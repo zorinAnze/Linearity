@@ -7,18 +7,26 @@
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param c_test a list with class `htest`; is the output of the function
 #'  `cochran.test()` from the `{outliers}` package
+#' @param l_test a data.frame; is the output of the function
+#'  `leveneTest()` from the `{car}` package
+#' @param f_test a list with class `htest`; is the output of the function
+#'  `fligner.test()` from the `{stats}` package
 #' @param anova_res an object of class `anova`
 #'
 #' @return a `data.frame`
 #' @export
 #'
-data_prep_homosced <- function(lm_fit, c_test, anova_res) {
+data_prep_homosced <- function(lm_fit, c_test, l_test, f_test, anova_res) {
   C1 <- c(
     "Regression Intercept P-Value",
     "Regression Slope P-Value",
     "ANOVA for Regression P-Value",
     "Cochran Test P-Value",
-    "Homogeneity of Variance",
+    "Homogeneity of Variance (Cochran Test)",
+    "Levene Test P-Value",
+    "Homogeneity of Variance (Levene Test)",
+    "Fligner-Killeen Test P-Value",
+    "Homogeneity of Variance (Fligner-Killeen Test)",
     "Normality Test for External Studentized Residuals P-Value"
   )
 
@@ -45,9 +53,22 @@ data_prep_homosced <- function(lm_fit, c_test, anova_res) {
   # Cochran test p-value
   c_test_pval <- c_test$p.value
 
-  homo_var <- if_else(c_test_pval > 0.05, "Variance is Homoscedastic",
+  c_homo_var <- if_else(c_test_pval > 0.05, "Variance is Homoscedastic",
     "Variance is Heteroscedastic"
   )
+  
+  l_test_pval <- l_test$`Pr(>F)`[1]
+  
+  l_homo_var <- if_else(l_test_pval > 0.05, "Variance is Homoscedastic",
+                        "Variance is Heteroscedastic"
+  )
+  
+  f_test_pval <- f_test$p.value
+  
+  f_homo_var <- if_else(f_test_pval > 0.05, "Variance is Homoscedastic",
+                        "Variance is Heteroscedastic"
+  )
+  
 
   normal_pval <- shapiro.test(rstudent(lm_fit$fit))$p.value
 
@@ -56,8 +77,12 @@ data_prep_homosced <- function(lm_fit, c_test, anova_res) {
   df[2, 2] <- sprintf("%.4f", round(a_pval, 4))
   df[3, 2] <- sprintf("%.4f", round(anova_pval, 4))
   df[4, 2] <- sprintf("%.4f", round(c_test_pval, 4))
-  df[5, 2] <- homo_var
-  df[6, 2] <- sprintf("%.4f", round(normal_pval, 4))
+  df[5, 2] <- c_homo_var
+  df[6, 2] <- sprintf("%.4f", round(l_test_pval, 4))
+  df[7, 2] <- l_homo_var
+  df[8, 2] <- sprintf("%.4f", round(f_test_pval, 4))
+  df[9, 2] <- f_homo_var
+  df[10, 2] <- sprintf("%.4f", round(normal_pval, 4))
 
   return(df)
 }

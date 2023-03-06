@@ -188,3 +188,7 @@ table.desc_table {
 .radio-primary input[type="radio"]:checked+label::after {
     background-color: #0460A9;
 }
+
+.awesome-radio label:not(:first-child) {
+    font-weight: 400;
+}

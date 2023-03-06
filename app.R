@@ -634,8 +634,21 @@ server <- function(input, output, session) {
       data = data$orig_df
     )
   })
+  
+  levene <- reactive({
+    leveneTest(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
+                 data = data$orig_df %>% mutate(across(.data[[input$conc_lvl]], as.factor))
+    )
+  })
+  
+  fligner <- reactive({
+    fligner.test(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
+               data = data$orig_df
+    )
+  })
+  
   output$mod_hmscdstcty <- renderDT({
-    cochran_tbl_datatbl(cochran())
+    homosced_tbl_datatbl(cochran(), levene(), fligner())
   })
 
   # Plots ---------------------------------------------------------------------
@@ -806,10 +819,11 @@ server <- function(input, output, session) {
 
       if ("Homoscedasticity Assessment (ANVISA)" %in% input$inc_report) {
         if (input$doc_format == "Word") {
-          anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), anova_fit())
+          anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), levene(), 
+                                          fligner(), anova_fit())
         } else {
           anvisa_tbl <- homosced_tbl_rprt_huxtbl(
-            lm_fit(), cochran(),
+            lm_fit(), cochran(), levene(), fligner(),
             anova_fit()
           )
         }

@@ -6,15 +6,19 @@
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param c_test a list with class `htest`; is the output of the function
 #'  `cochran.test()` from the `{outliers}` package
+#' @param l_test a data.frame; is the output of the function
+#'  `leveneTest()` from the `{car}` package
+#' @param f_test a list with class `htest`; is the output of the function
+#'  `fligner.test()` from the `{stats}` package
 #' @param anova_res an object of class `anova`
 #'
 #' @return a `flextable` object
 #' @export
 #'
-homosced_tbl_rprt <- function(lm_fit, c_test, anova_res) {
+homosced_tbl_rprt <- function(lm_fit, c_test, l_test, f_test, anova_res) {
 
   # Combine data to data frame
-  df <- data_prep_homosced(lm_fit, c_test, anova_res)
+  df <- data_prep_homosced(lm_fit, c_test, l_test, f_test, anova_res)
 
   # Convert data frame to flextable
   ft <- flextable(df)
@@ -40,7 +44,7 @@ homosced_tbl_rprt <- function(lm_fit, c_test, anova_res) {
     ) %>%
     padding(padding.bottom = 2, padding.top = 1, part = "all") %>%
     padding(
-      i = 5, j = 1,
+      i = c(5, 7, 9), j = 1,
       padding.left = 14, part = "body"
     ) %>%
     set_table_properties(layout = "autofit", width = 1) %>%

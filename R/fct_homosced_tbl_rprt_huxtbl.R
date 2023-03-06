@@ -6,15 +6,20 @@
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param c_test a list with class `htest`; is the output of the function
 #'  `cochran.test()` from the `{outliers}` package
+#' @param l_test a data.frame; is the output of the function
+#'  `leveneTest()` from the `{car}` package
+#' @param f_test a list with class `htest`; is the output of the function
+#'  `fligner.test()` from the `{stats}` package
 #' @param anova_res an object of class `anova`
 #'
 #' @return a `huxtable` object
 #' @export
 #'
-homosced_tbl_rprt_huxtbl <- function(lm_fit, c_test, anova_res) {
+homosced_tbl_rprt_huxtbl <- function(lm_fit, c_test, l_test, f_test,
+                                     anova_res) {
 
   # Combine data to data frame
-  df <- data_prep_homosced(lm_fit, c_test, anova_res)
+  df <- data_prep_homosced(lm_fit, c_test, l_test, f_test, anova_res)
 
   # Convert data frame to huxtable
   ht <- as_huxtable(df)
@@ -30,7 +35,7 @@ homosced_tbl_rprt_huxtbl <- function(lm_fit, c_test, anova_res) {
     set_bottom_border(nrow(ht), everywhere, brdr(0.5, "solid", "black")) %>%
     set_top_padding(1) %>%
     set_bottom_padding(2) %>%
-    set_left_padding(6, 1, 14) %>%
+    set_left_padding(c(6, 8, 10), 1, 14) %>%
     set_font_size(9) %>%
     set_bold(1, everywhere)
 

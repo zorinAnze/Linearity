@@ -22,6 +22,7 @@ library(glue)
 library(shinyglide)
 library(lubridate)
 library(huxtable)
+library(car)
 
 # Options ---------------------------------------------------------------------
 options(readr.show_progress = FALSE)

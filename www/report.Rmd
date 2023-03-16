@@ -84,7 +84,7 @@ library(Hmisc)
 
 
 ```{r results='asis', eval=params$eval_assay}
-cat("# Data Verification Report for Linearity Assessment")
+cat("# Data Used for Linearity Assessment")
 cat("\\vskip 7pt")
 ```
 

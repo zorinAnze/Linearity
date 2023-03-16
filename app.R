@@ -851,7 +851,7 @@ server <- function(input, output, session) {
         #     body_add_flextable(assay_rslts, keepnext = FALSE)
         # } else if ("Assay Results" %in% input$inc_report) {
           doc <- doc %>%
-            body_add_par("Data Verification Report for Linearity Assessment",
+            body_add_par("Data Used for Linearity Assessment",
               style = "heading 1"
             ) %>%
             body_add_par_n(2) %>%

@@ -3,7 +3,6 @@ output:
   pdf_document:
     number_sections: true
     fig_crop: no
-fontfamily: arev
 geometry: "left=3cm, right=1.98cm, top=3.03cm, bottom=2.12cm, includefoot, headsep=29pt,   footskip=48pt"
 header-includes:
   - \usepackage{fancyhdr}
@@ -31,6 +30,9 @@ header-includes:
   - \renewcommand{\dbltopfraction}{0.9}
   - \renewcommand{\textfraction}{0.07}
   - \renewcommand{\floatpagefraction}{0.7}
+  - \usepackage{helvet}
+  - \usepackage[T1]{fontenc}
+  - \renewcommand\familydefault{\sfdefault}
 params:
   assay_rslts: NA
   lin_reg_rslts: NA

@@ -28,36 +28,25 @@ hux_split <- function(huxtbl, max_width, prjct_title, rows_first_page,
   n <- 1
 
   if (prjct_title != "") {
-    number_of_lines_per_row[n] <- ceiling((gdtools::m_str_extents(prjct_title,
-      fontname = "arev", fontsize = 9,
+    number_of_lines_per_row[n] <- max(unlist(purrr::map2(
+      huxtbl[1, ], (max_width - 0.22), wrap_text,
       bold = TRUE
-      # space left and right from the text in the cell: 2 * 0.11 inch = 0.22
-    )[[1]] / 72) / (max_width - 0.22)) # 1 inch = 72px,
+    )), na.rm = TRUE)
     n <- n + 1
   }
 
   # Calculate the width of each column
   col_width <- max_width / ncol(huxtbl)
 
-  number_of_lines_per_row[n] <- max(unlist(purrr::map(
-    huxtbl[n, ],
-    function(x) {
-      ceiling((gdtools::m_str_extents(x,
-        fontname = "arev", fontsize = 9,
-        bold = TRUE
-      )[[1]] / 72) / (col_width - 0.22))
-    }
+  number_of_lines_per_row[n] <- max(unlist(purrr::map2(
+    huxtbl[n, ], (col_width - 0.22), wrap_text,
+    bold = TRUE
   )), na.rm = TRUE)
 
   for (i in (n + 1):nrow(huxtbl)) {
-    number_of_lines_per_row[i] <- max(unlist(purrr::map(
-      huxtbl[i, ],
-      function(x) {
-        ceiling((gdtools::m_str_extents(x,
-          fontname = "arev", fontsize = 9,
-          bold = FALSE
-        )[[1]] / 72) / (col_width - 0.22))
-      }
+    number_of_lines_per_row[i] <- max(unlist(purrr::map2(
+      huxtbl[i, ], (col_width - 0.22), wrap_text,
+      bold = FALSE
     )), na.rm = TRUE)
   }
 

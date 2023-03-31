@@ -28,11 +28,11 @@ library(car)
 options(readr.show_progress = FALSE)
 options(readxl.show_progress = FALSE)
 options(
-  appName = "Method Validation",
+  appName = "Linearity",
   appDesc = "Linearity",
   deployVersion = "Beta",
-  email = "dominic.schaerer@novartis.com",
-  author = "Dominic Schärer"
+  email = "ard_r_shiny_PRJ@dl.mgd.novartis.com",
+  author = "ARD Data Science Team"
 )
 
 
@@ -345,13 +345,13 @@ ui <- dashboardPage(
           awesomeCheckboxGroup(
             "inc_report", "Include in Report:",
             choices = c(
-              # "Assay Results", 
+              # "Assay Results",
               "Linear Regression Results",
               "Linear Regression Plot",
               "Diagnostic Plots", "Homoscedasticity Assessment (ANVISA)"
             ),
             selected = c(
-              # "Assay Results", 
+              # "Assay Results",
               "Linear Regression Results",
               "Linear Regression Plot",
               "Diagnostic Plots"
@@ -396,27 +396,31 @@ server <- function(input, output, session) {
 
   # Store name of user --------------------------------------------------------
   # Workaround with custom javascript
-  # Previously used authentication is not working anymore, but might be fixed 
+  # Previously used authentication is not working anymore, but might be fixed
   # at some point.
   rvalues <- reactiveValues(
-    #auth = NULL,
+    # auth = NULL,
     author_name = NULL
   )
-  
-  observeEvent(input$current_user, {
-    if (is.null(input$current_user)) {
-      session$sendCustomMessage("authenticate-user", TRUE)
-    }
-    rvalues$author_name <- input$current_user$NIBRFull 
-  }, ignoreNULL = FALSE)
-  
+
+  observeEvent(input$current_user,
+    {
+      if (is.null(input$current_user)) {
+        session$sendCustomMessage("authenticate-user", TRUE)
+      }
+      rvalues$author_name <- input$current_user$NIBRFull
+      rvalues$author_id <- input$current_user$NIBR521
+    },
+    ignoreNULL = FALSE
+  )
+
   # shiny::observe({
   #   rvalues$auth <- Authentication$new(configFile = "www/config.json")
   #   rvalues$author_name <- glue(
   #     "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
   #   )
   # })
-  
+
   # Hide ava2 profile picture since it is not properly working ----------------
   runjs("document.querySelector('.profile-pic').style.display='none';")
 
@@ -635,19 +639,19 @@ server <- function(input, output, session) {
       data = data$orig_df
     )
   })
-  
+
   levene <- reactive({
     leveneTest(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
-                 data = data$orig_df %>% mutate(across(.data[[input$conc_lvl]], as.factor))
+      data = data$orig_df %>% mutate(across(.data[[input$conc_lvl]], as.factor))
     )
   })
-  
+
   fligner <- reactive({
     fligner.test(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
-               data = data$orig_df
+      data = data$orig_df
     )
   })
-  
+
   output$mod_hmscdstcty <- renderDT({
     homosced_tbl_datatbl(cochran(), levene(), fligner())
   })
@@ -728,26 +732,26 @@ server <- function(input, output, session) {
 
       # Prepare tables and plots for the report
       # if ("Assay Results" %in% input$inc_report) {
-        if (input$doc_format == "Word") {
-          assay_rslts <- assay_rslts_rprt(
-            data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-            plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-            plot_inputs$perc_declared_content
-          )
-        } else {
-          assay_rslts <- assay_rslts_rprt_huxtbl(
-            data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
-            plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-            plot_inputs$perc_declared_content, 6.29, 38, 38
-          )
-        }
+      if (input$doc_format == "Word") {
+        assay_rslts <- assay_rslts_rprt(
+          data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
+          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+          plot_inputs$perc_declared_content
+        )
+      } else {
+        assay_rslts <- assay_rslts_rprt_huxtbl(
+          data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
+          plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
+          plot_inputs$perc_declared_content, 6.29, 38, 38
+        )
+      }
 
-        params <- append(params, list(
-          assay_rslts = assay_rslts,
-          eval_assay = TRUE
-        ))
+      params <- append(params, list(
+        assay_rslts = assay_rslts,
+        eval_assay = TRUE
+      ))
       # } else {
       #   params <- append(params, list(eval_assay = FALSE))
       # }
@@ -820,8 +824,10 @@ server <- function(input, output, session) {
 
       if ("Homoscedasticity Assessment (ANVISA)" %in% input$inc_report) {
         if (input$doc_format == "Word") {
-          anvisa_tbl <- homosced_tbl_rprt(lm_fit(), cochran(), levene(), 
-                                          fligner(), anova_fit())
+          anvisa_tbl <- homosced_tbl_rprt(
+            lm_fit(), cochran(), levene(),
+            fligner(), anova_fit()
+          )
         } else {
           anvisa_tbl <- homosced_tbl_rprt_huxtbl(
             lm_fit(), cochran(), levene(), fligner(),
@@ -850,14 +856,14 @@ server <- function(input, output, session) {
         #     body_add_par_n(2) %>%
         #     body_add_flextable(assay_rslts, keepnext = FALSE)
         # } else if ("Assay Results" %in% input$inc_report) {
-          doc <- doc %>%
-            body_add_par("Data Used for Linearity Assessment",
-              style = "heading 1"
-            ) %>%
-            body_add_par_n(2) %>%
-            body_add_flextable(assay_rslts, keepnext = FALSE) %>%
-            body_add_break() %>%
-            body_add_par("")
+        doc <- doc %>%
+          body_add_par("Data Used for Linearity Assessment",
+            style = "heading 1"
+          ) %>%
+          body_add_par_n(2) %>%
+          body_add_flextable(assay_rslts, keepnext = FALSE) %>%
+          body_add_break() %>%
+          body_add_par("")
         # }
 
         if ("Linear Regression Results" %in% input$inc_report &&
@@ -989,12 +995,13 @@ server <- function(input, output, session) {
           headers_replace_all_text("title", header_title,
             warn = FALSE
           ) %>%
-          headers_replace_all_text("date", format(today(), "%d-%b-%y"),
+          headers_replace_all_text("date", format(now(), "%d-%b-%y %H:%M:%S"),
             warn = FALSE
           ) %>%
-          footers_replace_all_text("author_name",
-            as.character(rvalues$author_name),
-            warn = FALSE
+          footers_replace_all_text("author_name", glue(
+            "{as.character(rvalues$author_name)} ({as.character(rvalues$author_id)})"
+          ),
+          warn = FALSE
           ) # %>%
         # footers_replace_all_text("version",
         #   glue("App Version: {getOption('deployVersion')}"),
@@ -1011,8 +1018,10 @@ server <- function(input, output, session) {
         # Set parameters for header and footer
         params <- append(params, list(
           title = plot_inputs$title_plt,
-          date = format(today(), "%d-%b-%y"),
-          author_name = as.character(rvalues$author_name),
+          date = format(now(), "%d-%b-%y %H:%M:%S"),
+          author_name = glue(
+            "{as.character(rvalues$author_name)} ({as.character(rvalues$author_id)})"
+          ),
           version = glue("App Version: {getOption('deployVersion')}")
         ))
 

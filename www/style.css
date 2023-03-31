@@ -192,3 +192,10 @@ table.desc_table {
 .awesome-radio label:not(:first-child) {
     font-weight: 400;
 }
+
+.warning_par {
+  font-weight: 600;
+  color: #EC9A1E;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}

@@ -80,6 +80,11 @@ ui <- dashboardPage(
       tabItem(
         tabName = "home",
         box(h1("Linearity", class = "info_title"),
+          p(paste(
+            "By using this application, the user acknowledges reading and",
+            "understanding of SOP-7039603, WP-7004559, and the user",
+            "instructions below."
+          ), class = "disclaimer"),
           box(includeHTML("www/objectives.html"),
             title = "Objectives",
             status = "primary", width = 12

@@ -199,3 +199,11 @@ table.desc_table {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+.disclaimer {
+  font-weight: 600;
+  color: #EC9A1E;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 10px;
+}

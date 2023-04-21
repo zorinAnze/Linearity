@@ -441,7 +441,9 @@ server <- function(input, output, session) {
       tmp <- switch(ext,
         csv = read_delim(
           input$upload$datapath,
-          delim = ";",
+          delim = if_else(grepl(";", readLines(input$upload$datapath, n = 1)),
+            ";", ","
+          ),
           show_col_types = FALSE
         ),
         tsv = read_delim(
@@ -1000,7 +1002,7 @@ server <- function(input, output, session) {
           headers_replace_all_text("title", header_title,
             warn = FALSE
           ) %>%
-          headers_replace_all_text("date", format(now(), "%d-%b-%y %H:%M:%S"),
+          headers_replace_all_text("date", format(now(), "%d-%b-%y %H:%M:%S %Z"),
             warn = FALSE
           ) %>%
           footers_replace_all_text("author_name", glue(
@@ -1023,7 +1025,7 @@ server <- function(input, output, session) {
         # Set parameters for header and footer
         params <- append(params, list(
           title = plot_inputs$title_plt,
-          date = format(now(), "%d-%b-%y %H:%M:%S"),
+          date = format(now(), "%d-%b-%y %H:%M:%S %Z"),
           author_name = glue(
             "{as.character(rvalues$author_name)} ({as.character(rvalues$author_id)})"
           ),

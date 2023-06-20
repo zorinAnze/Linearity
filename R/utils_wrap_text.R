@@ -47,9 +47,9 @@ wrap_text <- function(text, width_inch, bold = FALSE) {
 
 
   if (bold) {
-    width <- floor(width_inch / char_width_mono * mono_helvetica_bold)
+    width <- floor(width_inch / (char_width_mono * mono_helvetica_bold))
   } else {
-    width <- floor(width_inch / char_width_mono * mono_helvetica)
+    width <- floor(width_inch / (char_width_mono * mono_helvetica))
   }
 
 

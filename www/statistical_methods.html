@@ -4,3 +4,31 @@
    an equation of the form Y = a + bX, where X is the explanatory variable and 
    Y is the dependent variable. The most common method for fitting a regression 
    line is the method of least-squares.</p>
+<br>
+<h3 class="info_title">Homoscedasticity Assessment</h3>
+<p>Homoscedasticity, or homogeneity of variances, is an assumption of equal or 
+  similar variances in different groups being compared e.g. mesured samples at 
+  different concentration levels. In the app, three different tests, namely 
+  Cochran's test, Levene's test, and Fligner-Killeen's test, are used to test 
+  it.<br>
+  If Cochran's variance outlier test produces a significant p-value while the 
+  other two tests do not, it is important to consider the Q-Q plot of the 
+  residuals. If a visual examination of the residual Q-Q plot reveals that 
+  the residuals are mostly normally distributed, with only a few values 
+  slightly deviating from the normal distribution but not to a concerning 
+  extent, the results can be considered acceptable. Cochran's variance outlier 
+  test is highly sensitive to outliers and non-normality, even when 
+  marginal<sup>1</sup>. This sensitivity could account for the significant 
+  p-value and the negative test outcome. In such situations, Levene's test may 
+  be more appropriate as it is more robust<sup>2</sup> to deviations from 
+  normality.<p>
+    <small>
+      <sup>1</sup> Wang, Yan et al. “Comparing the Performance of Approaches 
+        for Testing the Homogeneity of Variance Assumption in One-Factor ANOVA 
+        Models.” Educational and psychological measurement vol. 77,2 (2017): 305-329
+    </small><br>
+    <small>
+      <sup>2</sup> National Institute of Standards and Technology. Engineering 
+      Statistics Handbook. Section 1.3.5.10
+    </small>
+  </p>

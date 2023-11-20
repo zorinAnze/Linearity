@@ -1,3 +1,4 @@
+<h3 class="info_title">Abbreviation list</h3><br>
 <table class="desc_table">
   <tr>
     <th>Abbreviation</th>
@@ -59,4 +60,34 @@
       BIC's calculation is slightly different. As for AIC, models with lower 
       BIC are generally preferred.</td>
   </tr>
-</table>
+</table><br>
+<h3 class="info_title">Diagnostic plots</h3>
+<img src="qq_plot.JPG" class="intro_img" alt="Quantile-Quantile Plot"><br>
+<ul>
+  <li>For data that is normally distributed, the majority of points are located 
+    along the straight diagonal line.</li>
+  <li>The presence of a small number of points that are far from the line 
+    suggests the existence of outliers in the distribution.</li>
+</ul>
+<img src="residual_plot.JPG" class="intro_img" alt="Residual Plot"><br>
+<ul>
+  <li>The residuals should exhibit random distribution and remain consistent in 
+    their variance.</li>
+  <li>Ideally, the points should randomly scatter on both sides of 0, without 
+    any discernible patterns.</li>
+</ul>
+<img src="histogram.JPG" class="intro_img" alt="Residual Histogram"><br>
+<ul>
+  <li>Skewness in the data can be indicated by a long tail in one direction, 
+    while an outlier can be identified by a bar that is far away from other 
+    bars</li>
+  <li>To assess the normality of the residuals, it is recommended to use the 
+    quantile-quantile plot rather than relying on the histogram.</li>
+</ul>
+<img src="order_plot.JPG" class="intro_img" alt="Residual vs Order Plot"><br>
+<ul>
+  <li>Residuals should exhibit independence, meaning that there should be no 
+    discernible trends or patterns when the residuals are displayed in 
+    chronological order.</li>
+</ul>
+

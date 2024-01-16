@@ -22,7 +22,7 @@ smmry_tbl_datatbl <- function(lm_fit) {
       ),
       rownames = FALSE,
       colnames = c(
-        "S" = "sigma",
+        "s" = "sigma",
         "R" = "r",
         "R-sq" = "r.squared",
         "F-value" = "statistic",

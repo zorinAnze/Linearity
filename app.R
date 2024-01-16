@@ -122,19 +122,19 @@ ui <- dashboardPage(
             ),
             conditionalPanel(
               "output.import_ready",
-              selectInput("conc_lvl", "Concentration level column:",
+              selectInput("conc_lvl", "Analyte concentration level column:",
                 choices = c(Choose = "")
               )
             ),
             conditionalPanel(
               "input.conc_lvl",
-              selectInput("conc_sol", "Concentration of solution column:",
+              selectInput("conc_sol", "Analyte concentration column:",
                 choices = c(Choose = "")
               )
             ),
             conditionalPanel(
               "input.conc_sol",
-              selectInput("pk_area", "Peak area column:",
+              selectInput("pk_area", "Analyte response column:",
                 choices = c(Choose = "")
               )
             ),
@@ -189,7 +189,7 @@ ui <- dashboardPage(
               ),
               textInput(
                 "lab_x", "X-axis label:",
-                "Concentration [mg/ml]"
+                "Concentration [mg/mL]"
               ),
               textInput(
                 "lab_y", "Y-axis label:",
@@ -203,7 +203,7 @@ ui <- dashboardPage(
                   step = 0.01,
                   width = validateCssUnit("calc(70% - 10px)")
                 ),
-                textInput("ref_unit", "Unit:", "mg/ml",
+                textInput("ref_unit", "Unit:", "mg/mL",
                   width = "30%"
                 )
               ),

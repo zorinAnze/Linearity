@@ -391,10 +391,10 @@ server <- function(input, output, session) {
   # Reactive values for plot inputs
   plot_inputs <- reactiveValues(
     title_plt = "",
-    label_x = "Concentration [mg/ml]",
+    label_x = "Concentration [mg/mL]",
     label_y = "Peak Area [mAU*min]",
     ref_concentration = 0,
-    ref_conc_unit = "mg/ml",
+    ref_conc_unit = "mg/mL",
     perc_declared_content = 0,
   )
 
@@ -601,10 +601,10 @@ server <- function(input, output, session) {
   # Reset plot inputs when reset button is pressed
   observeEvent(input$reset_input, {
     updateTextInput(inputId = "plt_title", value = "")
-    updateTextInput(inputId = "lab_x", value = "Concentration [mg/ml]")
+    updateTextInput(inputId = "lab_x", value = "Concentration [mg/mL]")
     updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
     updateNumericInput(inputId = "ref_conc", value = 0)
-    updateTextInput(inputId = "ref_unit", value = "mg/ml")
+    updateTextInput(inputId = "ref_unit", value = "mg/mL")
     updateNumericInput(inputId = "declared_content", value = 0)
   })
 
@@ -985,7 +985,7 @@ server <- function(input, output, session) {
 
         if ("Homoscedasticity Assessment (ANVISA)" %in% input$inc_report) {
           doc <- doc %>%
-            body_add_par("Homoscedasticity Evaluation in Accordance with ANVISA Requirements",
+            body_add_par("Homoscedasticity Evaluation in Accordance with ANVISA RDC 166/2017 Requirements",
               style = "heading 1"
             ) %>%
             body_add_par_n(2) %>%

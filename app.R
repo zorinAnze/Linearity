@@ -404,27 +404,42 @@ server <- function(input, output, session) {
   # Previously used authentication is not working anymore, but might be fixed
   # at some point.
   rvalues <- reactiveValues(
-    # auth = NULL,
-    author_name = NULL
+    author_name = NULL,
+    author_id = NULL
   )
 
-  observeEvent(input$current_user,
-    {
-      if (is.null(input$current_user)) {
+  # observeEvent(input$current_user,
+  #   {
+  #     if (is.null(input$current_user)) {
+  #         session$sendCustomMessage("authenticate-user", TRUE)
+  #     }
+  #     rvalues$author_name <- input$current_user$NIBRFull
+  #     rvalues$author_id <- input$current_user$NIBR521
+  #   },
+  #   ignoreNULL = FALSE
+  # )
+
+  # Fetch user data
+  observe({
+    fetch_user_data <- function() {
+      if (!is.null(input$current_user)) {
+        if (is.character(input$current_user$NIBRFull) &&
+          is.character(input$current_user$NIBR521)) {
+          rvalues$author_name <- input$current_user$NIBRFull
+          rvalues$author_id <- input$current_user$NIBR521
+        } else {
+          session$sendCustomMessage("authenticate-user", TRUE)
+          Sys.sleep(1) # Give system some time in case connection was not ready
+          fetch_user_data()
+          print("fetched")
+        }
+      } else {
         session$sendCustomMessage("authenticate-user", TRUE)
       }
-      rvalues$author_name <- input$current_user$NIBRFull
-      rvalues$author_id <- input$current_user$NIBR521
-    },
-    ignoreNULL = FALSE
-  )
+    }
 
-  # shiny::observe({
-  #   rvalues$auth <- Authentication$new(configFile = "www/config.json")
-  #   rvalues$author_name <- glue(
-  #     "{rvalues$auth$getFirst()} {rvalues$auth$getLast()}"
-  #   )
-  # })
+    fetch_user_data()
+  })
 
   # Hide ava2 profile picture since it is not properly working ----------------
   runjs("document.querySelector('.profile-pic').style.display='none';")

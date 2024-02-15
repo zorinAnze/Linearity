@@ -431,7 +431,6 @@ server <- function(input, output, session) {
           session$sendCustomMessage("authenticate-user", TRUE)
           Sys.sleep(1) # Give system some time in case connection was not ready
           fetch_user_data()
-          print("fetched")
         }
       } else {
         session$sendCustomMessage("authenticate-user", TRUE)

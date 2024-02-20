@@ -400,45 +400,16 @@ server <- function(input, output, session) {
 
 
   # Store name of user --------------------------------------------------------
-  # Workaround with custom javascript
-  # Previously used authentication is not working anymore, but might be fixed
-  # at some point.
   rvalues <- reactiveValues(
     author_name = NULL,
     author_id = NULL
   )
-
-  # observeEvent(input$current_user,
-  #   {
-  #     if (is.null(input$current_user)) {
-  #         session$sendCustomMessage("authenticate-user", TRUE)
-  #     }
-  #     rvalues$author_name <- input$current_user$NIBRFull
-  #     rvalues$author_id <- input$current_user$NIBR521
-  #   },
-  #   ignoreNULL = FALSE
-  # )
-
-  # Fetch user data
-  observe({
-    fetch_user_data <- function() {
-      if (!is.null(input$current_user)) {
-        if (is.character(input$current_user$NIBRFull) &&
-          is.character(input$current_user$NIBR521)) {
-          rvalues$author_name <- input$current_user$NIBRFull
-          rvalues$author_id <- input$current_user$NIBR521
-        } else {
-          session$sendCustomMessage("authenticate-user", TRUE)
-          Sys.sleep(1) # Give system some time in case connection was not ready
-          fetch_user_data()
-        }
-      } else {
-        session$sendCustomMessage("authenticate-user", TRUE)
-      }
-    }
-
-    fetch_user_data()
+  
+  observeEvent(input$current_user, {
+    rvalues$author_name <- input$current_user$NIBRFull
+    rvalues$author_id <- input$current_user$NIBR521
   })
+  
 
   # Hide ava2 profile picture since it is not properly working ----------------
   runjs("document.querySelector('.profile-pic').style.display='none';")

@@ -199,7 +199,7 @@ ui <- dashboardPage(
               div(
                 class = "conc-container",
                 numericInput(
-                  "ref_conc", "Reference concentration:",
+                  "ref_conc", "Reference value:",
                   0,
                   step = 0.01,
                   width = validateCssUnit("calc(70% - 10px)")

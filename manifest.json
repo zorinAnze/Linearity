@@ -5046,19 +5046,19 @@
   },
   "files": {
     ".Rprofile": {
-      "checksum": "eff8d711774e2de48541964dffe6f42c"
+      "checksum": "18d57c5a0324662300b0a192d3932143"
     },
     "app.R": {
-      "checksum": "edafbb5f526bc08105cb23ba8891d131"
+      "checksum": "d482f02ab4373a5c70359df2d449e76e"
     },
     "R/fct_anova_tbl_datatbl.R": {
       "checksum": "8729872a5aa37c34fa42b0ee649bbbe8"
     },
     "R/fct_assay_rslts_rprt_huxtbl.R": {
-      "checksum": "a765565c1fffbc93f9a65f60a7624f58"
+      "checksum": "c5f19be4715862dc2e0387c6694327ae"
     },
     "R/fct_assay_rslts_rprt.R": {
-      "checksum": "7ea3f9b91b2f8a768f0e522e0158fafd"
+      "checksum": "6063ea30e5c5f2025017773921986e57"
     },
     "R/fct_coef_tbl_datatbl.R": {
       "checksum": "79f63c51bbd1fc679cad1004a92a739d"
@@ -5067,10 +5067,10 @@
       "checksum": "137c530e077f286081d1f4c9b2cd816b"
     },
     "R/fct_data_prep_lin_reg.R": {
-      "checksum": "f9aa01d5ef744b6707f2c5cb9d99f9ca"
+      "checksum": "1f0bb9801c0b0acba1eeff4b4595d920"
     },
     "R/fct_data_prep_user_inputs.R": {
-      "checksum": "a7036acda451c38d9652948f164eb9ed"
+      "checksum": "5d7feb12a857e90e33169e33264612ab"
     },
     "R/fct_homosced_tbl_datatbl.R": {
       "checksum": "31d12fcc40c892b7a8251c8781a76267"
@@ -5085,10 +5085,10 @@
       "checksum": "777975a8b4857709a59b7e950918102f"
     },
     "R/fct_lin_reg_rslts_rprt_huxtbl.R": {
-      "checksum": "5a86e0ba288aae2d1900a50e88384f41"
+      "checksum": "2204c828095fe8d8019fc67658f4183a"
     },
     "R/fct_lin_reg_rslts_rprt.R": {
-      "checksum": "4a663806a72d276cbb2f1579573f10ab"
+      "checksum": "f4cc740ad67e5bef085904bd5db23825"
     },
     "R/fct_line_plot.R": {
       "checksum": "cbb01f88e40201c3f75da2eb3664ff3d"
@@ -5100,10 +5100,10 @@
       "checksum": "294c167cadef742f08dd1e103a5b2177"
     },
     "R/fct_user_input_tbl_huxtbl.R": {
-      "checksum": "5fae45110d3321e655e86fae79424aa2"
+      "checksum": "37b4b264648a5cfd20c34f0767fc7c2a"
     },
     "R/fct_user_input_tbl.R": {
-      "checksum": "ff549dd7d5b061eae93e3169994384ad"
+      "checksum": "bd4c5879953e10c6a40e076e0d99ec9a"
     },
     "R/utils_body_add_par_n.R": {
       "checksum": "edf0f4998466875aff534f23899fc17f"
@@ -5145,7 +5145,7 @@
       "checksum": "3665470f509cd45be63aefb06db6d8dc"
     },
     "www/Plot_settings.JPG": {
-      "checksum": "2badb352a80db109b1e326ec5e4be744"
+      "checksum": "11d730515d2d79a9ae33d1dbae5a6d36"
     },
     "www/qq_plot.JPG": {
       "checksum": "caaacc8bf0da4d0b3b2e8662ab0d996e"
@@ -5161,6 +5161,9 @@
     },
     "www/residual_plot.JPG": {
       "checksum": "69aa79ef272896597f014e4b244c3b67"
+    },
+    "www/resize_images.js": {
+      "checksum": "bc124929f2632f31562792b9c96e7724"
     },
     "www/results.html": {
       "checksum": "533da269c0126508b9ab8e0c9ad917bb"
@@ -5187,7 +5190,7 @@
       "checksum": "5496b63d44d77c945f4f83dd722dae4c"
     },
     "www/user_instructions.html": {
-      "checksum": "dcd968a57f7dc21899050fe5387f0145"
+      "checksum": "4254a70bc94bc1e6f69f011043eaf0f2"
     }
   },
   "users": null

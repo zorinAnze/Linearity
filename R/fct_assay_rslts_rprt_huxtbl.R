@@ -17,10 +17,8 @@
 #'  table for measured value column
 #' @param prjct_title single character value. Project title displayed as title
 #'  of the final table. If `prjct_title` = "" no title is displayed
-#' @param ref_conc numeric value. Reference concentration
-#' @param ref_unit single character value. Unit of reference concentration
-#' @param dclrd_content numeric value. Declared content corresponding to
-#'  reference concentration. For detais see WP-7004559
+#' @param ref_conc numeric value. Reference value
+#' @param ref_unit single character value. Unit of reference value
 #' @param max_width numeric value. Text width in inches of PDF file, corresponds
 #'  to page width - margin left - margin right
 #' @param rows_first_page numeric value. Maximal number of rows on the first
@@ -33,7 +31,7 @@
 #'
 assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
                                     title_pk_area, prjct_title, ref_conc,
-                                    ref_unit, dclrd_content, max_width,
+                                    ref_unit, max_width,
                                     rows_first_page, max_rows_per_page) {
 
   # Determine maximal number of decimal places in numeric columns
@@ -60,25 +58,22 @@ assay_rslts_rprt_huxtbl <- function(df, lvl, conc, pk_area, title_conc,
       C3 = all_of(pk_area)
     )
 
-  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+  if (ref_conc != 0 && ref_unit != "") {
     df$C4 <- NA
-    df$C5 <- NA
     df[1, 4] <- ref_conc
-    df[1, 5] <- dclrd_content
   }
 
   # Convert data frame to huxtable
   ht <- as_huxtable(df)
 
   # Format huxtable
-  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+  if (ref_conc != 0 && ref_unit != "") {
     ht <- ht %>%
-      set_contents(1, 1:5, c(
+      set_contents(1, 1:4, c(
         "Concentration level [%]",
         title_conc,
         title_pk_area,
-        glue("Reference concentration [{ref_unit}]"),
-        "% of declared content"
+        glue("Reference value [{ref_unit}]")
       ))
   } else {
     ht <- ht %>%

@@ -6,16 +6,15 @@
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param conc single character value. Column name of column containing
 #'  concentrations
-#' @param ref_conc numeric value. Reference concentration
-#' @param dclrd_content numeric value. Declared content corresponding to
-#'  reference concentration. For detais see WP-7004559
+#' @param ref_conc numeric value. Reference value
+#' @param unit single character value. Unit of reference value
 #'
 #' @return a `flextable` object
 #' @export
 #'
-lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
+lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, unit) {
   # Generate initial data frame
-  df <- data_prep_lin_reg(lm_fit, conc, ref_conc, declared_content)
+  df <- data_prep_lin_reg(lm_fit, conc, ref_conc)
 
   # Convert data frame to flextable
   ft <- flextable(df)
@@ -41,11 +40,22 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
     hline_bottom(
       border = fp_border(color = "black", width = 0.5),
       part = "body"
-    ) %>%
-    padding(padding.bottom = 2, padding.top = 1, part = "all")
+    )
 
-  if (ref_conc != 0 && declared_content != 0) {
+  if (ref_conc != 0) {
     ft <- ft %>%
+      footnote(
+        i = c(15, 18),
+        j = 1,
+        value = as_paragraph(c(" referred to the y-value of the regression line (calculated response) for the reference value")),
+        ref_symbols = c("a")
+      ) %>%
+      footnote(
+        i = 20,
+        j = 1,
+        value = as_paragraph(paste(" reference value =", ref_conc, unit)),
+        ref_symbols = c("b")
+      ) %>%
       padding(
         i = c(4:8, 10:15, 17:18), j = 1,
         padding.left = 14, part = "body"
@@ -61,6 +71,7 @@ lin_reg_rslts_rprt <- function(lm_fit, conc, ref_conc, declared_content) {
   }
 
   ft <- ft %>%
+    padding(padding.bottom = 2, padding.top = 1, part = "all") %>%
     set_table_properties(layout = "autofit", width = 1) %>%
     fontsize(size = 9, part = "all") %>%
     flextable::bold(part = "header") %>%

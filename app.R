@@ -47,6 +47,7 @@ ui <- dashboardPage(
     minified = FALSE,
     includeCSS("www/style.css"),
     includeScript("www/auth.js"),
+    includeScript("www/resize_images.js"),
     sidebarMenu(
       br(),
       p("DataScience@", class = "title title_gray"),
@@ -206,11 +207,6 @@ ui <- dashboardPage(
                 textInput("ref_unit", "Unit:", "mg/mL",
                   width = "30%"
                 )
-              ),
-              numericInput(
-                "declared_content", "% of declared content:",
-                0,
-                step = 0.01
               ),
               # div around actionBttn is used to align them on one line
               div(
@@ -394,8 +390,7 @@ server <- function(input, output, session) {
     label_x = "Concentration [mg/mL]",
     label_y = "Peak Area [mAU*min]",
     ref_concentration = 0,
-    ref_conc_unit = "mg/mL",
-    perc_declared_content = 0,
+    ref_conc_unit = "mg/mL"
   )
 
 
@@ -590,7 +585,6 @@ server <- function(input, output, session) {
     updateTextInput(inputId = "lab_y", value = "Peak Area [mAU*min]")
     updateNumericInput(inputId = "ref_conc", value = 0)
     updateTextInput(inputId = "ref_unit", value = "mg/mL")
-    updateNumericInput(inputId = "declared_content", value = 0)
   })
 
 
@@ -662,7 +656,6 @@ server <- function(input, output, session) {
       plot_inputs$label_y <- input$lab_y
       plot_inputs$ref_concentration <- input$ref_conc
       plot_inputs$ref_conc_unit <- input$ref_unit
-      plot_inputs$perc_declared_content <- input$declared_content
 
       line_plot(data$orig_df, input$conc_sol, input$pk_area,
         plot_inputs$label_x, plot_inputs$label_y, lm_fit(),
@@ -728,15 +721,14 @@ server <- function(input, output, session) {
         assay_rslts <- assay_rslts_rprt(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
-          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-          plot_inputs$perc_declared_content
+          plot_inputs$ref_concentration, plot_inputs$ref_conc_unit
         )
       } else {
         assay_rslts <- assay_rslts_rprt_huxtbl(
           data$orig_df, input$conc_lvl, input$conc_sol, input$pk_area,
           plot_inputs$label_x, plot_inputs$label_y, plot_inputs$title_plt,
           plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-          plot_inputs$perc_declared_content, 6.29, 38, 38
+          6.29, 38, 38
         )
       }
 
@@ -753,13 +745,13 @@ server <- function(input, output, session) {
           lin_reg_rslts <- lin_reg_rslts_rprt(
             lm_fit(), input$conc_sol,
             plot_inputs$ref_concentration,
-            plot_inputs$perc_declared_content
+            plot_inputs$ref_conc_unit
           )
         } else {
           lin_reg_rslts <- lin_reg_rslts_rprt_huxtbl(
             lm_fit(), input$conc_sol,
             plot_inputs$ref_concentration,
-            plot_inputs$perc_declared_content
+            plot_inputs$ref_conc_unit
           )
         }
 
@@ -781,13 +773,11 @@ server <- function(input, output, session) {
 
         if (input$doc_format == "Word") {
           user_inputs <- user_input_tbl(
-            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-            plot_inputs$perc_declared_content
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit
           )
         } else {
           user_inputs <- user_input_tbl_huxtbl(
-            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit,
-            plot_inputs$perc_declared_content
+            plot_inputs$ref_concentration, plot_inputs$ref_conc_unit
           )
         }
 

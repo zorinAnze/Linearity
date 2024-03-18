@@ -17,17 +17,15 @@
 #'  table for measured value column
 #' @param prjct_title single character value. Project title displayed as title
 #'  of the final table. If `prjct_title` = "" no title is displayed
-#' @param ref_conc numeric value. Reference concentration
-#' @param ref_unit single character value. Unit of reference concentration
-#' @param dclrd_content numeric value. Declared content corresponding to
-#'  reference concentration. For detais see WP-7004559
+#' @param ref_conc numeric value. Reference value
+#' @param ref_unit single character value. Unit of reference value
 #'
 #' @return a `flextable` object
 #' @export
 #'
 assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
                              title_pk_area, prjct_title, ref_conc,
-                             ref_unit, dclrd_content) {
+                             ref_unit) {
   # Modify data frame
   df <- df %>%
     select(all_of(c(lvl, conc, pk_area))) %>%
@@ -38,27 +36,24 @@ assay_rslts_rprt <- function(df, lvl, conc, pk_area, title_conc,
       C3 = all_of(pk_area)
     )
 
-  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+  if (ref_conc != 0 && ref_unit != "") {
     df$C4 <- NA
-    df$C5 <- NA
     df[1, 4] <- ref_conc
-    df[1, 5] <- dclrd_content
   }
 
   # Convert data frame to flextable
   ft <- flextable(df)
 
   # Format flextable
-  if (ref_conc != 0 && ref_unit != "" && dclrd_content != 0) {
+  if (ref_conc != 0 && ref_unit != "") {
     ft <- ft %>%
       set_header_labels(
         C1 = "Concentration level [%]",
         C2 = title_conc,
         C3 = title_pk_area,
-        C4 = glue("Reference concentration [{ref_unit}]"),
-        C5 = "% of declared content"
+        C4 = glue("Reference value [{ref_unit}]")
       ) %>%
-      colformat_num(j = c(1:5), big.mark = "")
+      colformat_num(j = c(1:4), big.mark = "")
   } else {
     ft <- ft %>%
       set_header_labels(

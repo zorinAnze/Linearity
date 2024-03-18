@@ -7,15 +7,14 @@
 #' @param lm_fit a `model_fit` object from a linear regression
 #' @param conc single character value. Column name of column containing
 #'  concentrations
-#' @param ref_conc numeric value. Reference concentration
-#' @param dclrd_content numeric value. Declared content corresponding to
-#'  reference concentration. For detais see WP-7004559
+#' @param ref_conc numeric value. Reference value
+#' @param unit single character value. Unit of reference value
 #'
 #' @return a `data.frame`
 #' @export
 #'
-data_prep_lin_reg <- function(lm_fit, conc, ref_conc, declared_content) {
-  if (ref_conc != 0 && declared_content != 0) {
+data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
+  if (ref_conc != 0) {
     C1 <- c(
       "Correlation coefficient (R)",
       "Coefficient of determination (R2)",
@@ -31,12 +30,12 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc, declared_content) {
       "Confidence interval (P = 0.95)",
       "P-Value",
       "Significantly different from 0?",
-      paste0("relative to ", declared_content, "% of declared content"),
+      "relative",
       "Residual standard deviation",
       "absolute",
-      paste0("relative to ", declared_content, "% of declared content"),
+      "relative",
       "Residual sum of squares",
-      paste0("y for x = ", declared_content, "% (y = a * x + b)")
+      "y for reference value (y = a * x + b)"
     )
   } else {
     C1 <- c(
@@ -144,7 +143,7 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc, declared_content) {
   format_res <- glue("%.{decimals_res}f")
 
   # Numbers only calculated when required input is provided in the app
-  if (ref_conc != 0 && declared_content != 0) {
+  if (ref_conc != 0) {
     y_100 <- predict(lm_fit, new_data = tibble(!!conc := ref_conc)) %>%
       pull(.pred)
 
@@ -177,7 +176,7 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc, declared_content) {
   df[13, 2] <- sprintf("%.4f", round2(b_pval, 4))
   df[14, 2] <- b_sig
 
-  if (ref_conc != 0 && declared_content != 0) {
+  if (ref_conc != 0) {
     df[15, 2] <- paste0(sprintf("%.1f", round2(b_rel, 1)), "%")
     df[17, 2] <- sprintf(format_res, round2(res_sd, decimals_res))
     df[18, 2] <- paste0(sprintf("%.1f", round2(res_rel, 1)), "%")

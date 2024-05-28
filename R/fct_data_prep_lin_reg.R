@@ -67,9 +67,9 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
   mod_sum <- glance(lm_fit)
 
   # Extract individual parameters
-  R <- sprintf("%.5f", round2(sqrt(mod_sum$r.squared), 5))
+  R <- sprintf("%.5f", trunc_number(sqrt(mod_sum$r.squared), 5))
 
-  R2 <- sprintf("%.5f", round2(mod_sum$r.squared, 5))
+  R2 <- sprintf("%.5f", trunc_number(mod_sum$r.squared, 5))
 
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%
@@ -159,32 +159,32 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
   # Final data frame containing data in the right format
   df[1, 2] <- R
   df[2, 2] <- R2
-  df[4, 2] <- sprintf(format_a, round2(a, decimals_a))
-  df[5, 2] <- sprintf(format_a, round2(a_se, decimals_a))
+  df[4, 2] <- sprintf(format_a, trunc_number(a, decimals_a))
+  df[5, 2] <- sprintf(format_a, trunc_number(a_se, decimals_a))
   df[6, 2] <- paste0(
-    sprintf(format_a, round2(a_ci_l, decimals_a)), " – ",
-    sprintf(format_a, round2(a_ci_h, decimals_a))
+    sprintf(format_a, trunc_number(a_ci_l, decimals_a)), " – ",
+    sprintf(format_a, trunc_number(a_ci_h, decimals_a))
   )
-  df[7, 2] <- sprintf("%.4f", round2(a_pval, 4))
+  df[7, 2] <- sprintf("%.4f", trunc_number(a_pval, 4))
   df[8, 2] <- a_sig
-  df[10, 2] <- sprintf(format_b, round2(b, decimals_b))
-  df[11, 2] <- sprintf(format_b, round2(b_se, decimals_b))
+  df[10, 2] <- sprintf(format_b, trunc_number(b, decimals_b))
+  df[11, 2] <- sprintf(format_b, trunc_number(b_se, decimals_b))
   df[12, 2] <- paste0(
-    sprintf(format_b, round2(b_ci_l, decimals_b)), " – ",
-    sprintf(format_b, round2(b_ci_h, decimals_b))
+    sprintf(format_b, trunc_number(b_ci_l, decimals_b)), " – ",
+    sprintf(format_b, trunc_number(b_ci_h, decimals_b))
   )
-  df[13, 2] <- sprintf("%.4f", round2(b_pval, 4))
+  df[13, 2] <- sprintf("%.4f", trunc_number(b_pval, 4))
   df[14, 2] <- b_sig
 
   if (ref_conc != 0) {
-    df[15, 2] <- paste0(sprintf("%.1f", round2(b_rel, 1)), "%")
-    df[17, 2] <- sprintf(format_res, round2(res_sd, decimals_res))
-    df[18, 2] <- paste0(sprintf("%.1f", round2(res_rel, 1)), "%")
-    df[19, 2] <- sprintf(format_res, round2(res_ss, decimals_res))
-    df[20, 2] <- sprintf(format_y_100, round2(y_100, decimals_y_100))
+    df[15, 2] <- paste0(sprintf("%.4f", trunc_number(b_rel, 4)), "%")
+    df[17, 2] <- sprintf(format_res, trunc_number(res_sd, decimals_res))
+    df[18, 2] <- paste0(sprintf("%.4f", trunc_number(res_rel, 4)), "%")
+    df[19, 2] <- sprintf(format_res, trunc_number(res_ss, decimals_res))
+    df[20, 2] <- sprintf(format_y_100, trunc_number(y_100, decimals_y_100))
   } else {
-    df[15, 2] <- sprintf(format_res, round2(res_sd, decimals_res))
-    df[16, 2] <- sprintf(format_res, round2(res_ss, decimals_res))
+    df[15, 2] <- sprintf(format_res, trunc_number(res_sd, decimals_res))
+    df[16, 2] <- sprintf(format_res, trunc_number(res_ss, decimals_res))
   }
 
   return(df)

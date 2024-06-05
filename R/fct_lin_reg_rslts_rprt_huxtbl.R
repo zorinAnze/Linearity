@@ -58,7 +58,10 @@ lin_reg_rslts_rprt_huxtbl <- function(lm_fit, conc, ref_conc, unit) {
         everywhere, FALSE
       ) %>%
       add_footnote(
-        paste("\\textsuperscript{b} reference value =", ref_conc, unit),
+        paste(
+          "\\textsuperscript{b} reference value =", ref_conc,
+          sanitize(unit, type = "latex")
+        ),
         border = NULL
       ) %>%
       set_escape_contents(

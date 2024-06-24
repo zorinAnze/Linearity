@@ -67,9 +67,9 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
   mod_sum <- glance(lm_fit)
 
   # Extract individual parameters
-  R <- sprintf("%.5f", trunc_number(sqrt(mod_sum$r.squared), 5))
+  R <- sprintf("%.6f", trunc_number(sqrt(mod_sum$r.squared), 6))
 
-  R2 <- sprintf("%.5f", trunc_number(mod_sum$r.squared, 5))
+  R2 <- sprintf("%.6f", trunc_number(mod_sum$r.squared, 6))
 
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%
@@ -125,10 +125,10 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
   # Define number of decimals
   num_dec <- function(num) {
     case_when(
-      num >= 0.01 ~ 4,
-      num >= 0.001 ~ 5,
-      num >= 0.0001 ~ 6,
-      TRUE ~ 7
+      num >= 0.01 ~ 5,
+      num >= 0.001 ~ 6,
+      num >= 0.0001 ~ 7,
+      TRUE ~ 8
     )
   }
 
@@ -165,7 +165,7 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
     sprintf(format_a, trunc_number(a_ci_l, decimals_a)), " – ",
     sprintf(format_a, trunc_number(a_ci_h, decimals_a))
   )
-  df[7, 2] <- sprintf("%.4f", trunc_number(a_pval, 4))
+  df[7, 2] <- sprintf("%.5f", trunc_number(a_pval, 5))
   df[8, 2] <- a_sig
   df[10, 2] <- sprintf(format_b, trunc_number(b, decimals_b))
   df[11, 2] <- sprintf(format_b, trunc_number(b_se, decimals_b))
@@ -173,13 +173,13 @@ data_prep_lin_reg <- function(lm_fit, conc, ref_conc) {
     sprintf(format_b, trunc_number(b_ci_l, decimals_b)), " – ",
     sprintf(format_b, trunc_number(b_ci_h, decimals_b))
   )
-  df[13, 2] <- sprintf("%.4f", trunc_number(b_pval, 4))
+  df[13, 2] <- sprintf("%.5f", trunc_number(b_pval, 5))
   df[14, 2] <- b_sig
 
   if (ref_conc != 0) {
-    df[15, 2] <- paste0(sprintf("%.4f", trunc_number(b_rel, 4)), "%")
+    df[15, 2] <- paste0(sprintf("%.5f", trunc_number(b_rel, 5)), "%")
     df[17, 2] <- sprintf(format_res, trunc_number(res_sd, decimals_res))
-    df[18, 2] <- paste0(sprintf("%.4f", trunc_number(res_rel, 4)), "%")
+    df[18, 2] <- paste0(sprintf("%.5f", trunc_number(res_rel, 5)), "%")
     df[19, 2] <- sprintf(format_res, trunc_number(res_ss, decimals_res))
     df[20, 2] <- sprintf(format_y_100, trunc_number(y_100, decimals_y_100))
   } else {

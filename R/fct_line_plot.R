@@ -40,14 +40,14 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   # Define number of decimals
   num_dec <- function(num) {
     case_when(
-      num >= 0.01 ~ 4,
-      num >= 0.001 ~ 5,
-      num >= 0.0001 ~ 6,
-      TRUE ~ 7
+      num >= 0.01 ~ 5,
+      num >= 0.001 ~ 6,
+      num >= 0.0001 ~ 7,
+      TRUE ~ 8
     )
   }
 
-  R <- sprintf("%.5f", trunc_number(sqrt(mod_sum$r.squared), 5))
+  R <- sprintf("%.6f", trunc_number(sqrt(mod_sum$r.squared), 6))
 
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%

@@ -30,7 +30,7 @@ options(readxl.show_progress = FALSE)
 options(
   appName = "Linearity",
   appDesc = "Linearity",
-  deployVersion = "Beta",
+  deployVersion = "1.0",
   email = "ard_r_shiny_PRJ@dl.mgd.novartis.com",
   author = "ARD Data Science Team"
 )
@@ -984,11 +984,11 @@ server <- function(input, output, session) {
             "{as.character(rvalues$author_name)} ({as.character(rvalues$author_id)})"
           ),
           warn = FALSE
-          ) # %>%
-        # footers_replace_all_text("version",
-        #   glue("App Version: {getOption('deployVersion')}"),
-        #   warn = FALSE
-        # )
+          ) %>%
+        footers_replace_all_text("version",
+          glue("App Version: {getOption('deployVersion')}"),
+          warn = FALSE
+        )
 
         print(doc, target = file)
       } else {

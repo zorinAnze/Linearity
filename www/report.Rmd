@@ -80,7 +80,7 @@ library(Hmisc)
 \fancyhf{} <!-- clear existing header/footer entries -->
 \fancyhead[L]{`r ifelse(params$title == "", "Linearity Report", latexTranslate(params$title))`}
 \fancyhead[R]{`r params$date`}
-<!-- \fancyfoot[L]{`r params$version`} -->
+\fancyfoot[L]{`r params$version`}
 \fancyfoot[C]{`r params$author_name`}
 \fancyfoot[R]{Page \thepage\, of\, \pageref{LastPage}}
 

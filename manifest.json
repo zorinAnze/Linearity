@@ -5046,10 +5046,10 @@
   },
   "files": {
     ".Rprofile": {
-      "checksum": "f56ebc390e55fa922c2318a5f142c837"
+      "checksum": "66938f05b38a5bec2276e4433668fc42"
     },
     "app.R": {
-      "checksum": "d482f02ab4373a5c70359df2d449e76e"
+      "checksum": "0392ca022ebcf4ddc432f4ae674389c0"
     },
     "R/fct_anova_tbl_datatbl.R": {
       "checksum": "8729872a5aa37c34fa42b0ee649bbbe8"
@@ -5160,7 +5160,7 @@
       "checksum": "43e8e04ee3fac1e299c4d6a4ba5734a3"
     },
     "www/report.Rmd": {
-      "checksum": "857edb6a9e23f64052b78bd03efc2bba"
+      "checksum": "640b29516ad32fc5e76ecac99f7aafdb"
     },
     "www/residual_plot.JPG": {
       "checksum": "69aa79ef272896597f014e4b244c3b67"
@@ -5187,7 +5187,7 @@
       "checksum": "9e7bc167d0e5bdef0e5337c73f1b0ab8"
     },
     "www/template_officer.docx": {
-      "checksum": "281d818deabd076839ad5da76174891a"
+      "checksum": "718da4769f99c329bf1ddd0b40c5a98f"
     },
     "www/Template.csv": {
       "checksum": "5496b63d44d77c945f4f83dd722dae4c"

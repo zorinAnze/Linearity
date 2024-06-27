@@ -363,7 +363,7 @@
     },
     "SparseM": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "SparseM",
         "Version": "1.81",
@@ -487,7 +487,7 @@
     },
     "backports": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "backports",
         "Type": "Package",
@@ -1522,8 +1522,8 @@
       }
     },
     "farver": {
-      "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Source": "RSPM",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Type": "Package",
         "Package": "farver",
@@ -2878,7 +2878,7 @@
     },
     "munsell": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "munsell",
         "Type": "Package",
@@ -2930,8 +2930,8 @@
       }
     },
     "nloptr": {
-      "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Source": "RSPM",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "nloptr",
         "Type": "Package",
@@ -4946,7 +4946,7 @@
     },
     "xopen": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "xopen",
         "Title": "Open System Files, 'URLs', Anything",
@@ -5046,7 +5046,7 @@
   },
   "files": {
     ".Rprofile": {
-      "checksum": "18d57c5a0324662300b0a192d3932143"
+      "checksum": "f56ebc390e55fa922c2318a5f142c837"
     },
     "app.R": {
       "checksum": "d482f02ab4373a5c70359df2d449e76e"
@@ -5064,10 +5064,10 @@
       "checksum": "79f63c51bbd1fc679cad1004a92a739d"
     },
     "R/fct_data_prep_homosced.R": {
-      "checksum": "137c530e077f286081d1f4c9b2cd816b"
+      "checksum": "5916926735264c6131a29a7cc51c4aa6"
     },
     "R/fct_data_prep_lin_reg.R": {
-      "checksum": "1f0bb9801c0b0acba1eeff4b4595d920"
+      "checksum": "8411d7b74bb968fc9298360236948d73"
     },
     "R/fct_data_prep_user_inputs.R": {
       "checksum": "5d7feb12a857e90e33169e33264612ab"
@@ -5085,13 +5085,13 @@
       "checksum": "777975a8b4857709a59b7e950918102f"
     },
     "R/fct_lin_reg_rslts_rprt_huxtbl.R": {
-      "checksum": "2204c828095fe8d8019fc67658f4183a"
+      "checksum": "b030025d401d308f5f3509a629a84b38"
     },
     "R/fct_lin_reg_rslts_rprt.R": {
       "checksum": "f4cc740ad67e5bef085904bd5db23825"
     },
     "R/fct_line_plot.R": {
-      "checksum": "cbb01f88e40201c3f75da2eb3664ff3d"
+      "checksum": "48b6d463b56c70a26aa11670333da0c4"
     },
     "R/fct_residual_plots.R": {
       "checksum": "882f99347006fcf339d9cf76be7e9600"
@@ -5113,6 +5113,9 @@
     },
     "R/utils_round2.R": {
       "checksum": "8d8d9c2499189bf720f59a24edfe1019"
+    },
+    "R/utils_trunc_number.R": {
+      "checksum": "0068699e2dd8e78830ea5cdec8383cb2"
     },
     "R/utils_wrap_text.R": {
       "checksum": "e274d6439e4150b5f4a1677a799d13a0"
@@ -5166,7 +5169,7 @@
       "checksum": "bc124929f2632f31562792b9c96e7724"
     },
     "www/results.html": {
-      "checksum": "533da269c0126508b9ab8e0c9ad917bb"
+      "checksum": "44bbc10f6716f484126bfeeb9b682b61"
     },
     "www/Results.JPG": {
       "checksum": "b6997d70a7be67162f6556e0365606d8"
@@ -5190,7 +5193,7 @@
       "checksum": "5496b63d44d77c945f4f83dd722dae4c"
     },
     "www/user_instructions.html": {
-      "checksum": "4254a70bc94bc1e6f69f011043eaf0f2"
+      "checksum": "90e6a21b4bccd25164824c5b90dbe349"
     }
   },
   "users": null

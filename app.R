@@ -34,6 +34,7 @@ options(
   email = "ard_r_shiny_PRJ@dl.mgd.novartis.com",
   author = "ARD Data Science Team"
 )
+options(pillar.sigfig = 8)
 
 
 
@@ -714,6 +715,13 @@ server <- function(input, output, session) {
 
       # List of parameters for the pdf report
       params <- list()
+      
+      # Logging data
+      print(paste("User name:", rvalues$author_name))
+      print("Data:")
+      print(data$orig_df, n = Inf, width = Inf)
+      print("Regression model:")
+      print(tidy(lm_fit()))
 
       # Prepare tables and plots for the report
       # if ("Assay Results" %in% input$inc_report) {
@@ -731,6 +739,8 @@ server <- function(input, output, session) {
           6.29, 38, 38
         )
       }
+      
+
 
       params <- append(params, list(
         assay_rslts = assay_rslts,

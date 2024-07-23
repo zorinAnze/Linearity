@@ -413,6 +413,9 @@ server <- function(input, output, session) {
 
   # Load file -----------------------------------------------------------------
   observeEvent(input$upload, {
+    # Explicitly clear existing data
+    data$orig_df <- NULL
+    
     ext <- tools::file_ext(input$upload$name)
 
     if (ext %in% c("csv", "tsv", "xlsx")) {
@@ -439,6 +442,11 @@ server <- function(input, output, session) {
       )
       colnames(tmp) <- make.names(colnames(tmp), unique = TRUE)
       data$orig_df <- tmp
+      
+      # Logging uploaded data
+      print("Uploaded data:")
+      print(data$orig_df, n = Inf, width = Inf)
+      
     } else {
       showFeedbackWarning(
         inputId = "upload",
@@ -718,7 +726,7 @@ server <- function(input, output, session) {
       
       # Logging data
       print(paste("User name:", rvalues$author_name))
-      print("Data:")
+      print("Data used in Report:")
       print(data$orig_df, n = Inf, width = Inf)
       print("Regression model:")
       print(tidy(lm_fit()))

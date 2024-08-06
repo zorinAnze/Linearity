@@ -400,12 +400,12 @@ server <- function(input, output, session) {
     author_name = NULL,
     author_id = NULL
   )
-  
+
   observeEvent(input$current_user, {
     rvalues$author_name <- input$current_user$NIBRFull
     rvalues$author_id <- input$current_user$NIBR521
   })
-  
+
 
   # Hide ava2 profile picture since it is not properly working ----------------
   runjs("document.querySelector('.profile-pic').style.display='none';")
@@ -415,7 +415,7 @@ server <- function(input, output, session) {
   observeEvent(input$upload, {
     # Explicitly clear existing data
     data$orig_df <- NULL
-    
+
     ext <- tools::file_ext(input$upload$name)
 
     if (ext %in% c("csv", "tsv", "xlsx")) {
@@ -442,11 +442,10 @@ server <- function(input, output, session) {
       )
       colnames(tmp) <- make.names(colnames(tmp), unique = TRUE)
       data$orig_df <- tmp
-      
+
       # Logging uploaded data
       print("Uploaded data:")
       print(data$orig_df, n = Inf, width = Inf)
-      
     } else {
       showFeedbackWarning(
         inputId = "upload",
@@ -723,13 +722,25 @@ server <- function(input, output, session) {
 
       # List of parameters for the pdf report
       params <- list()
-      
+
       # Logging data
       print(paste("User name:", rvalues$author_name))
       print("Data used in Report:")
       print(data$orig_df, n = Inf, width = Inf)
       print("Regression model:")
       print(tidy(lm_fit()))
+      print("Model data is equal to input data:")
+      print(all_equal(
+        lm_fit()$fit$model,
+        data$orig_df %>% select(colnames(lm_fit()$fit$model))
+      ))
+      
+      # Check if data used for calculating linear regression model is the same
+      # as the data uploaded by the user
+      stopifnot(all_equal(
+        lm_fit()$fit$model,
+        data$orig_df %>% select(colnames(lm_fit()$fit$model))
+      ))
 
       # Prepare tables and plots for the report
       # if ("Assay Results" %in% input$inc_report) {
@@ -747,7 +758,7 @@ server <- function(input, output, session) {
           6.29, 38, 38
         )
       }
-      
+
 
 
       params <- append(params, list(
@@ -1003,10 +1014,10 @@ server <- function(input, output, session) {
           ),
           warn = FALSE
           ) %>%
-        footers_replace_all_text("version",
-          glue("App Version: {getOption('deployVersion')}"),
-          warn = FALSE
-        )
+          footers_replace_all_text("version",
+            glue("App Version: {getOption('deployVersion')}"),
+            warn = FALSE
+          )
 
         print(doc, target = file)
       } else {

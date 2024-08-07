@@ -73,16 +73,16 @@ data_prep_homosced <- function(lm_fit, c_test, l_test, f_test, anova_res) {
   normal_pval <- shapiro.test(rstudent(lm_fit$fit))$p.value
 
   # Final data frame containing data in the right format
-  df[1, 2] <- sprintf("%.4f", trunc_number(b_pval, 4))
-  df[2, 2] <- sprintf("%.4f", trunc_number(a_pval, 4))
-  df[3, 2] <- sprintf("%.4f", trunc_number(anova_pval, 4))
-  df[4, 2] <- sprintf("%.4f", trunc_number(c_test_pval, 4))
+  df[1, 2] <- sprintf("%.4f", trunc_number_char(b_pval, 4))
+  df[2, 2] <- sprintf("%.4f", trunc_number_char(a_pval, 4))
+  df[3, 2] <- sprintf("%.4f", trunc_number_char(anova_pval, 4))
+  df[4, 2] <- sprintf("%.4f", trunc_number_char(c_test_pval, 4))
   df[5, 2] <- c_homo_var
-  df[6, 2] <- sprintf("%.4f", trunc_number(l_test_pval, 4))
+  df[6, 2] <- sprintf("%.4f", trunc_number_char(l_test_pval, 4))
   df[7, 2] <- l_homo_var
-  df[8, 2] <- sprintf("%.4f", trunc_number(f_test_pval, 4))
+  df[8, 2] <- sprintf("%.4f", trunc_number_char(f_test_pval, 4))
   df[9, 2] <- f_homo_var
-  df[10, 2] <- sprintf("%.4f", trunc_number(normal_pval, 4))
+  df[10, 2] <- sprintf("%.4f", trunc_number_char(normal_pval, 4))
 
   return(df)
 }

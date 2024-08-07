@@ -47,7 +47,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
     )
   }
 
-  R <- sprintf("%.6f", trunc_number(sqrt(mod_sum$r.squared), 6))
+  R <- sprintf("%.6f", trunc_number_char(sqrt(mod_sum$r.squared), 6))
 
   a <- mod_coef %>%
     filter(term != "(Intercept)") %>%
@@ -56,7 +56,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   decimals_a <- num_dec(abs(a))
   format_a <- glue("%.{decimals_a}f")
 
-  a <- sprintf(format_a, trunc_number(a, decimals_a))
+  a <- sprintf(format_a, trunc_number_char(a, decimals_a))
 
   b <- mod_coef %>%
     filter(term == "(Intercept)") %>%
@@ -65,7 +65,7 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
   decimals_b <- num_dec(abs(b))
   format_b <- glue("%.{decimals_b}f")
 
-  b_abs <- sprintf(format_b, trunc_number(abs(b), decimals_b))
+  b_abs <- sprintf(format_b, trunc_number_char(abs(b), decimals_b))
   b_sign <- if_else(b >= 0, "+", "-")
 
   # Equation of regression line

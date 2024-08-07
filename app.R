@@ -30,7 +30,7 @@ options(readxl.show_progress = FALSE)
 options(
   appName = "Linearity",
   appDesc = "Linearity",
-  deployVersion = "1.0",
+  deployVersion = "1.0.1",
   email = "ard_r_shiny_PRJ@dl.mgd.novartis.com",
   author = "ARD Data Science Team"
 )

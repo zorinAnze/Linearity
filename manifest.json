@@ -1660,7 +1660,7 @@
     },
     "fresh": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "fresh",
         "Title": "Create Custom 'Bootstrap' Themes to Use in 'Shiny'",
@@ -4076,7 +4076,7 @@
     },
     "shinycssloaders": {
       "Source": "CRAN",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.1.0/2023-03-06+MTI6MzYxMjs5QzhDRjM3Qg",
+      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/latest",
       "description": {
         "Package": "shinycssloaders",
         "Type": "Package",
@@ -5046,10 +5046,10 @@
   },
   "files": {
     ".Rprofile": {
-      "checksum": "66938f05b38a5bec2276e4433668fc42"
+      "checksum": "55f42c3f19487764b342b895b5ae3923"
     },
     "app.R": {
-      "checksum": "0392ca022ebcf4ddc432f4ae674389c0"
+      "checksum": "ffaee3398777f2878670a8a21a497985"
     },
     "R/fct_anova_tbl_datatbl.R": {
       "checksum": "8729872a5aa37c34fa42b0ee649bbbe8"
@@ -5064,10 +5064,10 @@
       "checksum": "79f63c51bbd1fc679cad1004a92a739d"
     },
     "R/fct_data_prep_homosced.R": {
-      "checksum": "5916926735264c6131a29a7cc51c4aa6"
+      "checksum": "0164c94de3ad9edda162f99a13fca821"
     },
     "R/fct_data_prep_lin_reg.R": {
-      "checksum": "8411d7b74bb968fc9298360236948d73"
+      "checksum": "7e904d4efba365aba24352eab9df4ba7"
     },
     "R/fct_data_prep_user_inputs.R": {
       "checksum": "5d7feb12a857e90e33169e33264612ab"
@@ -5091,7 +5091,7 @@
       "checksum": "f4cc740ad67e5bef085904bd5db23825"
     },
     "R/fct_line_plot.R": {
-      "checksum": "48b6d463b56c70a26aa11670333da0c4"
+      "checksum": "a5f1cc019d0150286eab966f3e0ba4a3"
     },
     "R/fct_residual_plots.R": {
       "checksum": "882f99347006fcf339d9cf76be7e9600"
@@ -5113,6 +5113,9 @@
     },
     "R/utils_round2.R": {
       "checksum": "8d8d9c2499189bf720f59a24edfe1019"
+    },
+    "R/utils_trunc_number_char.R": {
+      "checksum": "63143769f4fadae43702aca63d0db581"
     },
     "R/utils_trunc_number.R": {
       "checksum": "0068699e2dd8e78830ea5cdec8383cb2"

@@ -75,24 +75,24 @@ line_plot <- function(df, conc, pk_area, lab_x_axis, lab_y_axis,
     pull(.pred)
 
   p1 <- df %>%
-    ggplot(aes_string(conc, pk_area))
+    ggplot(aes(.data[[conc]], .data[[pk_area]]))
 
   if (ref_conc != 0) {
     p1 <- p1 +
       annotate("segment",
         x = ref_conc, xend = ref_conc, y = -Inf, yend = y_100,
-        colour = "gray20", size = line_size, linetype = "dashed"
+        colour = "gray20", linewidth = line_size, linetype = "dashed"
       ) +
       annotate("segment",
         x = -Inf, xend = ref_conc, y = y_100, yend = y_100,
-        colour = "gray20", size = line_size, linetype = "dashed"
+        colour = "gray20", linewidth = line_size, linetype = "dashed"
       )
   }
 
   p1 <- p1 +
     geom_smooth(
       method = lm, formula = y ~ x,
-      color = "#0460A9", size = line_size, se = TRUE,
+      color = "#0460A9", linewidth = line_size, se = TRUE,
       fullrange = TRUE, na.rm = TRUE
     ) +
     geom_point(size = dot_size) +

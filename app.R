@@ -30,11 +30,12 @@ options(readxl.show_progress = FALSE)
 options(
   appName = "Linearity",
   appDesc = "Linearity",
-  deployVersion = "1.0.1",
+  deployVersion = "1.0.2",
   email = "ard_r_shiny_PRJ@dl.mgd.novartis.com",
   author = "ARD Data Science Team"
 )
 options(pillar.sigfig = 8)
+options(scipen = 999)
 
 
 
@@ -636,7 +637,7 @@ server <- function(input, output, session) {
 
   levene <- reactive({
     leveneTest(as.formula(paste0(input$pk_area, "~", input$conc_lvl)),
-      data = data$orig_df %>% mutate(across(.data[[input$conc_lvl]], as.factor))
+      data = data$orig_df %>% mutate(across(all_of(input$conc_lvl), as.factor))
     )
   })
 
@@ -716,7 +717,6 @@ server <- function(input, output, session) {
       )))
     },
     content = function(file) {
-
       # Show waiter animation during report generation
       w$show()
 
@@ -730,18 +730,22 @@ server <- function(input, output, session) {
       print("Regression model:")
       print(tidy(lm_fit()))
       print("Model data is equal to input data:")
-      print(all_equal(
-        lm_fit()$fit$model,
-        data$orig_df %>% select(colnames(lm_fit()$fit$model))
-      ))
-      
+      print(isTRUE(all.equal(
+        as.data.frame(lm_fit()$fit$model),
+        as.data.frame(data$orig_df %>% select(colnames(lm_fit()$fit$model))),
+        check.attributes = FALSE
+      )))
+
+
       # Check if data used for calculating linear regression model is the same
       # as the data uploaded by the user
-      stopifnot(all_equal(
-        lm_fit()$fit$model,
-        data$orig_df %>% select(colnames(lm_fit()$fit$model))
-      ))
-
+      stopifnot(
+        isTRUE(all.equal(
+          as.data.frame(lm_fit()$fit$model),
+          as.data.frame(data$orig_df %>% select(colnames(lm_fit()$fit$model))),
+          check.attributes = FALSE
+        ))
+      )
       # Prepare tables and plots for the report
       # if ("Assay Results" %in% input$inc_report) {
       if (input$doc_format == "Word") {

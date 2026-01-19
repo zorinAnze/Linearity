@@ -76,6 +76,12 @@ ui <- dashboardPage(
     )
   ),
   dashboardBody(
+    tags$head(
+      tags$link(
+        rel = "stylesheet",
+        href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      )
+    ),
     useShinyFeedback(),
     useShinyjs(),
     useWaiter(),
@@ -377,7 +383,8 @@ ui <- dashboardPage(
     )
   ),
   # remove switch for dark skin
-  dark = NULL
+  dark = NULL,
+  preloader = FALSE
 )
 
 
@@ -406,10 +413,6 @@ server <- function(input, output, session) {
     rvalues$author_name <- input$current_user$NIBRFull
     rvalues$author_id <- input$current_user$NIBR521
   })
-
-
-  # Hide ava2 profile picture since it is not properly working ----------------
-  runjs("document.querySelector('.profile-pic').style.display='none';")
 
 
   # Load file -----------------------------------------------------------------

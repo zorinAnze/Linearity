@@ -1,10 +1,14 @@
 {
   "R": {
-    "Version": "4.3.1",
+    "Version": "4.5.1",
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP"
+        "URL": "https://davinci-ppm-devdit.eu.novartis.net/validated-R-4.5.1/latest"
+      },
+      {
+        "Name": "RSPM",
+        "URL": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/rhel9/latest"
       }
     ]
   },
@@ -215,13 +219,13 @@
     },
     "MASS": {
       "Package": "MASS",
-      "Version": "7.3-60",
+      "Version": "7.3-65",
       "Source": "Repository",
       "Priority": "recommended",
-      "Date": "2023-05-02",
-      "Revision": "$Rev: 3621 $",
+      "Date": "2025-02-19",
+      "Revision": "$Rev: 3681 $",
       "Depends": [
-        "R (>= 4.0)",
+        "R (>= 4.4.0)",
         "grDevices",
         "graphics",
         "stats",
@@ -236,7 +240,7 @@
         "nnet",
         "survival"
       ],
-      "Authors@R": "c(person(\"Brian\", \"Ripley\", role = c(\"aut\", \"cre\", \"cph\"), email = \"ripley@stats.ox.ac.uk\"), person(\"Bill\", \"Venables\", role = \"ctb\"), person(c(\"Douglas\", \"M.\"), \"Bates\", role = \"ctb\"), person(\"Kurt\", \"Hornik\", role = \"trl\", comment = \"partial port ca 1998\"), person(\"Albrecht\", \"Gebhardt\", role = \"trl\", comment = \"partial port ca 1998\"), person(\"David\", \"Firth\", role = \"ctb\"))",
+      "Authors@R": "c(person(\"Brian\", \"Ripley\", role = c(\"aut\", \"cre\", \"cph\"), email = \"Brian.Ripley@R-project.org\"), person(\"Bill\", \"Venables\", role = c(\"aut\", \"cph\")), person(c(\"Douglas\", \"M.\"), \"Bates\", role = \"ctb\"), person(\"Kurt\", \"Hornik\", role = \"trl\", comment = \"partial port ca 1998\"), person(\"Albrecht\", \"Gebhardt\", role = \"trl\", comment = \"partial port ca 1998\"), person(\"David\", \"Firth\", role = \"ctb\", comment = \"support functions for polr\"))",
       "Description": "Functions and datasets to support Venables and Ripley, \"Modern Applied Statistics with S\" (4th edition, 2002).",
       "Title": "Support Functions and Datasets for Venables and Ripley's MASS",
       "LazyData": "yes",
@@ -245,17 +249,17 @@
       "URL": "http://www.stats.ox.ac.uk/pub/MASS4/",
       "Contact": "<MASS@stats.ox.ac.uk>",
       "NeedsCompilation": "yes",
-      "Author": "Brian Ripley [aut, cre, cph], Bill Venables [ctb], Douglas M. Bates [ctb], Kurt Hornik [trl] (partial port ca 1998), Albrecht Gebhardt [trl] (partial port ca 1998), David Firth [ctb]",
-      "Maintainer": "Brian Ripley <ripley@stats.ox.ac.uk>",
+      "Author": "Brian Ripley [aut, cre, cph], Bill Venables [aut, cph], Douglas M. Bates [ctb], Kurt Hornik [trl] (partial port ca 1998), Albrecht Gebhardt [trl] (partial port ca 1998), David Firth [ctb] (support functions for polr)",
+      "Maintainer": "Brian Ripley <Brian.Ripley@R-project.org>",
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "Matrix": {
       "Package": "Matrix",
-      "Version": "1.6-5",
+      "Version": "1.7-4",
       "Source": "Repository",
       "VersionNote": "do also bump src/version.h, inst/include/Matrix/version.h",
-      "Date": "2024-01-06",
+      "Date": "2025-08-27",
       "Priority": "recommended",
       "Title": "Sparse and Dense Matrix Classes and Methods",
       "Description": "A rich hierarchy of sparse and dense matrix classes, including general, symmetric, triangular, and diagonal matrices with numeric, logical, or pattern entries.  Efficient methods for operating on such matrices, often wrapping the 'BLAS', 'LAPACK', and 'SuiteSparse' libraries.",
@@ -263,9 +267,9 @@
       "URL": "https://Matrix.R-forge.R-project.org",
       "BugReports": "https://R-forge.R-project.org/tracker/?atid=294&group_id=61",
       "Contact": "Matrix-authors@R-project.org",
-      "Authors@R": "c(person(\"Douglas\", \"Bates\", role = \"aut\", comment = c(ORCID = \"0000-0001-8316-9503\")), person(\"Martin\", \"Maechler\", role = c(\"aut\", \"cre\"), email = \"mmaechler+Matrix@gmail.com\", comment = c(ORCID = \"0000-0002-8685-9910\")), person(\"Mikael\", \"Jagan\", role = \"aut\", comment = c(ORCID = \"0000-0002-3542-2938\")), person(\"Timothy A.\", \"Davis\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7614-6899\", \"SuiteSparse libraries, notably CHOLMOD and AMD\", \"collaborators listed in dir(pattern=\\\"^[A-Z]+[.]txt$\\\", full.names=TRUE, system.file(\\\"doc\\\", \\\"SuiteSparse\\\", package=\\\"Matrix\\\"))\")), person(\"Jens\", \"Oehlschlägel\", role = \"ctb\", comment = \"initial nearPD()\"), person(\"Jason\", \"Riedy\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4345-4200\", \"GNU Octave's condest() and onenormest()\", \"Copyright: Regents of the University of California\")), person(\"R Core Team\", role = \"ctb\", comment = \"base R's matrix implementation\"))",
+      "Authors@R": "c(person(\"Douglas\", \"Bates\", role = \"aut\", comment = c(ORCID = \"0000-0001-8316-9503\")), person(\"Martin\", \"Maechler\", role = c(\"aut\", \"cre\"), email = \"mmaechler+Matrix@gmail.com\", comment = c(ORCID = \"0000-0002-8685-9910\")), person(\"Mikael\", \"Jagan\", role = \"aut\", comment = c(ORCID = \"0000-0002-3542-2938\")), person(\"Timothy A.\", \"Davis\", role = \"ctb\", comment = c(ORCID = \"0000-0001-7614-6899\", \"SuiteSparse libraries\", \"collaborators listed in dir(system.file(\\\"doc\\\", \\\"SuiteSparse\\\", package=\\\"Matrix\\\"), pattern=\\\"License\\\", full.names=TRUE, recursive=TRUE)\")), person(\"George\", \"Karypis\", role = \"ctb\", comment = c(ORCID = \"0000-0003-2753-1437\", \"METIS library\", \"Copyright: Regents of the University of Minnesota\")), person(\"Jason\", \"Riedy\", role = \"ctb\", comment = c(ORCID = \"0000-0002-4345-4200\", \"GNU Octave's condest() and onenormest()\", \"Copyright: Regents of the University of California\")), person(\"Jens\", \"Oehlschlägel\", role = \"ctb\", comment = \"initial nearPD()\"), person(\"R Core Team\", role = \"ctb\", comment = c(ROR = \"02zz1nj61\", \"base R's matrix implementation\")))",
       "Depends": [
-        "R (>= 3.5.0)",
+        "R (>= 4.4)",
         "methods"
       ],
       "Imports": [
@@ -291,9 +295,9 @@
       "BuildResaveData": "no",
       "Encoding": "UTF-8",
       "NeedsCompilation": "yes",
-      "Author": "Douglas Bates [aut] (<https://orcid.org/0000-0001-8316-9503>), Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>), Mikael Jagan [aut] (<https://orcid.org/0000-0002-3542-2938>), Timothy A. Davis [ctb] (<https://orcid.org/0000-0001-7614-6899>, SuiteSparse libraries, notably CHOLMOD and AMD, collaborators listed in dir(pattern=\"^[A-Z]+[.]txt$\", full.names=TRUE, system.file(\"doc\", \"SuiteSparse\", package=\"Matrix\"))), Jens Oehlschlägel [ctb] (initial nearPD()), Jason Riedy [ctb] (<https://orcid.org/0000-0002-4345-4200>, GNU Octave's condest() and onenormest(), Copyright: Regents of the University of California), R Core Team [ctb] (base R's matrix implementation)",
+      "Author": "Douglas Bates [aut] (ORCID: <https://orcid.org/0000-0001-8316-9503>), Martin Maechler [aut, cre] (ORCID: <https://orcid.org/0000-0002-8685-9910>), Mikael Jagan [aut] (ORCID: <https://orcid.org/0000-0002-3542-2938>), Timothy A. Davis [ctb] (ORCID: <https://orcid.org/0000-0001-7614-6899>, SuiteSparse libraries, collaborators listed in dir(system.file(\"doc\", \"SuiteSparse\", package=\"Matrix\"), pattern=\"License\", full.names=TRUE, recursive=TRUE)), George Karypis [ctb] (ORCID: <https://orcid.org/0000-0003-2753-1437>, METIS library, Copyright: Regents of the University of Minnesota), Jason Riedy [ctb] (ORCID: <https://orcid.org/0000-0002-4345-4200>, GNU Octave's condest() and onenormest(), Copyright: Regents of the University of California), Jens Oehlschlägel [ctb] (initial nearPD()), R Core Team [ctb] (ROR: <https://ror.org/02zz1nj61>, base R's matrix implementation)",
       "Maintainer": "Martin Maechler <mmaechler+Matrix@gmail.com>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP"
+      "Repository": "CRAN"
     },
     "MatrixModels": {
       "Package": "MatrixModels",
@@ -366,7 +370,7 @@
       "Description": "Provides color schemes for maps (and other graphics) designed by Cynthia Brewer as described at http://colorbrewer2.org.",
       "License": "Apache License 2.0",
       "NeedsCompilation": "no",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "RJSONIO": {
@@ -510,7 +514,7 @@
       "NeedsCompilation": "yes",
       "Author": "Doug Bates [aut] (<https://orcid.org/0000-0001-8316-9503>), Dirk Eddelbuettel [aut, cre] (<https://orcid.org/0000-0001-6419-907X>), Romain Francois [aut] (<https://orcid.org/0000-0002-2444-4226>), Yixuan Qiu [aut] (<https://orcid.org/0000-0003-0109-6692>), Authors of Eigen [cph] (Authorship and copyright in included Eigen library as detailed in inst/COPYRIGHTS)",
       "Maintainer": "Dirk Eddelbuettel <edd@debian.org>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "Rdpack": {
@@ -648,16 +652,17 @@
     },
     "ava2": {
       "Package": "ava2",
-      "Version": "0.6.0",
+      "Version": "0.7.3",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Provide utilities for developing full-featured Novartis-like apps",
       "Authors@R": "c( person(\"David\", \"Granjon\", email = \"david.granjon@novartis.com\", role = c(\"aut\", \"cre\")), person(\"Mustapha\", \"Larbaoui\", email = \"mustapha.larbaoui@novartis.com\", role = \"aut\"), person(\"Flavio\", \"Lombardo\", email = \"flavio.lombardo@novartis.com\", role = \"ctb\") )",
+      "Maintainer": "David Granjon <david.granjon@novartis.com>",
       "Description": "This package/framework has been created to help Biostatisticians quickly develop robust shiny applications. It provides features like bootstrap layout,  usage tracking, getHelp form, session info, authorization.",
       "License": "file LICENSE",
-      "URL": "http://gitlabce.apps.dit-prdocp.novartis.net/scc/ava2.git",
+      "URL": "https://rsconnect-prod.dit.eu.novartis.net/ava2-documentation/",
       "BugReports": "https://gitlabce.apps.dit-prdocp.novartis.net/scc/ava2/-/issues",
-      "Collate": "'Addin_AppHub.R' 'Addin_get521.R' 'Addin_gitLocal.R' 'Addin_gitRemote.R' 'Authentication.R' 'Authorization.R' 'map.R' 'globals.R' 'utils.R' 'BootstrapLayout.R' 'Tracking.R' 'bs4_useful-items.R' 'bs4_render-functions.R' 'bs4_cards.R' 'bs4_dashboardControlbar.R' 'bs4_dashboardSidebar.R' 'bs4_dashboardBody.R' 'bs4_dashboardNavbar.R' 'aliases.R' 'auto-color.R' 'ava2-package.R' 'avaExamples.R' 'bs4_feedbacks.R' 'bs4_inputs.R' 'bs4_utils.R' 'deploy-website.R' 'grid.R' 'icons.R' 'insert-tab.R' 'novartis_images.R' 'onload.R' 'run_gitlab.R' 'skinSelector.R'",
+      "Collate": "'Addin_AppHub.R' 'Addin_get521.R' 'Addin_gitLocal.R' 'Addin_gitRemote.R' 'map.R' 'globals.R' 'utils.R' 'BootstrapLayout_adminlte.R' 'Tracking.R' 'adminlte_cards.R' 'adminlte_dashboardBody.R' 'adminlte_dashboardNavbar.R' 'adminlte_dashboardSidebar.R' 'adminlte_feedbacks.R' 'adminlte_inputs.R' 'adminlte_useful-items.R' 'dashboard_navbar.R' 'useful-items.R' 'cards.R' 'dashboard_body.R' 'dashboard_sidebar.R' 'bootstrap_layout.R' 'bs4_render-functions.R' 'bs4_dashboardControlbar.R' 'aliases.R' 'auto-color.R' 'ava2-package.R' 'avaExamples.R' 'bs4_utils.R' 'bslib_theme.R' 'deploy-website.R' 'feedbacks.R' 'grid.R' 'grid_adminlte.R' 'icons.R' 'icons_adminlte.R' 'inputs.R' 'insert-tab.R' 'novartis_images.R' 'onload.R' 'run_gitlab.R' 'sidebar_bslib.R' 'skinSelector.R'",
       "Imports": [
         "utils",
         "curl",
@@ -686,9 +691,11 @@
         "sourcetools",
         "lifecycle",
         "fresh",
-        "waiter (>= 0.1.0)"
+        "waiter (>= 0.2.3)",
+        "bslib",
+        "rlang"
       ],
-      "RoxygenNote": "7.1.1.9000",
+      "RoxygenNote": "7.3.3",
       "Suggests": [
         "knitr",
         "rmarkdown",
@@ -696,15 +703,19 @@
         "glue",
         "mime",
         "testthat (>= 2.1.0)",
-        "tidymodules"
+        "tidymodules",
+        "thematic",
+        "shinytest2",
+        "echarts4r",
+        "covr"
       ],
       "VignetteBuilder": "knitr",
       "Encoding": "UTF-8",
       "RdMacros": "lifecycle",
       "Roxygen": "list(markdown = TRUE)",
-      "Repository": "RSPM",
+      "NeedsCompilation": "no",
       "Author": "David Granjon [aut, cre], Mustapha Larbaoui [aut], Flavio Lombardo [ctb]",
-      "Maintainer": "David Granjon <david.granjon@novartis.com>"
+      "Repository": "RSPM"
     },
     "backports": {
       "Package": "backports",
@@ -1245,7 +1256,7 @@
       "URL": "https://r-forge.r-project.org/projects/car/, https://CRAN.R-project.org/package=carData, https://socialsciences.mcmaster.ca/jfox/Books/Companion/index.html",
       "Author": "John Fox [aut, cre], Sanford Weisberg [aut], Brad Price [aut]",
       "Maintainer": "John Fox <jfox@mcmaster.ca>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2024-09-30+PSf7FsQz",
+      "Repository": "CRAN",
       "Repository/R-Forge/Project": "car",
       "Repository/R-Forge/Revision": "694",
       "Repository/R-Forge/DateTimeStamp": "2022-01-05 19:40:37",
@@ -2199,7 +2210,7 @@
       "NeedsCompilation": "yes",
       "Author": "Hadley Wickham [aut, cre], RStudio [cph]",
       "Maintainer": "Hadley Wickham <hadley@rstudio.com>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2025-11-25+e7hPFLS1"
+      "Repository": "CRAN"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -3495,7 +3506,7 @@
         "testthat"
       ],
       "NeedsCompilation": "no",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2025-11-25+e7hPFLS1",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "isoband": {
@@ -4014,7 +4025,7 @@
       "NeedsCompilation": "yes",
       "Author": "Simon Wood [aut, cre]",
       "Maintainer": "Simon Wood <simon.wood@r-project.org>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "microbenchmark": {
@@ -4212,7 +4223,7 @@
       "UseLTO": "yes",
       "Author": "Jelmer Ypma [aut], Steven G. Johnson [aut] (author of the NLopt C library), Aymeric Stamm [ctb, cre] (<https://orcid.org/0000-0002-8725-3654>), Hans W. Borchers [ctb], Dirk Eddelbuettel [ctb], Brian Ripley [ctb] (build process on multiple OS), Kurt Hornik [ctb] (build process on multiple OS), Julien Chiquet [ctb], Avraham Adler [ctb] (<https://orcid.org/0000-0002-3039-0703>), Xiongtao Dai [ctb], Jeroen Ooms [ctb], Tomas Kalibera [ctb], Mikael Jagan [ctb]",
       "Maintainer": "Aymeric Stamm <aymeric.stamm@cnrs.fr>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP"
+      "Repository": "CRAN"
     },
     "nnet": {
       "Package": "nnet",
@@ -4257,7 +4268,7 @@
       "Maintainer": "Paul Gilbert <pgilbert.ttv9z@ncf.ca>",
       "URL": "http://optimizer.r-forge.r-project.org/",
       "NeedsCompilation": "no",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2024-09-30+PSf7FsQz",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "officer": {
@@ -4587,7 +4598,7 @@
       "BugReports": "https://github.com/r-lib/pkgconfig/issues",
       "Encoding": "UTF-8",
       "NeedsCompilation": "no",
-      "Repository": "RSPM"
+      "Repository": "CRAN"
     },
     "pkgdown": {
       "Package": "pkgdown",
@@ -4746,7 +4757,7 @@
       ],
       "Collate": "'adjective.R' 'adverb.R' 'exclamation.R' 'verb.R' 'rpackage.R' 'package.R'",
       "NeedsCompilation": "no",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2025-11-25+e7hPFLS1",
+      "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
     "prettyunits": {
@@ -5023,7 +5034,7 @@
       "Description": "Estimation and inference methods for models for conditional quantile functions:  Linear and nonlinear parametric and non-parametric (total variation penalized) models  for conditional quantiles of a univariate response and several methods for handling censored survival data.  Portfolio selection methods based on expected shortfall risk are also now included. See Koenker, R. (2005) Quantile Regression, Cambridge U. Press, <doi:10.1017/CBO9780511754098> and Koenker, R. et al. (2017) Handbook of Quantile Regression,  CRC Press, <doi:10.1201/9781315120256>.",
       "Authors@R": "c( person(\"Roger\", \"Koenker\",  role = c(\"cre\",\"aut\"), email =  \"rkoenker@illinois.edu\"), person(\"Stephen\", \"Portnoy\",  role = c(\"ctb\"),  comment = \"Contributions to Censored QR code\", email =  \"sportnoy@illinois.edu\"), person(c(\"Pin\", \"Tian\"), \"Ng\",  role = c(\"ctb\"),  comment = \"Contributions to Sparse QR code\", email =  \"pin.ng@nau.edu\"), person(\"Blaise\", \"Melly\",  role = c(\"ctb\"),  comment = \"Contributions to preprocessing code\", email =  \"mellyblaise@gmail.com\"), person(\"Achim\", \"Zeileis\",  role = c(\"ctb\"),  comment = \"Contributions to dynrq code essentially identical to his dynlm code\",  email =  \"Achim.Zeileis@uibk.ac.at\"), person(\"Philip\", \"Grosjean\",  role = c(\"ctb\"),  comment = \"Contributions to nlrq code\", email =  \"phgrosjean@sciviews.org\"), person(\"Cleve\", \"Moler\",  role = c(\"ctb\"),  comment = \"author of several linpack routines\"), person(\"Yousef\", \"Saad\",  role = c(\"ctb\"),  comment = \"author of sparskit2\"), person(\"Victor\", \"Chernozhukov\",  role = c(\"ctb\"),  comment = \"contributions to extreme value inference code\"), person(\"Ivan\", \"Fernandez-Val\",  role = c(\"ctb\"),  comment = \"contributions to extreme value inference code\"), person(\"Martin\", \"Maechler\", role = \"ctb\", comment = c(\"tweaks (src/chlfct.f, 'tiny','Large')\", ORCID = \"0000-0002-8685-9910\")), person(c(\"Brian\", \"D\"), \"Ripley\",  role = c(\"trl\",\"ctb\"),  comment = \"Initial (2001) R port from S (to my everlasting shame --  how could I have been so slow to adopt R!) and for numerous other  suggestions and useful advice\", email =  \"ripley@stats.ox.ac.uk\"))",
       "Maintainer": "Roger Koenker <rkoenker@illinois.edu>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP",
+      "Repository": "CRAN",
       "Depends": [
         "R (>= 3.5)",
         "stats",
@@ -5190,7 +5201,7 @@
       "NeedsCompilation": "no",
       "Author": "Gábor Csárdi [cre, aut]",
       "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/exploratory/__linux__/centos7/2025-11-25+e7hPFLS1"
+      "Repository": "CRAN"
     },
     "readr": {
       "Package": "readr",
@@ -5435,7 +5446,7 @@
       "NeedsCompilation": "no",
       "Author": "Kevin Ushey [aut, cre] (ORCID: <https://orcid.org/0000-0003-2880-7407>), Hadley Wickham [aut] (ORCID: <https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd]",
       "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
-      "Repository": "RSPM"
+      "Repository": "CRAN"
     },
     "rlang": {
       "Package": "rlang",
@@ -6154,7 +6165,7 @@
       "Author": "Marek Gagolewski [aut, cre, cph] (<https://orcid.org/0000-0003-0637-6028>), Bartek Tartanus [ctb], Unicode, Inc. and others [ctb] (ICU4C source code, Unicode Character Database)",
       "Maintainer": "Marek Gagolewski <marek@gagolewski.com>",
       "License_is_FOSS": "yes",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP"
+      "Repository": "CRAN"
     },
     "stringr": {
       "Package": "stringr",
@@ -6198,7 +6209,7 @@
       "NeedsCompilation": "no",
       "Author": "Hadley Wickham [aut, cre, cph], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "https://rspm.apps.dit-prdocp.novartis.net/validated-R-4.3.1/2025-12-14+VOVBszRP"
+      "Repository": "CRAN"
     },
     "survival": {
       "Package": "survival",

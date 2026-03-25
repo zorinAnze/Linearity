@@ -35,7 +35,6 @@ options(
   author = "ARD Data Science Team"
 )
 options(pillar.sigfig = 8)
-options(scipen = 999)
 
 
 

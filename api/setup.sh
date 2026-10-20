@@ -69,23 +69,39 @@ info "$(R --version | head -1)"
 
 # ------------------------------------------------------- 5. system libraries
 step "5/7  System libraries"
-# Needed by curl/httr, openssl, xml2, gert, stringi, systemfonts, textshaping,
-# ragg, gdtools/flextable and RSQLite; pandoc is for rmarkdown.
+# Posit's binaries link against these at *run* time, so a missing one shows
+# up as a load failure during restore, not a compile error -- e.g. ragg
+# needs libwebp-dev, and without it fails with "libwebpmux.so.3: cannot open
+# shared object file".
+#
+# This list is Posit's own answer for every package in renv.lock, and is
+# identical for Ubuntu 22.04 and 24.04. Regenerate it with:
+#
+#   curl -sS "https://packagemanager.posit.co/__api__/repos/cran/sysreqs\
+#?distribution=ubuntu&release=22.04&pkgname=ragg&pkgname=..."
+#
+# It is baked in rather than queried at run time so setup still works where
+# packagemanager.posit.co is blocked.
 pkgs=(
-  build-essential gfortran make cmake pkg-config
-  libcurl4-openssl-dev libssl-dev libxml2-dev libgit2-dev
-  zlib1g-dev libbz2-dev liblzma-dev libicu-dev
-  libfontconfig1-dev libfreetype6-dev libharfbuzz-dev libfribidi-dev
-  libpng-dev libjpeg-dev libcairo2-dev libsqlite3-dev
+  cmake git make
+  libcairo2-dev libcurl4-openssl-dev libfontconfig1-dev libfreetype6-dev
+  libfribidi-dev libgit2-dev libharfbuzz-dev libicu-dev libjpeg-dev
+  libpng-dev libssh2-1-dev libssl-dev libtiff-dev libuv1-dev libwebp-dev
+  libx11-dev libxml2-dev zlib1g-dev
   pandoc
+  # Not in Posit's list, but needed whenever a package falls back to source.
+  build-essential gfortran pkg-config
 )
-# Renamed after jammy.
-if apt-cache show libtiff5-dev >/dev/null 2>&1; then
-  pkgs+=(libtiff5-dev)
-else
-  pkgs+=(libtiff-dev)
-fi
-sudo apt-get install -y --no-install-recommends "${pkgs[@]}"
+# Posit also lists texlive, for huxtable's PDF output. This API does not
+# offer PDF reports, and texlive is a multi-GB install, so it is left out.
+
+# Tolerate renames across releases: install what exists, report what does not.
+available=(); missing=()
+for p in "${pkgs[@]}"; do
+  if apt-cache show "$p" >/dev/null 2>&1; then available+=("$p"); else missing+=("$p"); fi
+done
+[ ${#missing[@]} -eq 0 ] || info "not in this release's archive, skipping: ${missing[*]}"
+sudo apt-get install -y --no-install-recommends "${available[@]}"
 
 # ------------------------------------------------------------ 6. R packages
 step "6/7  R packages"

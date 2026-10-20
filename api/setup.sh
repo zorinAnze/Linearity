@@ -142,7 +142,7 @@ if curl -sf --max-time 20 -o /dev/null "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" 2
 fi
 
 cd "$ROOT"
-REPO_SOURCE="$REPO_SOURCE" Rscript - <<'RSCRIPT'
+REPO_SOURCE="$REPO_SOURCE" UBUNTU_CODENAME="$codename" Rscript - <<'RSCRIPT'
 source_kind <- Sys.getenv("REPO_SOURCE")
 override <- Sys.getenv("RENV_CONFIG_REPOS_OVERRIDE", unset = "")
 
@@ -165,6 +165,15 @@ exclude <- if (identical(source_kind, "public")) {
   c("ava2", "rsconnect", "snowflakeauth")
 } else {
   character()
+}
+
+# Ubuntu 20.04 carries libgit2 0.28, below git2r's ">= 1.0", so git2r can
+# neither be built there nor downloaded as a binary (Posit has no focal
+# build for the same reason). Nothing but ava2 depends on it, and ava2 is
+# UI-only, so dropping both leaves the API complete.
+if (identical(Sys.getenv("UBUNTU_CODENAME"), "focal")) {
+  exclude <- union(exclude, c("git2r", "ava2"))
+  cat("    focal: excluding git2r and ava2 (libgit2 too old; API unaffected)\n")
 }
 if (length(exclude)) {
   cat("    skipping:", paste(exclude, collapse = ", "), "\n")
@@ -217,16 +226,36 @@ RSCRIPT
 # --------------------------------------------------------------- 7. Python
 step "7/7  Python environment"
 # 3.10 is a hard floor: models.py evaluates a PEP 604 union (`X | Y`) at
-# import time, which older interpreters cannot parse. Fail here rather than
-# with a TypeError on the first request.
-python3 - <<'PY' || die "Python 3.10+ required. Ubuntu 20.04 ships 3.8; 22.04 and later are fine."
-import sys
-sys.exit(0 if sys.version_info >= (3, 10) else 1)
-PY
-info "python3: $(python3 --version 2>&1 | awk '{print $2}')"
+# import time, which older interpreters cannot parse.
+PYBIN="python3"
+if python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
+  info "python3: $(python3 --version 2>&1 | awk '{print $2}')"
+else
+  # Ubuntu 20.04 ships 3.8, and deadsnakes dropped focal when it went EOL,
+  # so apt cannot help. uv fetches a standalone CPython that only needs
+  # glibc 2.17+ (focal has 2.31) and installs under $HOME, no sudo.
+  info "python3 is $(python3 --version 2>&1 | awk '{print $2}'); need >= 3.10"
+  if ! command -v uv >/dev/null 2>&1; then
+    info "installing uv to provide a newer Python"
+    curl -LsSf https://astral.sh/uv/install.sh | sh >/dev/null 2>&1 \
+      || die "Could not install uv. Install Python 3.10+ another way, then re-run."
+  fi
+  export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+  command -v uv >/dev/null 2>&1 || die "uv installed but not on PATH."
+  uv python install 3.12 >/dev/null 2>&1 || die "uv could not install Python 3.12."
+  PYBIN="$(uv python find 3.12)"
+  [ -x "$PYBIN" ] || die "uv reported no usable Python 3.12."
+  info "using $("$PYBIN" --version 2>&1 | awk '{print $2}') from uv at $PYBIN"
+fi
 
+# Rebuild the venv if it exists but is too old to import the app.
+if [ -x "$ROOT/api/.venv/bin/python" ] && \
+   ! "$ROOT/api/.venv/bin/python" -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then
+  info "existing venv is too old -- recreating"
+  rm -rf "$ROOT/api/.venv"
+fi
 if [ ! -x "$ROOT/api/.venv/bin/python" ]; then
-  python3 -m venv "$ROOT/api/.venv"
+  "$PYBIN" -m venv "$ROOT/api/.venv"
 fi
 "$ROOT/api/.venv/bin/pip" install -q --upgrade pip
 "$ROOT/api/.venv/bin/pip" install -q -r "$ROOT/api/requirements.txt"

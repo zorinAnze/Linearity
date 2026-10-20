@@ -36,8 +36,24 @@ Anything public-facing belongs in front of FastAPI.
   3.9 and earlier cannot load it. Developed and tested on 3.10.12.
 * **R 4.5.1** — pinned by `renv.lock`; Posit's Linux binaries are built per R
   minor version, so another R silently compiles everything from source.
-* Ubuntu 22.04 or 24.04. 20.04 is too old on both counts (Python 3.8, and a
-  `libgit2` too old for `git2r`).
+* Ubuntu **20.04, 22.04 or 24.04**. `setup.sh` handles the differences.
+
+### Ubuntu 20.04
+
+Supported, with two accommodations `setup.sh` applies automatically:
+
+* Focal ships Python 3.8, and deadsnakes dropped focal when it went EOL, so
+  apt cannot supply a newer one. Setup installs [uv] and uses it to fetch a
+  standalone CPython 3.12 — no sudo, and it only needs glibc 2.17+ (focal has
+  2.31).
+* Focal's `libgit2` is 0.28, below `git2r`'s `>= 1.0`, so `git2r` can neither
+  be built there nor fetched as a binary (Posit has no focal build, for the
+  same reason). Only `ava2` depends on it, and `ava2` is UI-only, so both are
+  skipped. The API is unaffected; the Shiny app will not run on 20.04.
+
+Everything else the API needs has a focal binary.
+
+[uv]: https://docs.astral.sh/uv/
 
 ## Setting up a new machine
 

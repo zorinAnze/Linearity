@@ -105,6 +105,13 @@ else
   export RENV_CONFIG_REPOS_OVERRIDE="$SNAPSHOT_URL"
 fi
 
+# plumber is not in the validated set, so keep the public snapshot available
+# as a fallback for it even when restoring from the Novartis mirrors.
+SNAPSHOT_URL="https://packagemanager.posit.co/cran/__linux__/$codename/$P3M_SNAPSHOT"
+if curl -sf --max-time 20 -o /dev/null "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" 2>/dev/null; then
+  export LINEARITY_FALLBACK_REPO="$SNAPSHOT_URL"
+fi
+
 cd "$ROOT"
 REPO_SOURCE="$REPO_SOURCE" Rscript - <<'RSCRIPT'
 source_kind <- Sys.getenv("REPO_SOURCE")
@@ -138,11 +145,42 @@ renv::restore(prompt = FALSE, exclude = exclude)
 
 # plumber runs the HTTP backend but is deliberately absent from renv.lock,
 # so the validated lockfile stays untouched.
+#
+# The validated Novartis mirror is a curated set and need not carry plumber,
+# so fall back to the public snapshot for this one package rather than
+# leaving the backend unrunnable.
 if (!requireNamespace("plumber", quietly = TRUE)) {
   cat("    installing plumber\n")
-  renv::install("plumber", prompt = FALSE)
+  installed <- tryCatch({
+    renv::install("plumber", prompt = FALSE)
+    requireNamespace("plumber", quietly = TRUE)
+  }, error = function(e) {
+    cat("    primary repo failed:", conditionMessage(e), "\n")
+    FALSE
+  })
+
+  if (!installed && !nzchar(Sys.getenv("LINEARITY_FALLBACK_REPO", ""))) {
+    cat("    no fallback configured\n")
+  } else if (!installed) {
+    fallback <- Sys.getenv("LINEARITY_FALLBACK_REPO")
+    cat("    retrying from", fallback, "\n")
+    tryCatch(
+      renv::install("plumber", prompt = FALSE, repos = c(P3M = fallback)),
+      error = function(e) cat("    fallback failed:", conditionMessage(e), "\n")
+    )
+  }
 }
 
+# Verify rather than assume: without plumber the R backend cannot start, and
+# failing here is far clearer than a missing-package error at run time.
+if (!requireNamespace("plumber", quietly = TRUE)) {
+  stop("plumber could not be installed -- the R backend will not start. ",
+       "Install it by hand, from a repository this machine can reach:\n",
+       "  Rscript -e 'renv::install(\"plumber\")'",
+       call. = FALSE)
+}
+
+cat("    plumber:", as.character(packageVersion("plumber")), "\n")
 cat("    R library ready:",
     nrow(installed.packages(lib.loc = renv::paths$library())), "packages\n")
 RSCRIPT

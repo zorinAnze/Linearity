@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One-time setup for the Linearity API on a fresh Ubuntu / WSL machine.
 #
-#   ./api/setup.sh
+#   ./api/setup.sh                      # auto-detect package source
+#   LINEARITY_FORCE_PUBLIC=1 ./api/setup.sh   # force Posit binaries
 #
 # Installs R 4.5.1 (the version renv.lock pins), the system libraries the
 # package set needs, the R packages, plumber, and the Python venv. Needs
@@ -108,13 +109,25 @@ step "6/7  R packages"
 # renv will warn that huxtable wants texlive. That is only for PDF output,
 # which this API does not offer, and the binary installs fine without it.
 info "(a 'texlive required by huxtable' warning here is expected and harmless)"
-if curl -sf --max-time 10 -o /dev/null "$NOVARTIS_PROBE" 2>/dev/null; then
+if [ -n "${LINEARITY_FORCE_PUBLIC:-}" ]; then
+  use_novartis=false
+  info "LINEARITY_FORCE_PUBLIC set -- using the public snapshot."
+elif curl -sf --max-time 10 -o /dev/null "$NOVARTIS_PROBE" 2>/dev/null; then
+  use_novartis=true
+else
+  use_novartis=false
+fi
+
+if [ "$use_novartis" = true ]; then
   REPO_SOURCE="novartis"
   info "Novartis mirrors reachable -- restoring exactly per renv.lock (incl. ava2)."
+  info "If packages start compiling from source, that mirror is not serving"
+  info "binaries for this platform. Re-run with LINEARITY_FORCE_PUBLIC=1 to"
+  info "use Posit's binaries instead (you lose ava2, which only the UI needs)."
 else
   REPO_SOURCE="public"
   SNAPSHOT_URL="https://packagemanager.posit.co/cran/__linux__/$codename/$P3M_SNAPSHOT"
-  info "Novartis mirrors unreachable -- using the public snapshot:"
+  info "Using the public snapshot:"
   info "  $SNAPSHOT_URL"
   curl -sf --max-time 20 -o /dev/null "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" \
     || die "Public snapshot unreachable for '$codename'. Check the network/proxy."

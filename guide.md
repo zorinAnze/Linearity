@@ -1,5 +1,17 @@
 # Linearity API — local deployment and testing
 
+## 0. First time on a machine
+
+```bash
+./api/setup.sh
+```
+
+Needs sudo, takes a few minutes, and is safe to re-run. Installs R 4.5.1, the
+system libraries, the R packages, `plumber` and the Python venv — none of
+which are in git, so a fresh `git clone` needs this before anything runs.
+
+Skip to step 1 on a machine that's already set up.
+
 ## 1. Start it
 
 ```bash

@@ -30,6 +30,20 @@ validation, file handling and OpenAPI docs, and forwards to it over loopback.
 The R service performs no authentication and must stay bound to `127.0.0.1`.
 Anything public-facing belongs in front of FastAPI.
 
+## Setting up a new machine
+
+```bash
+./api/setup.sh          # needs sudo; safe to re-run
+```
+
+Installs R 4.5.1 (the version `renv.lock` pins), the system libraries, the R
+packages, `plumber`, and the Python venv. None of these live in git — the
+repo carries `renv.lock` and `requirements.txt`, not the packages.
+
+The package source is chosen automatically: the validated Novartis mirrors
+when they're reachable (which also brings `ava2`, so the Shiny app runs too),
+otherwise the public Posit snapshot described under *Environment notes*.
+
 ## Running
 
 ```bash

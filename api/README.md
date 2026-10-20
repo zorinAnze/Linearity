@@ -30,6 +30,15 @@ validation, file handling and OpenAPI docs, and forwards to it over loopback.
 The R service performs no authentication and must stay bound to `127.0.0.1`.
 Anything public-facing belongs in front of FastAPI.
 
+## Requirements
+
+* **Python 3.10+** — `models.py` evaluates a PEP 604 union at import time, so
+  3.9 and earlier cannot load it. Developed and tested on 3.10.12.
+* **R 4.5.1** — pinned by `renv.lock`; Posit's Linux binaries are built per R
+  minor version, so another R silently compiles everything from source.
+* Ubuntu 22.04 or 24.04. 20.04 is too old on both counts (Python 3.8, and a
+  `libgit2` too old for `git2r`).
+
 ## Setting up a new machine
 
 ```bash

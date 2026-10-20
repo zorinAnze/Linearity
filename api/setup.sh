@@ -216,6 +216,15 @@ RSCRIPT
 
 # --------------------------------------------------------------- 7. Python
 step "7/7  Python environment"
+# 3.10 is a hard floor: models.py evaluates a PEP 604 union (`X | Y`) at
+# import time, which older interpreters cannot parse. Fail here rather than
+# with a TypeError on the first request.
+python3 - <<'PY' || die "Python 3.10+ required. Ubuntu 20.04 ships 3.8; 22.04 and later are fine."
+import sys
+sys.exit(0 if sys.version_info >= (3, 10) else 1)
+PY
+info "python3: $(python3 --version 2>&1 | awk '{print $2}')"
+
 if [ ! -x "$ROOT/api/.venv/bin/python" ]; then
   python3 -m venv "$ROOT/api/.venv"
 fi

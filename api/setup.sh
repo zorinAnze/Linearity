@@ -109,36 +109,49 @@ step "6/7  R packages"
 # renv will warn that huxtable wants texlive. That is only for PDF output,
 # which this API does not offer, and the binary installs fine without it.
 info "(a 'texlive required by huxtable' warning here is expected and harmless)"
-if [ -n "${LINEARITY_FORCE_PUBLIC:-}" ]; then
-  use_novartis=false
-  info "LINEARITY_FORCE_PUBLIC set -- using the public snapshot."
-elif curl -sf --max-time 10 -o /dev/null "$NOVARTIS_PROBE" 2>/dev/null; then
-  use_novartis=true
-else
-  use_novartis=false
-fi
-
-if [ "$use_novartis" = true ]; then
-  REPO_SOURCE="novartis"
-  info "Novartis mirrors reachable -- restoring exactly per renv.lock (incl. ava2)."
-  info "If packages start compiling from source, that mirror is not serving"
-  info "binaries for this platform. Re-run with LINEARITY_FORCE_PUBLIC=1 to"
-  info "use Posit's binaries instead (you lose ava2, which only the UI needs)."
-else
-  REPO_SOURCE="public"
-  SNAPSHOT_URL="https://packagemanager.posit.co/cran/__linux__/$codename/$P3M_SNAPSHOT"
-  info "Using the public snapshot:"
-  info "  $SNAPSHOT_URL"
-  curl -sf --max-time 20 -o /dev/null "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" \
-    || die "Public snapshot unreachable for '$codename'. Check the network/proxy."
-  export RENV_CONFIG_REPOS_OVERRIDE="$SNAPSHOT_URL"
-fi
-
-# plumber is not in the validated set, so keep the public snapshot available
-# as a fallback for it even when restoring from the Novartis mirrors.
 SNAPSHOT_URL="https://packagemanager.posit.co/cran/__linux__/$codename/$P3M_SNAPSHOT"
-if curl -sf --max-time 20 -o /dev/null "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" 2>/dev/null; then
+
+reachable() { curl -sf --max-time 15 -o /dev/null "$1" 2>/dev/null; }
+
+novartis_ok=false; posit_ok=false
+reachable "$NOVARTIS_PROBE/src/contrib/PACKAGES.gz" && novartis_ok=true
+reachable "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" && posit_ok=true
+info "reachable -- novartis: $novartis_ok, posit: $posit_ok"
+
+if [ -n "${LINEARITY_FORCE_PUBLIC:-}" ] && [ "$posit_ok" = false ]; then
+  die "LINEARITY_FORCE_PUBLIC is set but packagemanager.posit.co is not
+    reachable from here$([ -n "${https_proxy:-}" ] && echo " (https_proxy=$https_proxy)" || echo " (no https_proxy set)").
+    Either export https_proxy/http_proxy for your corporate proxy, or drop
+    the flag to use the Novartis mirrors instead."
+fi
+
+if [ -n "${LINEARITY_FORCE_PUBLIC:-}" ] || { [ "$novartis_ok" = false ] && [ "$posit_ok" = true ]; }; then
+  REPO_SOURCE="public"
+  info "Using the public snapshot: $SNAPSHOT_URL"
+  export RENV_CONFIG_REPOS_OVERRIDE="$SNAPSHOT_URL"
+elif [ "$novartis_ok" = true ]; then
+  REPO_SOURCE="novartis"
+  info "Using the Novartis mirrors, per renv.lock."
+  if [ "$posit_ok" = false ]; then
+    info "Posit is not reachable, so packages without a Novartis binary will"
+    info "compile from source. Expect this to take a while."
+  fi
+else
+  die "No package repository is reachable.
+    Tried: $NOVARTIS_PROBE
+           $SNAPSHOT_URL
+    Proxy: http_proxy=${http_proxy:-unset} https_proxy=${https_proxy:-unset}
+    If this machine needs a proxy for external hosts, export http_proxy and
+    https_proxy and re-run. On the Novartis network, connect to the VPN."
+fi
+
+# plumber is absent from renv.lock, so it needs a repository of its own.
+# Prefer Posit; fall back to the Novartis RSPM, which mirrors CRAN more
+# broadly than the validated set does.
+if [ "$posit_ok" = true ]; then
   export LINEARITY_FALLBACK_REPO="$SNAPSHOT_URL"
+elif [ "$novartis_ok" = true ]; then
+  export LINEARITY_FALLBACK_REPO="$NOVARTIS_PROBE"
 fi
 
 cd "$ROOT"

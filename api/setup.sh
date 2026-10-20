@@ -113,10 +113,57 @@ SNAPSHOT_URL="https://packagemanager.posit.co/cran/__linux__/$codename/$P3M_SNAP
 
 reachable() { curl -sf --max-time 15 -o /dev/null "$1" 2>/dev/null; }
 
+# curl exits non-zero for a TLS failure exactly as it does for a blocked
+# host, so check explicitly -- behind a corporate proxy that re-signs
+# traffic, "unreachable" is usually an untrusted CA, not a firewall.
+tls_problem() {
+  local err
+  err="$(curl -sS --max-time 15 -o /dev/null "$1" 2>&1 >/dev/null)" || true
+  case "$err" in
+    *"SSL certificate problem"*|*"self-signed certificate"*|\
+    *"unable to get local issuer"*|*"certificate verify failed"*)
+      printf '%s' "$err"; return 0 ;;
+  esac
+  return 1
+}
+
+warn_if_tls() {
+  local url="$1" err
+  if err="$(tls_problem "$url")"; then
+    cat >&2 <<EOF
+
+$(printf '\033[33mTLS verification failed for %s\033[0m' "${url%%/cran/*}")
+    $err
+
+    This machine does not trust the certificate being presented -- typical
+    when a corporate proxy re-signs HTTPS. Install your company's root CA:
+
+      openssl s_client -showcerts -connect packagemanager.posit.co:443 \\
+        </dev/null 2>/dev/null | awk '/BEGIN CERT/,/END CERT/' > /tmp/corp.pem
+      sudo cp /tmp/corp.pem /usr/local/share/ca-certificates/corporate-root.crt
+      sudo update-ca-certificates
+
+    That covers curl and R. pip carries its own bundle, so also:
+
+      pip config set global.cert /etc/ssl/certs/ca-certificates.crt
+
+    Do not disable verification instead -- packages would arrive unverified.
+
+EOF
+    return 0
+  fi
+  return 1
+}
+
 novartis_ok=false; posit_ok=false
 reachable "$NOVARTIS_PROBE/src/contrib/PACKAGES.gz" && novartis_ok=true
 reachable "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" && posit_ok=true
 info "reachable -- novartis: $novartis_ok, posit: $posit_ok"
+
+# Say so loudly when a repository is only "unreachable" because its
+# certificate is not trusted; that is fixable, a firewall is not.
+[ "$posit_ok" = true ] || warn_if_tls "$SNAPSHOT_URL/src/contrib/PACKAGES.gz" || true
+[ "$novartis_ok" = true ] || warn_if_tls "$NOVARTIS_PROBE/src/contrib/PACKAGES.gz" || true
 
 if [ -n "${LINEARITY_FORCE_PUBLIC:-}" ] && [ "$posit_ok" = false ]; then
   die "LINEARITY_FORCE_PUBLIC is set but packagemanager.posit.co is not

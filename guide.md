@@ -67,6 +67,16 @@ That inspects columns, runs the analysis, prints headline numbers and the report
 
 **`Column '…' not found`** — the name you gave isn't in the file. You can leave `conc_lvl` / `conc_sol` / `pk_area` **blank**, in which case they map to the 1st, 2nd and 3rd numeric columns in order of appearance. `POST /columns` lists what's available.
 
+**`SSL certificate problem` / repos "unreachable" behind a corporate proxy** — the proxy re-signs HTTPS and this machine doesn't trust its CA. Install it rather than disabling verification:
+
+```bash
+openssl s_client -showcerts -connect packagemanager.posit.co:443 </dev/null 2>/dev/null \
+  | awk '/BEGIN CERT/,/END CERT/' > /tmp/corp.pem
+sudo cp /tmp/corp.pem /usr/local/share/ca-certificates/corporate-root.crt
+sudo update-ca-certificates
+pip config set global.cert /etc/ssl/certs/ca-certificates.crt   # pip has its own bundle
+```
+
 **Port already in use** — `./api/run.sh --stop`, or override: `LINEARITY_API_PORT=8080 ./api/run.sh`.
 
 **`renv::status()` complains about missing packages** — expected, not drift. `ava2`, `rsconnect` and `snowflakeauth` are deliberately not installed; none affects the analysis.

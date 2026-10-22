@@ -3,6 +3,10 @@
 How the API is built, what it guarantees, and how to put it on a server
 already running the Shiny app.
 
+> **Shareable version:** <https://claude.ai/code/artifact/f354c214-c8ae-4c68-ae9c-c73c213a4aa5>
+> This file is the source — edit here, then republish the page. The link is
+> private until shared from the page itself.
+
 ---
 
 ## 1. What it is

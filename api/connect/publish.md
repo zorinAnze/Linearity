@@ -1,5 +1,11 @@
 # Publishing to Posit Connect
 
+> **Shareable version:** <https://claude.ai/code/artifact/ee8c8eaf-d3ce-447c-b912-af279aed8e8e>
+> Same content as a web page, for sending to people who will not read
+> markdown in a repository. This file is the source — edit here, then
+> republish the page so the two do not drift. The link is private until
+> shared from the page itself.
+
 Option A from `api/DEPLOYMENT.md`: both tiers as Connect content, alongside
 the existing Shiny app and without touching it.
 

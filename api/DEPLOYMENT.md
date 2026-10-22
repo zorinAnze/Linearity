@@ -141,24 +141,99 @@ API cannot live on Connect.
 
 ---
 
-## 5. Before production
+## 5. Authentication and authorisation
 
-1. **Authentication.** Nothing authenticates today. On Connect this is
-   platform config; on a VM it is nginx plus a credential scheme.
-2. **The R tier must never be public.** It executes analysis requests with no
+The brief is to use the same approach and infrastructure as the Shiny app.
+That is right for *identity*, but the app's mechanism cannot be reused
+verbatim, and its *authorisation* layer has no counterpart in the API yet.
+
+### How the app does it today
+
+| Layer | Mechanism |
+|---|---|
+| Authentication | Platform SSO injects `window.NIBRIam` into the page; `www/auth.js` forwards it to Shiny as `input$current_user` |
+| Authorisation | `ava2` reads `www/config.json` — division/department rules, plus allow/deny lists of 521 IDs |
+| Identity in output | `app.R` takes `NIBRFull` / `NIBR521` from that input for the report footer |
+
+### Why it does not transfer directly
+
+**`window.NIBRIam` is a browser global.** It is injected into an HTML page and
+read by JavaScript. An API client has no browser and no page, so there is
+nothing to inject into. The same is true of any interactive SSO redirect: a
+scripted caller cannot complete a login flow designed for a human.
+
+This is a property of SSO generally, not a gap in the app. The standard
+resolution is to keep the *identity provider* and change the *grant*:
+
+| Caller | Grant |
+|---|---|
+| Human in a browser | SSO redirect, as now |
+| Script or pipeline | API key or service-account token, issued against the same LDAP identity |
+
+On Posit Connect that is its per-user API keys: a user signs in through SSO,
+generates a key, and callers send `Authorization: Key …`. The key carries that
+user's LDAP-derived identity and permissions, so access stays governed by the
+same directory — no second user store.
+
+If `window.NIBRIam` is injected by a Novartis layer in front of Connect rather
+than by Connect itself, that layer is the authority and the API must integrate
+with it instead. Worth confirming before building anything.
+
+### The authorisation gap
+
+`ava2` enforces `config.json`; `ava2` is **not installed for the API** — it is
+UI-only and unavailable off the Novartis network. So the org/department rules
+and the allow/deny lists currently govern the Shiny app and nothing else.
+
+Three ways to close it, in rough order of preference:
+
+1. **Platform-level.** Restrict the API's Connect content to the same LDAP
+   group that may use the app. No application code, and the rule lives where
+   the other access rules live.
+2. **Gateway-level.** If a proxy already enforces `config.json`, put the API
+   behind the same one.
+3. **In the API.** Read `config.json` and apply the same checks to the
+   authenticated principal. Only worth it if the rules must hold independently
+   of where the API is hosted — and it duplicates logic that `ava2` owns.
+
+### What this improves
+
+Author identity is currently a request *parameter* — the caller asserts who
+they are, and the report footer records whatever they send. Once calls are
+authenticated, `author_name` and `author_id` should be derived from the
+authenticated principal instead, with the parameters ignored or rejected.
+
+In a validated context that matters: the report would then record who actually
+ran the analysis rather than whoever typed a name. Connect forwards the
+authenticated visitor's identity to content via request headers, which is the
+hook for this; the exact header depends on the Connect version and should be
+confirmed against yours.
+
+**Not yet built.** Today the API authenticates nothing and trusts the author
+parameters. Items 1 and 2 in §6 cover the work.
+
+---
+
+## 6. Before production
+
+1. **Authentication.** Nothing authenticates today. Use the same LDAP
+   identities as the app, with API keys rather than SSO redirects for
+   programmatic callers — see §5.
+2. **Authorisation.** `ava2` enforces `config.json` for the app and is not
+   installed for the API, so those rules do not currently apply to it.
+3. **The R tier must never be public.** It executes analysis requests with no
    checks. Loopback, or Connect access limited to the FastAPI service account.
-3. **Author identity.** The app reads it from the SSO session; the API takes
-   `author_name` / `author_id` as parameters. Decide who supplies them, or the
-   report footer renders empty.
-4. **Upload cap.** `LINEARITY_MAX_UPLOAD` defaults to 25 MB.
-5. **Concurrency.** One R process = one concurrent analysis. Size accordingly.
-6. **`plumber` is not in `renv.lock`**, deliberately, so the validated
+4. **Author identity.** Derive it from the authenticated principal rather than
+   trusting the `author_name` / `author_id` parameters.
+5. **Upload cap.** `LINEARITY_MAX_UPLOAD` defaults to 25 MB.
+6. **Concurrency.** One R process = one concurrent analysis. Size accordingly.
+7. **`plumber` is not in `renv.lock`**, deliberately, so the validated
    lockfile stays as-validated. Connect restores from `manifest.json`, so the
    API's manifest must be generated with `plumber` present in the library.
 
 ---
 
-## 6. Environment
+## 7. Environment
 
 | | |
 |---|---|
@@ -177,10 +252,15 @@ The API will. On 22.04 both work.
 
 ---
 
-## 7. Open questions
+## 8. Open questions
 
 - Does your Connect have a Python runtime with FastAPI content enabled?
   This decides between Option A and Option B.
-- Who supplies `author_name` / `author_id` in an automated workflow?
+- Is `window.NIBRIam` injected by Connect, or by a Novartis layer in front of
+  it? That layer is where the API must authenticate.
+- Can service accounts or per-user API keys be issued against the same LDAP
+  directory, and who owns issuing them?
+- Should the `config.json` authorisation rules apply to the API, and if so,
+  enforced at the platform or in the application?
 - Expected request volume — does one R process suffice?
 - Is PDF output needed later? That adds a LaTeX toolchain to the image.

@@ -153,6 +153,7 @@ class HealthResponse(BaseModel):
     status: str
     api_version: str
     r_backend: dict[str, Any] | None = None
+    auth: dict[str, Any] | None = None
     detail: str | None = None
 
 

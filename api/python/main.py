@@ -23,7 +23,9 @@ import datetime as dt
 import re
 
 import httpx
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import (
+    Depends, FastAPI, File, Form, HTTPException, Request, UploadFile,
+)
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
@@ -31,6 +33,14 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import ValidationError
 from starlette.background import BackgroundTask
 
+from identity import (
+    IDENTITY_HEADER,
+    REQUIRE_AUTH,
+    Principal,
+    current_principal,
+    from_request,
+    resolve_author,
+)
 from models import (
     REPORT_SECTIONS,
     _usable_sections,
@@ -77,10 +87,24 @@ MAX_UPLOAD_BYTES = int(os.environ.get("LINEARITY_MAX_UPLOAD", 25 * 1024 * 1024))
 # per-request timeout matters more than concurrency here.
 R_TIMEOUT = httpx.Timeout(float(os.environ.get("LINEARITY_R_TIMEOUT", 120)))
 
+# Credential for the hop to the R tier. On Connect this is a Connect API key;
+# on a sidecar it is a shared secret the plumber filter checks. Unset means
+# loopback with nothing in between, which is the local-development case.
+R_API_KEY = os.environ.get("LINEARITY_R_API_KEY", "")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.http = httpx.AsyncClient(base_url=R_BACKEND, timeout=R_TIMEOUT)
+    # Connect expects "Key <value>"; a plain shared secret is sent as-is.
+    headers = {}
+    if R_API_KEY:
+        headers["Authorization"] = (
+            R_API_KEY if R_API_KEY.lower().startswith(("key ", "bearer "))
+            else f"Key {R_API_KEY}"
+        )
+    app.state.http = httpx.AsyncClient(
+        base_url=R_BACKEND, timeout=R_TIMEOUT, headers=headers
+    )
     try:
         yield
     finally:
@@ -297,13 +321,46 @@ async def root() -> RedirectResponse:
     return RedirectResponse(url="/docs")
 
 
+@app.get("/whoami", tags=["ops"])
+async def whoami(request: Request) -> dict[str, Any]:
+    """Report the identity this request carried, and where it came from.
+
+    Use this to confirm which header your deployment actually sets before
+    relying on it: the spelling varies by Connect version and by anything
+    sitting in front of it.
+    """
+    principal = from_request(request)
+    candidates = {
+        name: value
+        for name, value in request.headers.items()
+        if "credential" in name.lower()
+        or "user" in name.lower()
+        or "auth" in name.lower()
+    }
+    return {
+        "authenticated": principal is not None,
+        "principal": principal.summary() if principal else None,
+        "expected_header": IDENTITY_HEADER,
+        "require_auth": REQUIRE_AUTH,
+        # Values are redacted: an Authorization header would appear here.
+        "identity_like_headers_present": sorted(candidates),
+    }
+
+
 @app.get("/health", response_model=HealthResponse, tags=["ops"])
 async def health() -> HealthResponse:
     """Liveness of this API and of the R backend behind it."""
     try:
         resp = await app.state.http.get("/health")
         return HealthResponse(
-            status="ok", api_version=API_VERSION, r_backend=resp.json()
+            status="ok",
+            api_version=API_VERSION,
+            r_backend=resp.json(),
+            auth={
+                "require_auth": REQUIRE_AUTH,
+                "identity_header": IDENTITY_HEADER,
+                "r_backend_key_set": bool(R_API_KEY),
+            },
         )
     except Exception as exc:
         return HealthResponse(
@@ -319,7 +376,10 @@ async def health() -> HealthResponse:
     tags=["analysis"],
     responses={415: {"model": ErrorResponse}},
 )
-async def columns(file: UploadFile = File(..., description="csv, tsv or xlsx")):
+async def columns(
+    file: UploadFile = File(..., description="csv, tsv or xlsx"),
+    principal: Principal | None = Depends(current_principal),
+):
     """List a file's columns and types.
 
     Equivalent to the app's column dropdowns: call this first if you do not
@@ -354,6 +414,7 @@ async def analyze(
     lab_y: str = Form("Peak Area [mAU*min]"),
     plt_title: str = Form(""),
     style: str = Form("report"),
+    principal: Principal | None = Depends(current_principal),
 ):
     """Run the linearity analysis and return the full result as JSON.
 
@@ -383,7 +444,10 @@ async def analyze(
 
 
 @app.post("/columns/json", response_model=ColumnsResponse, tags=["analysis"])
-async def columns_json(req: ColumnsJsonRequest):
+async def columns_json(
+    req: ColumnsJsonRequest,
+    principal: Principal | None = Depends(current_principal),
+):
     """List the columns of inline data, without uploading a file."""
     return await _call_r("/columns", req.model_dump())
 
@@ -393,7 +457,10 @@ async def columns_json(req: ColumnsJsonRequest):
     tags=["analysis"],
     responses={422: {"model": ErrorResponse}, 503: {"model": ErrorResponse}},
 )
-async def analyze_json(req: AnalyzeJsonRequest):
+async def analyze_json(
+    req: AnalyzeJsonRequest,
+    principal: Principal | None = Depends(current_principal),
+):
     """Run the analysis on measurements posted inline as JSON.
 
     Identical to `/analyze` except the data arrives in the body instead of as
@@ -468,6 +535,7 @@ async def report(
     author_name: str = Form(""),
     author_id: str = Form(""),
     file_name: str = Form(""),
+    principal: Principal | None = Depends(current_principal),
 ):
     """Generate the Word report and return the .docx.
 
@@ -489,12 +557,13 @@ async def report(
     tmp = _save_upload(file)
     try:
         payload = params.model_dump()
+        name, user_id, _ = resolve_author(principal, author_name, author_id)
         payload |= {
             "path": str(tmp),
             "ext": tmp.suffix.lstrip("."),
             "sections": _clean_sections(sections),
-            "author_name": author_name,
-            "author_id": author_id,
+            "author_name": name,
+            "author_id": user_id,
         }
         return await _build_report(payload, file_name)
     finally:
@@ -510,9 +579,16 @@ async def report(
         422: {"model": ErrorResponse},
     },
 )
-async def report_json(req: ReportJsonRequest):
+async def report_json(
+    req: ReportJsonRequest,
+    principal: Principal | None = Depends(current_principal),
+):
     """Generate the Word report from measurements posted inline as JSON."""
     payload = req.model_dump()
     file_name = payload.pop("file_name", "")
     payload["style"] = "report"
+    name, user_id, _ = resolve_author(
+        principal, payload.get("author_name", ""), payload.get("author_id", "")
+    )
+    payload["author_name"], payload["author_id"] = name, user_id
     return await _build_report(payload, file_name)

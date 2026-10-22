@@ -112,6 +112,22 @@ cd api/python && ../.venv/bin/uvicorn main:app --port 8000
 | `LINEARITY_R_BACKEND` | `http://127.0.0.1:8001` | where FastAPI finds R |
 | `LINEARITY_R_TIMEOUT` | `120` | per-request timeout, seconds |
 | `LINEARITY_MAX_UPLOAD` | `26214400` | upload cap, bytes |
+| `LINEARITY_R_API_KEY` | unset | credential sent to the R tier, and required by it when set |
+| `LINEARITY_REQUIRE_AUTH` | unset | reject callers with no authenticated identity |
+| `LINEARITY_IDENTITY_HEADER` | `RStudio-Connect-Credentials` | header carrying the authenticated user |
+
+### Identity
+
+Behind Posit Connect the platform authenticates the caller and forwards the
+result in a header; `GET /whoami` echoes back what arrived, which is how you
+confirm the header name for your deployment rather than assuming it.
+
+When a request carries an identity, the Word report's author is taken from it
+and the `author_name` / `author_id` parameters are ignored — a caller cannot
+credit a validated report to someone else. With nothing configured the API
+behaves exactly as before, which keeps local development unchanged.
+
+See `api/connect/publish.md` for deployment.
 
 ## Endpoints
 

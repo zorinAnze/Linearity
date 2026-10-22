@@ -190,8 +190,42 @@ else
   bad "plots.py failed (is matplotlib installed in api/.venv?)"
 fi
 
+# -------------------------------------------------------------------- identity
+head_ "6. Identity"
+IDH="RStudio-Connect-Credentials"
+CRED='{"user":"smoke1","name":"Smoke Tester","groups":["ARD"]}'
+
+A=$(curl -sS "$URL/whoami" | jqp "d['authenticated']")
+[ "$A" = "False" ] && ok "/whoami: anonymous request reports unauthenticated" \
+  || bad "/whoami anonymous: expected False, got '$A'"
+
+W=$(curl -sS -H "$IDH: $CRED" "$URL/whoami")
+[ "$(echo "$W" | jqp "d['principal']['user_id']")" = "smoke1" ] \
+  && ok "/whoami: parses the identity header" \
+  || bad "/whoami identity: $W"
+
+# The security property: an authenticated caller must not be able to credit
+# the report to someone else.
+curl -sS -X POST "$URL/report" -H "$IDH: $CRED" -F "file=@$DATA" "${FORM[@]}" \
+  -F "author_name=Somebody Else" -F "author_id=IMPOSTOR" \
+  -o "$WORK/attrib.docx" 2>/dev/null
+if "$PY" - "$WORK/attrib.docx" <<'EOF'
+import re, sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as z:
+    foot = "".join(
+        "".join(re.findall(r"<w:t[^>]*>([^<]*)</w:t>", z.read(n).decode("utf8")))
+        for n in z.namelist() if n.startswith("word/footer")
+    )
+sys.exit(0 if "smoke1" in foot and "IMPOSTOR" not in foot else 1)
+EOF
+then
+  ok "report credits the authenticated user, not the claimed one"
+else
+  bad "report footer used the claimed author instead of the authenticated one"
+fi
+
 # ------------------------------------------------------------ error handling
-head_ "6. Error handling"
+head_ "7. Error handling"
 expect_code "unknown column -> 422" 422 -X POST "$URL/analyze" -F "file=@$DATA" \
   -F "conc_lvl=Nope" -F "conc_sol=Concentration_of_solution_mg_ml" \
   -F "pk_area=Peak_area_mAU_min"

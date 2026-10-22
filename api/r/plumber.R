@@ -18,7 +18,31 @@ local({
 
 library(plumber)
 
+# Shared secret for the hop from FastAPI. Unset means no check, which is
+# right for loopback with nothing in between. Set it whenever this process
+# is reachable by anything other than the FastAPI tier -- on Connect, access
+# control is the platform's job and this is defence in depth.
+R_API_KEY <- Sys.getenv("LINEARITY_R_API_KEY", unset = "")
+
 #* @apiTitle Linearity R backend (internal)
+
+#* @filter require-key
+function(req, res) {
+  if (!nzchar(R_API_KEY) || identical(req$PATH_INFO, "/health")) {
+    return(plumber::forward())
+  }
+  supplied <- sub("^(Key|Bearer)\\s+", "", req$HTTP_AUTHORIZATION %||% "",
+                  ignore.case = TRUE)
+  # Compare every character so the time taken does not reveal the prefix.
+  ok <- nchar(supplied) == nchar(R_API_KEY) &&
+    !as.logical(sum(utf8ToInt(supplied) != utf8ToInt(R_API_KEY)))
+  if (!isTRUE(ok)) {
+    res$status <- 401
+    return(list(error = "unauthorized",
+                detail = "Missing or invalid Authorization header."))
+  }
+  plumber::forward()
+}
 
 #* Liveness probe
 #* @get /health

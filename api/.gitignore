@@ -1,0 +1,5 @@
+.venv/
+logs/
+figures/
+result.json
+__pycache__/
